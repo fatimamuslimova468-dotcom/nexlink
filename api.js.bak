@@ -37,14 +37,11 @@ import {
   runTransaction,
 } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
 import {
-  getFirestore,
-  initializeFirestore,
-  doc as fdoc,
-  setDoc,
-  getDoc,
-  deleteDoc,
-  Bytes,
-} from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+  getStorage,
+  ref as sref,
+  uploadBytes,
+  getDownloadURL,
+} from "https://www.gstatic.com/firebasejs/11.4.0/firebase-storage.js";
 
 export const serviceConfig = {
   apiKey: "AIzaSyCjadRD1TAix0IsjaxYI-76P9mDpKmQ34Q",
@@ -57,9 +54,9 @@ export const serviceConfig = {
   measurementId: "G-B7MFW899QJ",
 };
 
-let app, auth, db, firestore;
+let app, auth, db, storage;
 export function getFb() {
-  return { app, auth, db, firestore };
+  return { app, auth, db, storage };
 }
 
 export async function boot() {
@@ -67,16 +64,7 @@ export async function boot() {
   app = initializeApp(serviceConfig);
   auth = getAuth(app);
   db = getDatabase(app);
-  // Use HTTP long-polling instead of Firestore WebChannel streaming.
-  // This avoids the browser preflight/streaming CORS issue seen on localhost.
-  try {
-    firestore = initializeFirestore(app, {
-      experimentalForceLongPolling: true,
-      useFetchStreams: false,
-    });
-  } catch {
-    firestore = getFirestore(app);
-  }
+  storage = getStorage(app);
   try {
     await setPersistence(auth, browserLocalPersistence);
   } catch {
@@ -510,49 +498,6 @@ export async function loadE2EEPublicKey(uid) {
   return snap.exists() ? snap.val() : null;
 }
 
-export async function createPoll(chatId, { senderId, question, options }) {
-  const chatSnap = await get(ref(db, `chats/${chatId}`));
-  const chat = chatSnap.val();
-  if (!chat) throw new Error("chat-not-found");
-  if (chat.type !== "group" && chat.type !== "channel") throw new Error("poll-community-only");
-  if (chat.createdBy !== senderId) throw new Error("poll-owner-only");
-  const cleanQuestion = String(question || "").trim().slice(0, 300);
-  const cleanOptions = [...new Set((options || []).map((x) => String(x || "").trim()).filter(Boolean))].slice(0, 4);
-  if (cleanQuestion.length < 2) throw new Error("poll-question-required");
-  if (cleanOptions.length < 2) throw new Error("poll-two-options");
-  const id = push(child(ref(db), `messages/${chatId}`)).key;
-  const payload = {
-    senderId,
-    kind: "poll",
-    text: cleanQuestion,
-    poll: { question: cleanQuestion, options: cleanOptions, votes: {}, createdBy: senderId },
-    createdAt: Date.now(),
-  };
-  await set(ref(db, `messages/${chatId}/${id}`), payload);
-  const preview = `📊 ${cleanQuestion}`.slice(0, 140);
-  await update(ref(db, `chats/${chatId}`), { lastText: preview, lastAt: Date.now(), lastSender: senderId, lastKind: "poll" });
-  for (const uid of Object.keys(chat.members || {})) {
-    const patch = { updatedAt: Date.now(), chatId, type: chat.type };
-    if (uid !== senderId) await bumpUnread(uid, chatId);
-    await update(ref(db, `inbox/${uid}/${chatId}`), patch);
-  }
-  return { id, ...payload };
-}
-
-export async function votePoll(chatId, messageId, uid, optionIndex) {
-  const chatSnap = await get(ref(db, `chats/${chatId}`));
-  const chat = chatSnap.val();
-  if (!chat || (chat.type !== "group" && chat.type !== "channel")) throw new Error("poll-community-only");
-  if (!chat.members?.[uid]) throw new Error("poll-members-only");
-  const msgSnap = await get(ref(db, `messages/${chatId}/${messageId}`));
-  const msg = msgSnap.val();
-  if (!msg || msg.kind !== "poll" || !Array.isArray(msg.poll?.options)) throw new Error("poll-not-found");
-  const idx = Number(optionIndex);
-  if (!Number.isInteger(idx) || idx < 0 || idx >= msg.poll.options.length) throw new Error("poll-option-invalid");
-  await runTransaction(ref(db, `messages/${chatId}/${messageId}/poll/votes/${uid}`), () => idx);
-  return true;
-}
-
 export async function sendMessage(chatId, msg) {
   const chatSnap = await get(ref(db, `chats/${chatId}`));
   const chat = chatSnap.val();
@@ -577,9 +522,7 @@ export async function sendMessage(chatId, msg) {
         ? "🎤"
         : msg.kind === "call"
           ? "📞"
-          : msg.kind === "poll"
-            ? `📊 ${String(msg.poll?.question || msg.text || "Опрос")}`.slice(0, 140)
-            : String(msg.text || "").slice(0, 140);
+          : String(msg.text || "").slice(0, 140);
   await update(ref(db, `chats/${chatId}`), {
     lastText: preview,
     lastAt: Date.now(),
@@ -804,46 +747,12 @@ export function listenTyping(chatId, cb) {
   return onValue(ref(db, `typing/${chatId}`), (s) => cb(s.val() || {}));
 }
 
-function blobToUint8Array(blob) {
-  return blob.arrayBuffer().then((buffer) => new Uint8Array(buffer));
-}
-
-export async function saveVoiceToFirestore(uid, blob, mimeType = "audio/webm") {
-  if (!firestore) throw new Error("firestore-not-ready");
-  const MAX_VOICE_BYTES = 700 * 1024;
-  if (blob.size > MAX_VOICE_BYTES) {
-    throw new Error("Голосовое слишком большое для Firestore. Запишите более короткое сообщение.");
-  }
-  const id = `${uid}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  const data = await blobToUint8Array(blob);
-  await setDoc(fdoc(firestore, "voiceMessages", id), {
-    uid,
-    mimeType: mimeType || "audio/webm",
-    size: blob.size,
-    data: Bytes.fromUint8Array(data),
-    createdAt: Date.now(),
-  });
-  return id;
-}
-
-export async function getVoiceFromFirestore(id) {
-  if (!firestore) throw new Error("firestore-not-ready");
-  const snap = await getDoc(fdoc(firestore, "voiceMessages", id));
-  if (!snap.exists()) throw new Error("voice-not-found");
-  const value = snap.data();
-  const bytes = value.data?.toUint8Array ? value.data.toUint8Array() : value.data;
-  const blob = new Blob([bytes], { type: value.mimeType || "audio/webm" });
-  return { blob, mimeType: value.mimeType || "audio/webm" };
-}
-
-export async function deleteVoiceFromFirestore(id) {
-  if (!firestore || !id) return;
-  await deleteDoc(fdoc(firestore, "voiceMessages", id));
-}
-
 export async function uploadMedia(uid, file, folder = "media") {
-  if (folder === "voice") return saveVoiceToFirestore(uid, file, file.type || "audio/webm");
-  throw new Error("media-storage-disabled");
+  const ext = (file.name && file.name.split(".").pop()) || "bin";
+  const path = `${folder}/${uid}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const r = sref(storage, path);
+  await uploadBytes(r, file, { contentType: file.type || "application/octet-stream" });
+  return getDownloadURL(r);
 }
 
 export function listenCall(chatId, cb) {
