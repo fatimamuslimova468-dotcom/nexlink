@@ -1,4 +1,5 @@
-import { mountEmojiPicker, rememberEmoji } from "emoji.js";
+import { mountEmojiPicker, rememberEmoji } from "./emoji.js";
+import { e2eeInit, encryptText, decryptMessageText, isE2EEReady, getPublicKeyJwk } from "./e2ee.js";
 
 let FB = null;
 
@@ -117,7 +118,7 @@ const BOTS = [
 const I18N = {
   ru: {
     app: "NexLink",
-    tag: "Живой мессенджер на Firebase. Без демо-аккаунтов — только реальные люди.",
+    tag: "Живой мессенджер. Без демо-аккаунтов — только реальные люди.",
     login: "Войти",
     register: "Создать аккаунт",
     have: "Уже есть аккаунт? Войти",
@@ -131,6 +132,20 @@ const I18N = {
     settings: "Настройки",
     searchChats: "Поиск чатов",
     searchPeople: "Найти по @username",
+    searchCommunities: "Найти сообщество",
+    people: "Люди",
+    communities: "Сообщества",
+    noCommunities: "Сообществ не найдено",
+    groupRoles: "Роли и права",
+    roleOwner: "Владелец",
+    roleAdmin: "Админ",
+    roleModerator: "Модератор",
+    roleMember: "Участник",
+    rightAddMembers: "Добавлять участников",
+    rightManageMessages: "Управлять сообщениями",
+    rightEditInfo: "Изменять информацию группы",
+    rightManageRoles: "Управлять ролями",
+    saveRole: "Сохранить роль",
     message: "Сообщение",
     send: "Отправить",
     online: "в сети",
@@ -211,9 +226,27 @@ const I18N = {
     twoFA: "Двухэтапная проверка",
     twoFAOn: "Включена",
     twoFAOff: "Выключена",
+    totpAppHint: "Приложение-аутентификатор",
+    totpSetup: "Настроить TOTP",
+    totpEnabled: "TOTP включён",
+    totpDisabled: "TOTP выключен",
+    totpPassword: "Текущий пароль",
+    totpCode: "Код из приложения",
+    totpSecret: "Секретный ключ",
+    totpUri: "Ключ URI",
+    totpStart: "Создать секрет",
+    totpFinish: "Включить TOTP",
+    totpDisable: "Отключить TOTP",
+    totpConfirmDisable: "Подтвердить отключение",
+    totpLoginTitle: "Подтвердите вход",
+    totpLoginHint: "Введите 6-значный код из приложения-аутентификатора.",
+    totpVerify: "Подтвердить",
+    totpConfigHint: "Для работы TOTP MFA функция должна быть включена в настройках проекта авторизации.",
+    totpScanQr: "Отсканируйте QR-код приложением-аутентификатором",
+    totpQrFallback: "QR-код недоступен. Используйте URI или секретный ключ ниже.",
     currentSession: "Этот браузер",
     endOther: "Выйти на этом устройстве",
-    aboutBody: "NexLink — мессенджер с живыми чатами, звонками, ботами и темами. Данные в Firebase Realtime Database.",
+    aboutBody: "NexLink — мессенджер с живыми чатами, звонками, ботами и темами. Данные синхронизируются в реальном времени.",
     version: "Версия 2026.8",
     whoMessage: "Кто может писать",
     whoCall: "Кто может звонить",
@@ -237,8 +270,8 @@ const I18N = {
     track: "Название трека",
     artist: "Исполнитель",
     foldersHint: "Папки над списком чатов: все, непрочитанные, группы, каналы.",
-    labsHint: "WebRTC-звонки через Firebase signaling и живые темы.",
-    storageHint: "Медиа хранится в Firebase Storage. Выход не удаляет переписку на сервере.",
+    labsHint: "WebRTC-звонки и живые темы.",
+    storageHint: "Медиа хранится в защищённом облачном хранилище. Выход не удаляет переписку на сервере.",
     browserHint: "Ссылки из чатов открываются внутри NexLink.",
     go: "Открыть",
     back: "Назад",
@@ -256,12 +289,12 @@ const I18N = {
     added: "Контакт добавлен",
     channelOnly: "Писать в канале может только автор",
     signedOut: "Вы вышли",
-    boot: "Подключение к Firebase…",
+    boot: "Подключение…",
     remindSaved: "Напоминание сохранено",
   },
   en: {
     app: "NexLink",
-    tag: "A live Firebase messenger. No demo accounts — only real people.",
+    tag: "A live messenger. No demo accounts — only real people.",
     login: "Log in",
     register: "Create account",
     have: "Already have an account? Log in",
@@ -275,6 +308,20 @@ const I18N = {
     settings: "Settings",
     searchChats: "Search chats",
     searchPeople: "Find by @username",
+    searchCommunities: "Find community",
+    people: "People",
+    communities: "Communities",
+    noCommunities: "No communities found",
+    groupRoles: "Roles and permissions",
+    roleOwner: "Owner",
+    roleAdmin: "Admin",
+    roleModerator: "Moderator",
+    roleMember: "Member",
+    rightAddMembers: "Add members",
+    rightManageMessages: "Manage messages",
+    rightEditInfo: "Edit group info",
+    rightManageRoles: "Manage roles",
+    saveRole: "Save role",
     message: "Message",
     send: "Send",
     online: "online",
@@ -355,9 +402,27 @@ const I18N = {
     twoFA: "Two-step verification",
     twoFAOn: "On",
     twoFAOff: "Off",
+    totpAppHint: "Authenticator app",
+    totpSetup: "Set up TOTP",
+    totpEnabled: "TOTP enabled",
+    totpDisabled: "TOTP disabled",
+    totpPassword: "Current password",
+    totpCode: "Code from app",
+    totpSecret: "Secret key",
+    totpUri: "Key URI",
+    totpStart: "Create secret",
+    totpFinish: "Enable TOTP",
+    totpDisable: "Disable TOTP",
+    totpConfirmDisable: "Confirm disable",
+    totpLoginTitle: "Confirm sign-in",
+    totpLoginHint: "Enter the 6-digit code from your authenticator app.",
+    totpVerify: "Verify",
+    totpConfigHint: "TOTP MFA must be enabled in the authentication project settings before enrollment.",
+    totpScanQr: "Scan this QR code with your authenticator app",
+    totpQrFallback: "QR code unavailable. Use the URI or secret key below.",
     currentSession: "This browser",
     endOther: "Sign out on this device",
-    aboutBody: "NexLink is a messenger with live chats, calls, bots and themes. Data lives in Firebase Realtime Database.",
+    aboutBody: "NexLink is a modern messenger with live chats, calls, bots and themes. Data is synchronized in real time.",
     version: "Version 2026.8",
     whoMessage: "Who can message you",
     whoCall: "Who can call you",
@@ -381,8 +446,8 @@ const I18N = {
     track: "Track title",
     artist: "Artist",
     foldersHint: "Folders above the chat list: all, unread, groups, channels.",
-    labsHint: "WebRTC calls via Firebase signaling and live themes.",
-    storageHint: "Media lives in Firebase Storage. Signing out does not delete server history.",
+    labsHint: "WebRTC calls and live themes.",
+    storageHint: "Media is stored in secure cloud storage. Signing out does not delete server history.",
     browserHint: "Links from chats open inside NexLink.",
     go: "Go",
     back: "Back",
@@ -400,7 +465,7 @@ const I18N = {
     added: "Contact added",
     channelOnly: "Only the author can post in this channel",
     signedOut: "Signed out",
-    boot: "Connecting to Firebase…",
+    boot: "Connecting…",
     remindSaved: "Reminder saved",
   },
 };
@@ -447,6 +512,7 @@ const PATHS = {
   lang: "M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M12.5 22l5-12 5 12M14 18h7",
   volume: "M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07",
   chevron: "M9 18l6-6-6-6",
+  play: "M8 5v14l11-7z",
   bookmark: "M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z",
   square: "M6 6h12v12H6z",
   phoneOff: "M10.7 5.1A16 16 0 0 1 21.9 16.3M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07M1 1l22 22M2.12 4.18A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72",
@@ -459,6 +525,7 @@ function icon(name, size = 20) {
 
 const state = {
   ready: false,
+  authResolved: false,
   bootError: "",
   mode: "login",
   user: null,
@@ -482,9 +549,22 @@ const state = {
   browserUrl: "",
   recording: false,
   typing: {},
+  e2ee: { ready: false, status: "" },
   call: null,
   ctx: null,
   foundUser: null,
+  foundUsers: [],
+  contactSearchMode: "people",
+  foundCommunities: [],
+  profileTab: "files",
+  mfaResolver: null,
+  mfaHintUid: null,
+  mfaError: "",
+  totpSecret: null,
+  totpSecretKey: "",
+  totpUri: "",
+  devSection: "home",
+  devToken: "",
 };
 
 const unsub = { inbox: null, messages: null, typing: null, chat: null, incoming: null, contacts: null, presence: {} };
@@ -604,6 +684,15 @@ function myName() {
   return state.profile?.name || me()?.displayName || t("you");
 }
 
+function verifiedBadge(user) {
+  return user?.verified ? `<span class="verified-badge" title="Подтверждённый аккаунт" aria-label="Подтверждённый аккаунт">✓</span>` : "";
+}
+
+function userNameHtml(user, fallback = "") {
+  const name = user?.name || fallback || "";
+  return `${esc(name)}${verifiedBadge(user)}`;
+}
+
 function displayUser(uid) {
   if (!uid) return "";
   if (uid === me()?.uid) return myName();
@@ -638,23 +727,57 @@ function linkify(text) {
   });
 }
 
+function openMediaViewer(url, kind = "image") {
+  if (!url) return;
+  closeMediaViewer();
+  const ov = document.createElement("div");
+  ov.className = "media-viewer";
+  ov.id = "media-viewer";
+  ov.innerHTML = `<button class="media-viewer-close" type="button" aria-label="Закрыть">${icon("x", 24)}</button><div class="media-viewer-stage">${kind === "sticker" ? `<img class="media-viewer-sticker" src="${esc(url)}" alt="">` : `<img class="media-viewer-image" src="${esc(url)}" alt="">`}</div>`;
+  document.body.appendChild(ov);
+  const close = () => closeMediaViewer();
+  ov.querySelector(".media-viewer-close").onclick = close;
+  ov.addEventListener("click", (e) => { if (e.target === ov) close(); });
+  document.addEventListener("keydown", onMediaViewerKey);
+  document.body.classList.add("media-viewer-open");
+}
+function onMediaViewerKey(e) { if (e.key === "Escape") closeMediaViewer(); }
+function closeMediaViewer() {
+  document.getElementById("media-viewer")?.remove();
+  document.body.classList.remove("media-viewer-open");
+  document.removeEventListener("keydown", onMediaViewerKey);
+}
+
 /* ---------- render ---------- */
+
+function hideSplash() {
+  const splash = document.getElementById("nl-splash");
+  if (!splash || splash.dataset.hidden === "1") return;
+  splash.dataset.hidden = "1";
+  splash.classList.add("is-hiding");
+  setTimeout(() => splash.remove(), 420);
+}
 
 function render() {
   const root = rootEl();
   if (!root) return;
-  if (!state.ready) {
-    root.innerHTML = `<div class="nl-center nl-pattern"><div class="mark">N</div><p class="muted mt">${esc(state.bootError || t("boot"))}</p></div>`;
+  if (!state.ready || !state.authResolved) {
+    root.innerHTML = "";
     return;
   }
   if (!state.user) {
     renderAuth(root);
-    return;
+  } else {
+    renderApp(root);
   }
-  renderApp(root);
+  setTimeout(hideSplash, 120);
 }
 
 function renderAuth(root) {
+  if (state.mfaResolver) {
+    renderMfaChallenge(root);
+    return;
+  }
   const reg = state.mode === "register";
   root.innerHTML = `
     <div class="nl-center nl-pattern">
@@ -685,7 +808,7 @@ function renderAuth(root) {
     btn.textContent = "…";
     err.textContent = "";
     try {
-      if (!FB) FB = await import("./firebase.js");
+      if (!FB) FB = await import("./api.js");
       if (!FB.getFb().auth) await FB.boot();
       const op = reg
         ? FB.register({
@@ -700,9 +823,58 @@ function renderAuth(root) {
         new Promise((_, rej) => setTimeout(() => rej(new Error("network-request-failed")), 20000)),
       ]);
     } catch (ex) {
+      if (ex?.code === "auth/multi-factor-auth-required") {
+        state.mfaResolver = FB.getMfaResolver(ex);
+        state.mfaHintUid = state.mfaResolver?.hints?.find((h) => h.factorId === "totp")?.uid || state.mfaResolver?.hints?.[0]?.uid || null;
+        state.mfaError = "";
+        render();
+        return;
+      }
       err.textContent = FB?.authError ? FB.authError(ex) : String(ex?.message || ex);
       btn.disabled = false;
       btn.textContent = prev;
+    }
+  };
+}
+
+function renderMfaChallenge(root) {
+  const hint = state.mfaResolver?.hints?.find((h) => h.factorId === "totp") || state.mfaResolver?.hints?.[0];
+  state.mfaHintUid = hint?.uid || null;
+  root.innerHTML = `
+    <div class="nl-center nl-pattern">
+      <form class="auth-card" id="mfa-form">
+        <div class="mark">N</div>
+        <h1>${esc(t("totpLoginTitle"))}</h1>
+        <p class="sub">${esc(t("totpLoginHint"))}</p>
+        <div class="field"><label>${esc(t("totpCode"))}</label><input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,8}" maxlength="8" required autofocus></div>
+        <div class="err" id="mfa-err">${esc(state.mfaError)}</div>
+        <button class="btn block" type="submit">${esc(t("totpVerify"))}</button>
+        <p class="hint"><button type="button" class="linkish" id="mfa-cancel">${esc(t("cancel"))}</button></p>
+      </form>
+    </div>`;
+  root.querySelector("#mfa-cancel").onclick = async () => {
+    state.mfaResolver = null;
+    state.mfaHintUid = null;
+    state.mfaError = "";
+    try { await FB.logout(); } catch {}
+    render();
+  };
+  root.querySelector("#mfa-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const err = root.querySelector("#mfa-err");
+    const btn = e.target.querySelector("button[type=submit]");
+    btn.disabled = true;
+    err.textContent = "";
+    try {
+      await FB.verifyTotpSignIn(state.mfaResolver, state.mfaHintUid, fd.get("code"));
+      state.mfaResolver = null;
+      state.mfaHintUid = null;
+      state.mfaError = "";
+    } catch (ex) {
+      state.mfaError = FB?.authError ? FB.authError(ex) : String(ex?.message || ex);
+      err.textContent = state.mfaError;
+      btn.disabled = false;
     }
   };
 }
@@ -825,6 +997,26 @@ function paintChatList() {
     .join("");
   list.querySelectorAll("[data-open]").forEach((b) => {
     b.onclick = () => openChat(b.dataset.open);
+    b.oncontextmenu = async (e) => {
+      e.preventDefault();
+      const it = inboxItems().find((x) => x.id === b.dataset.open);
+      if (!it) return;
+      const blocked = it.chat.type === "private" && it.peerId ? await FB.isBlocked(me().uid, it.peerId) : false;
+      showMenu(b, [
+        { id: "open", label: "Открыть", icon: "chat" },
+        { id: "export", label: "Экспорт чата", icon: "download" },
+        { id: "clear", label: "Очистить чат", icon: "trash", danger: true },
+        ...(it.chat.type === "private" && it.peerId ? [{ id: "toggle-block", label: blocked ? "Разблокировать контакт" : "Заблокировать контакт", icon: blocked ? "unlock" : "ban", danger: !blocked }] : []),
+      ], async (id) => {
+        if (id === "open") await openChat(it.id);
+        if (id === "export") exportChat(it.id);
+        if (id === "clear" && confirm("Очистить сообщения этого чата?")) await FB.clearChat(it.id);
+        if (id === "toggle-block" && it.peerId) {
+          await FB.setBlocked(me().uid, it.peerId, !blocked);
+          toast(blocked ? "Контакт разблокирован" : "Контакт заблокирован");
+        }
+      });
+    };
   });
 }
 
@@ -852,24 +1044,69 @@ function paintMain() {
 
 function paintContacts(el) {
   const found = state.foundUser;
+  const mode = state.contactSearchMode || "people";
   el.innerHTML = `
     <div class="panel">
       <header class="hdr"><button class="btn icon md-only" data-back>${icon("back")}</button><h2 style="flex:1;margin:0;font-size:18px">${esc(t("contacts"))}</h2></header>
-      <div class="search">${icon("search", 16)}<input id="cq" placeholder="${esc(t("searchPeople"))}"><button class="btn sm" id="cfind">${esc(t("find"))}</button></div>
+      <div class="seg contact-search-tabs">
+        <button type="button" class="${mode === "people" ? "on" : ""}" data-search-mode="people">${esc(t("people"))}</button>
+        <button type="button" class="${mode === "communities" ? "on" : ""}" data-search-mode="communities">${esc(t("communities"))}</button>
+      </div>
+      <div class="search">${icon("search", 16)}<input id="cq" placeholder="${esc(mode === "people" ? t("searchPeople") : t("searchCommunities"))}"><button class="btn sm" id="cfind">${esc(t("find"))}</button></div>
       <div class="list nl-scroll" id="clist"></div>
     </div>`;
+  el.querySelectorAll("[data-search-mode]").forEach((b) => {
+    b.onclick = () => {
+      state.contactSearchMode = b.dataset.searchMode;
+      state.foundUser = null;
+      state.foundCommunities = [];
+      paintContacts(el);
+    };
+  });
   const q = el.querySelector("#cq");
-  const go = async () => {
-    const user = await FB.findByUsername(q.value);
-    state.foundUser = user && user.uid !== me().uid ? user : user && user.uid === me().uid ? null : null;
-    if (!user) toast(t("notFound"));
-    paintContactList();
+  let searchTimer = null;
+  let searchSeq = 0;
+  const go = async (notify = false) => {
+    const raw = String(q.value || "").trim();
+    const seq = ++searchSeq;
+    if (!raw) {
+      state.foundUser = null;
+      state.foundUsers = [];
+      state.foundCommunities = [];
+      paintContactList();
+      return;
+    }
+    try {
+      if (mode === "communities") {
+        const found = await FB.searchCommunities(raw);
+        if (seq !== searchSeq) return;
+        state.foundCommunities = found;
+        state.foundUser = null;
+        state.foundUsers = [];
+        if (notify && !found.length) toast(t("noCommunities"));
+      } else {
+        const found = await FB.searchUsers(raw);
+        if (seq !== searchSeq) return;
+        state.foundUsers = (found || []).filter((u) => u.uid !== me().uid);
+        state.foundUser = state.foundUsers[0] || null;
+        state.foundCommunities = [];
+        if (notify && !state.foundUsers.length) toast(t("notFound"));
+      }
+      paintContactList();
+    } catch (err) {
+      console.warn("Contact search failed:", err);
+    }
   };
-  el.querySelector("#cfind").onclick = go;
+  el.querySelector("#cfind").onclick = () => go(true);
+  q.oninput = () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => go(false), 160);
+  };
   q.onkeydown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      go();
+      clearTimeout(searchTimer);
+      go(true);
     }
   };
   el.querySelector("[data-back]")?.addEventListener("click", () => {
@@ -883,31 +1120,47 @@ function paintContactList() {
   const list = document.getElementById("clist");
   if (!list) return;
   const ids = Object.keys(state.contacts);
+  const mode = state.contactSearchMode || "people";
   let html = "";
-  if (state.foundUser) {
-    const u = state.foundUser;
-    html += `<div class="sec-label">${esc(t("find"))}</div>
-      <div class="row">
-        ${avatar({ name: u.name, color: u.color, online: state.presence[u.uid]?.online })}
-        <div class="meta"><div class="name">${esc(u.name)}</div><div class="prev">@${esc(u.username)}</div></div>
-        <button class="btn sm" data-add="${u.uid}">${icon("plus", 14)} ${esc(t("add"))}</button>
-        <button class="btn sm sec" data-msg="${u.uid}">${esc(t("write"))}</button>
-      </div>`;
-  }
-  html += `<div class="sec-label">${esc(t("myContacts"))}</div>`;
-  if (!ids.length) html += `<p class="empty">${esc(t("noContacts"))}</p>`;
-  else {
-    html += ids
-      .map((id) => {
+  if (mode === "communities") {
+    const found = state.foundCommunities || [];
+    if (found.length) {
+      html += `<div class="sec-label">${esc(t("communities"))}</div>`;
+      html += found.map((c) => {
+        const members = Object.keys(c.members || {}).length;
+        return `<div class="row">
+          ${avatar({ name: c.name, color: c.color, type: c.type, size: 42 })}
+          <div class="meta"><div class="name">${esc(c.name || "Community")}</div><div class="prev">${esc(c.type === "channel" ? t("channels") : t("groups"))} · ${members} ${esc(t("members"))}</div></div>
+          <button class="btn sm sec" data-community-open="${esc(c.id)}">${esc(t("open"))}</button>
+        </div>`;
+      }).join("");
+    } else {
+      html += `<p class="empty">${esc(t("noCommunities"))}</p>`;
+    }
+  } else {
+    const foundUsers = state.foundUsers?.length ? state.foundUsers : (state.foundUser ? [state.foundUser] : []);
+    if (foundUsers.length) {
+      html += `<div class="sec-label">${esc(t("find"))}</div>`;
+      html += foundUsers.map((u) => `<div class="row search-result-row">
+          ${avatar({ name: u.name, color: u.color, online: state.presence[u.uid]?.online })}
+          <div class="meta"><div class="name">${userNameHtml(u)}</div><div class="prev">@${esc(u.username || "")}</div></div>
+          <button class="btn sm" data-add="${u.uid}">${icon("plus", 14)} ${esc(t("add"))}</button>
+          <button class="btn sm sec" data-msg="${u.uid}">${esc(t("write"))}</button>
+        </div>`).join("");
+    }
+    html += `<div class="sec-label">${esc(t("myContacts"))}</div>`;
+    if (!ids.length) html += `<p class="empty">${esc(t("noContacts"))}</p>`;
+    else {
+      html += ids.map((id) => {
         const u = state.users[id] || { name: id, color: "#3D8BFD", username: "" };
         return `<div class="row">
           ${avatar({ name: u.name, color: u.color, online: state.presence[id]?.online })}
-          <div class="meta"><div class="name">${esc(u.name)}</div><div class="prev">@${esc(u.username || "")}</div></div>
+          <div class="meta"><div class="name">${userNameHtml(u)}</div><div class="prev">@${esc(u.username || "")}</div></div>
           <button class="btn icon" data-msg="${id}" title="${esc(t("write"))}">${icon("chat", 18)}</button>
           <button class="btn icon" data-rm="${id}" title="${esc(t("remove"))}">${icon("trash", 18)}</button>
         </div>`;
-      })
-      .join("");
+      }).join("");
+    }
   }
   list.innerHTML = html;
   list.querySelectorAll("[data-add]").forEach((b) => {
@@ -924,6 +1177,15 @@ function paintContactList() {
   list.querySelectorAll("[data-rm]").forEach((b) => {
     b.onclick = () => FB.removeContact(me().uid, b.dataset.rm);
   });
+  list.querySelectorAll("[data-community-open]").forEach((b) => {
+    b.onclick = async () => {
+      try {
+        await openChat(b.dataset.communityOpen);
+      } catch (e) {
+        toast(String(e?.message || e));
+      }
+    };
+  });
 }
 
 function paintSettings(el) {
@@ -936,7 +1198,7 @@ function paintSettings(el) {
       <header class="hdr"><button class="btn icon" data-back>${icon("back")}</button><h2 style="flex:1;margin:0;font-size:18px">${esc(t("settings"))}</h2></header>
       <div class="panel-body nl-scroll">
         <button class="me-card" data-panel="profile">
-          ${avatar({ name: p.name || "N", color: p.color, size: 64 })}
+          ${avatar({ name: p.name || "N", color: p.color, size: 64, photo: p.photo })}
           <div class="grow"><div class="nm">${esc(p.name || "")}</div><div class="un">@${esc(p.username || "")}</div>
             ${p.musicTitle ? `<div class="music-chip">${icon("music", 14)} ${esc(p.musicTitle)} — ${esc(p.musicArtist || "")}</div>` : ""}
           </div>${icon("chevron")}
@@ -999,7 +1261,7 @@ function paintThread(el) {
   else if (peerId && state.presence[peerId]?.at) status = `${t("lastSeen")} · ${fmtListTime(state.presence[peerId].at)}`;
 
   const canPost = chat.type !== "channel" || chat.createdBy === me()?.uid;
-  const canCall = chat.type === "private" || chat.type === "group";
+  const canCall = chat.type === "private";
 
   el.innerHTML = `
     <div class="thread">
@@ -1007,21 +1269,24 @@ function paintThread(el) {
         <button class="btn icon" data-close>${icon("back")}</button>
         <button class="peer-btn" data-info>
           ${avatar({ name: title, color, size: 40, online, type: chat.type })}
-          <div class="min"><div class="who">${esc(title)}</div><div class="st ${online || typingOthers ? "on" : ""}">${esc(status)}</div></div>
+          <div class="min"><div class="who">${chat.type === "private" && peerId ? userNameHtml(state.users[peerId], title) : esc(title)}</div><div class="st ${online || typingOthers ? "on" : ""}">${esc(status)}</div></div>
         </button>
-        ${canCall ? `<button class="btn icon" data-call="audio" title="${esc(t("call"))}">${icon("phone")}</button>
+        ${canCall && chat.type === "private" ? `<button class="btn icon" data-call="audio" title="${esc(t("call"))}">${icon("phone")}</button>
         <button class="btn icon" data-call="video" title="${esc(t("videoCall"))}">${icon("video")}</button>` : ""}
         <button class="btn icon" data-menu>${icon("more")}</button>
       </header>
-      <div class="msgs nl-pattern nl-scroll" id="msgs"></div>
+      <div class="chat-pattern-layer" aria-hidden="true"></div>
+      <div class="msgs nl-scroll" id="msgs"></div>
       <div id="reply-slot"></div>
       <div id="emo-slot" class="${state.emojiOpen ? "" : "hidden"}"></div>
+      <div id="sticker-slot" class="hidden"></div>
       ${canPost ? `<div class="composer">
         <input type="file" id="file" accept="image/*" hidden>
         <button class="btn icon" data-attach title="${esc(t("attach"))}">${icon("clip")}</button>
         <div class="box">
           <textarea id="comp" rows="1" placeholder="${esc(t("message"))}">${esc(state.composer)}</textarea>
           <button class="btn icon" data-emo title="${esc(t("emoji"))}">${icon("smile")}</button>
+          <button class="btn icon" data-stickers title="Стикеры">${icon("sticker", 17)}</button>
         </div>
         <button class="btn send ${state.recording ? "rec" : ""}" data-send>${state.composer.trim() ? icon("send") : state.recording ? icon("square") : icon("mic")}</button>
       </div>` : `<div class="composer"><p class="muted" style="margin:8px auto">${esc(t("channelOnly"))}</p></div>`}
@@ -1031,15 +1296,34 @@ function paintThread(el) {
     closeChat();
   };
   el.querySelector("[data-info]").onclick = () => openPanel("chat-info");
-  el.querySelector("[data-menu]").onclick = (e) => {
-    showMenu(e.currentTarget, [
+  el.querySelector("[data-menu]").onclick = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const anchor = e.currentTarget;
+    let blocked = false;
+    if (chat.type === "private" && peerId) {
+      try { blocked = !!(await FB.isBlocked(me().uid, peerId)); } catch (err) {
+        console.warn("Block status unavailable:", err);
+      }
+    }
+    showMenu(anchor, [
       { id: "info", label: t("profile"), icon: "info" },
       { id: "pin", label: item.pinned ? t("unpin") : t("pin"), icon: "pin" },
       { id: "mute", label: item.muted ? t("unmute") : t("mute"), icon: "mute" },
+      { id: "export", label: "Экспорт чата", icon: "download" },
+      { id: "clear", label: "Очистить чат", icon: "trash", danger: true },
+      ...(chat.type === "private" && peerId ? [{ id: "toggle-block", label: blocked ? "Разблокировать контакт" : "Заблокировать контакт", icon: blocked ? "unlock" : "ban", danger: !blocked }] : []),
     ], async (id) => {
       if (id === "info") openPanel("chat-info");
       if (id === "pin") await FB.patchInbox(me().uid, state.activeChatId, { pinned: !item.pinned });
       if (id === "mute") await FB.patchInbox(me().uid, state.activeChatId, { muted: !item.muted });
+      if (id === "export") exportChat(state.activeChatId);
+      if (id === "clear") { if (confirm("Очистить сообщения этого чата?")) { await FB.clearChat(state.activeChatId); state.messages = []; paintMessages(); } }
+      if (id === "toggle-block" && peerId) {
+        await FB.setBlocked(me().uid, peerId, !blocked);
+        toast(blocked ? "Контакт разблокирован" : "Контакт заблокирован");
+        paintThread(el);
+      }
     });
   };
   el.querySelectorAll("[data-call]").forEach((b) => {
@@ -1063,6 +1347,7 @@ function paintThread(el) {
       }
     };
     el.querySelector("[data-emo]").onclick = () => toggleEmoji();
+    el.querySelector("[data-stickers]").onclick = () => toggleStickers();
     el.querySelector("[data-attach]").onclick = () => el.querySelector("#file").click();
     el.querySelector("#file").onchange = (e) => {
       const f = e.target.files?.[0];
@@ -1127,7 +1412,8 @@ function paintMessages() {
     let body = "";
     if (msg.forwardedFrom) body += `<div class="quote">${esc(t("forwarded"))}</div>`;
     if (reply) body += `<div class="quote">${esc((reply.text || "").slice(0, 80))}</div>`;
-    if (msg.kind === "image" && msg.mediaUrl) body += `<img class="pic" src="${esc(msg.mediaUrl)}" alt="">`;
+    if (msg.kind === "image" && msg.mediaUrl) body += `<button class="media-preview-btn" type="button" data-media-url="${esc(msg.mediaUrl)}" data-media-kind="image"><img class="pic" src="${esc(msg.mediaUrl)}" alt=""></button>`;
+    if (msg.kind === "sticker" && msg.mediaUrl) body += `<button class="media-preview-btn sticker-btn" type="button" data-media-url="${esc(msg.mediaUrl)}" data-media-kind="sticker"><img class="sticker" src="${esc(msg.mediaUrl)}" alt=""></button>`;
     if (msg.kind === "voice" && msg.mediaUrl) body += `<audio controls src="${esc(msg.mediaUrl)}"></audio>`;
     if (msg.kind === "call") body += `<div style="display:flex;gap:8px;align-items:center">${icon("phone", 16)} ${esc(msg.text || t("missedCall"))}</div>`;
     if (msg.kind === "text" || (!msg.kind && msg.text)) body += `<p>${linkify(msg.text)}</p>`;
@@ -1141,12 +1427,19 @@ function paintMessages() {
   const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
   box.innerHTML = html;
   if (nearBottom || true) box.scrollTop = box.scrollHeight;
+  box.querySelectorAll("[data-media-url]").forEach((b) => {
+    b.onclick = (e) => {
+      e.stopPropagation();
+      openMediaViewer(b.dataset.mediaUrl, b.dataset.mediaKind || "image");
+    };
+  });
   box.querySelectorAll("[data-msg]").forEach((b) => {
     b.onclick = (e) => {
       if (e.target.closest(".msg-link")) {
         openBrowser(e.target.closest(".msg-link").dataset.url);
         return;
       }
+      if (e.target.closest("[data-media-url]")) return;
       const msg = state.messages.find((m) => m.id === b.dataset.msg);
       if (!msg) return;
       showMenu(b, [
@@ -1227,14 +1520,68 @@ function mountEmoji() {
   });
 }
 
+function loadStickers() {
+  try { return JSON.parse(localStorage.getItem("nexlink-stickers") || "[]").filter(Boolean).slice(0, 40); } catch { return []; }
+}
+function saveSticker(url) {
+  const next = [url, ...loadStickers().filter((x) => x !== url)].slice(0, 40);
+  localStorage.setItem("nexlink-stickers", JSON.stringify(next));
+}
+function toggleStickers() {
+  const slot = document.getElementById("sticker-slot");
+  if (!slot) return;
+  slot.classList.toggle("hidden");
+  if (!slot.classList.contains("hidden")) mountStickers();
+}
+function mountStickers() {
+  const slot = document.getElementById("sticker-slot");
+  if (!slot) return;
+  const stickers = loadStickers();
+  slot.innerHTML = `
+    <div class="sticker-panel">
+      <div class="sticker-head"><b>Стикеры</b><button type="button" class="btn sm sec" id="sticker-upload-btn">Загрузить</button></div>
+      <input id="sticker-upload" type="file" accept="image/png,image/webp,image/gif,image/jpeg" hidden>
+      <div class="sticker-grid">${stickers.map((url) => `<button type="button" class="sticker-pick" data-sticker="${esc(url)}"><img src="${esc(url)}" alt=""></button>`).join("") || `<div class="sticker-empty">Загрузите первый стикер</div>`}</div>
+    </div>`;
+  slot.querySelector("#sticker-upload-btn").onclick = () => slot.querySelector("#sticker-upload").click();
+  slot.querySelector("#sticker-upload").onchange = async (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    try {
+      const url = await uploadToImgBB(f);
+      saveSticker(url);
+      mountStickers();
+    } catch (err) { toast(FB.authError(err)); }
+    e.target.value = "";
+  };
+  slot.querySelectorAll("[data-sticker]").forEach((b) => {
+    b.onclick = () => sendSticker(b.dataset.sticker);
+  });
+}
+async function sendSticker(url) {
+  try {
+    await FB.sendMessage(state.activeChatId, { senderId: me().uid, kind: "sticker", text: "Стикер", mediaUrl: url });
+    const slot = document.getElementById("sticker-slot");
+    if (slot) slot.classList.add("hidden");
+  } catch (e) { toast(FB.authError(e)); }
+}
+
 async function sendText(raw) {
   const text = (raw ?? state.composer).trim();
   if (!text || !state.activeChatId) return;
+  const item = state.inbox[state.activeChatId] || {};
   const chat = state.chats[state.activeChatId] || {};
+  const peerId = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
+  let peerPublicKey = null;
+  if (peerId && FB.loadE2EEPublicKey && chat.type === "private") {
+    try { peerPublicKey = await FB.loadE2EEPublicKey(peerId); } catch {}
+  }
+  const encrypted = peerPublicKey ? await encryptText(text, state.activeChatId, peerPublicKey) : null;
   const payload = {
     senderId: me().uid,
     kind: "text",
-    text,
+    text: encrypted?.ciphertext ? "" : text,
+    e2ee: encrypted?.ciphertext ? encrypted : null,
     replyToId: state.replyTo || null,
   };
   state.composer = "";
@@ -1244,14 +1591,40 @@ async function sendText(raw) {
   paintSendBtn();
   paintReply();
   FB.setTyping(state.activeChatId, me().uid, false);
-  await FB.sendMessage(state.activeChatId, payload);
+  try {
+    await FB.sendMessage(state.activeChatId, payload);
+  } catch (e) {
+    state.composer = text;
+    if (ta) ta.value = text;
+    paintSendBtn();
+    toast(FB.authError(e));
+    return;
+  }
   if (chat.type === "bot") setTimeout(() => botReply(chat, text), 400);
+}
+
+const IMGBB_API_KEY = "823ae83baa8123fe4d0d3dc1beb05c6e";
+
+async function uploadToImgBB(file) {
+  const form = new FormData();
+  form.append("key", IMGBB_API_KEY);
+  form.append("image", file);
+  const res = await fetch("https://api.imgbb.com/1/upload", {
+    method: "POST",
+    body: form,
+  });
+  if (!res.ok) throw new Error(`ImgBB HTTP ${res.status}`);
+  const data = await res.json();
+  if (!data?.success || !data?.data?.url) throw new Error(data?.error?.message || "ImgBB upload failed");
+  return data.data.url;
 }
 
 async function sendImage(file) {
   try {
+    if (!file?.type?.startsWith("image/")) return toast("Выберите изображение");
     const blob = await compressImage(file);
-    const url = await FB.uploadMedia(me().uid, blob, "images");
+    const uploadFile = new File([blob], file.name || "image.jpg", { type: blob.type || file.type || "image/jpeg" });
+    const url = await uploadToImgBB(uploadFile);
     await FB.sendMessage(state.activeChatId, {
       senderId: me().uid,
       kind: "image",
@@ -1259,7 +1632,7 @@ async function sendImage(file) {
       mediaUrl: url,
     });
   } catch (e) {
-    toast(FB.authError(e));
+    toast(String(e?.message || e));
   }
 }
 
@@ -1280,18 +1653,26 @@ function compressImage(file) {
   });
 }
 
+
 let rec, recChunks;
+
 async function startRec() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     recChunks = [];
     rec = new MediaRecorder(stream);
+    // Сохраняем mimeType до того, как rec может стать null
+    const mimeType = rec.mimeType || "audio/webm";
+
     rec.ondataavailable = (e) => {
       if (e.data.size) recChunks.push(e.data);
     };
+
     rec.onstop = async () => {
+      // Останавливаем все дорожки потока
       stream.getTracks().forEach((t) => t.stop());
-      const blob = new Blob(recChunks, { type: rec.mimeType || "audio/webm" });
+      // Используем сохранённый mimeType
+      const blob = new Blob(recChunks, { type: mimeType });
       try {
         const url = await FB.uploadMedia(me().uid, blob, "voice");
         await FB.sendMessage(state.activeChatId, {
@@ -1304,6 +1685,7 @@ async function startRec() {
         toast(FB.authError(e));
       }
     };
+
     rec.start();
     state.recording = true;
     paintSendBtn();
@@ -1311,13 +1693,15 @@ async function startRec() {
     toast("Нет доступа к микрофону");
   }
 }
+
 function stopRec() {
-  rec?.stop();
-  rec = null;
+  if (rec) {
+    rec.stop(); // вызовет onstop асинхронно, но mimeType уже сохранён
+    rec = null; // можно обнулять сразу, т.к. в onstop мы не используем rec
+  }
   state.recording = false;
   paintSendBtn();
 }
-
 async function botReply(chat, text) {
   const peer = chat.peerId || "nexbot";
   const q = text.toLowerCase();
@@ -1339,7 +1723,7 @@ async function botReply(chat, text) {
   } else if (q.includes("помощ") || q.includes("help")) {
     reply = "Команды: помощь, статус, тема. Я бот NexLink.";
   } else if (q.includes("статус") || q.includes("status")) {
-    reply = "Firebase подключён. Чаты синхронизируются в realtime.";
+    reply = "Сервис подключён. Чаты синхронизируются в реальном времени.";
   } else if (q.includes("тема") || q.includes("theme")) {
     reply = "Темы: Настройки → Оформление.";
   } else {
@@ -1384,9 +1768,9 @@ async function openChat(id) {
       }
     }
   });
-  unsub.messages = FB.listenMessages(id, (list) => {
+  unsub.messages = FB.listenMessages(id, async (list) => {
     const prev = state.messages.length;
-    state.messages = list;
+    state.messages = await Promise.all(list.map(async (m) => ({ ...m, text: await decryptMessageText(m, id) })));
     paintMessages();
     if (list.length > prev && list.at(-1)?.senderId !== me()?.uid) {
       const item = state.inbox[id];
@@ -1451,9 +1835,16 @@ async function openBot(bot) {
 }
 
 function openPanel(id, payload) {
+  if (state.panel === "developer" && id !== "developer") {
+    state.devToken = "";
+    state.devSection = "home";
+  }
   state.panel = id;
   state.panelPayload = payload;
+  if (id === "developer" && !state.devSection) state.devSection = "home";
   if (id === "logout") {
+    state.devToken = "";
+    state.devSection = "home";
     FB.logout();
     return;
   }
@@ -1461,6 +1852,12 @@ function openPanel(id, payload) {
 }
 
 function closePanel() {
+  // Developer secrets live only for the current Dev-console session.
+  // Leaving the console clears the token from memory and from the DOM.
+  if (state.panel === "developer") {
+    state.devToken = "";
+    state.devSection = "home";
+  }
   state.panel = null;
   state.panelPayload = null;
   paintOverlays();
@@ -1485,6 +1882,31 @@ function sw(on) {
 function paintOverlays() {
   const host = document.getElementById("overlays");
   if (!host) return;
+
+  // Сохраняем текущее состояние полей перед полной перерисовкой overlay.
+  // Это особенно важно для Dev и TOTP: обновление realtime-данных не должно
+  // выбрасывать фокус и закрывать клавиатуру у пользователя.
+  const fieldState = new Map();
+  let activeFieldKey = null;
+  let activeSelection = null;
+  host.querySelectorAll("input, textarea, select").forEach((el, index) => {
+    const key = el.id || `${el.form?.id || "form"}:${el.name || el.type || "field"}:${index}`;
+    fieldState.set(key, {
+      value: el.value,
+      checked: "checked" in el ? el.checked : undefined,
+      selectionStart: typeof el.selectionStart === "number" ? el.selectionStart : null,
+      selectionEnd: typeof el.selectionEnd === "number" ? el.selectionEnd : null,
+    });
+    if (document.activeElement === el) {
+      activeFieldKey = key;
+      activeSelection = {
+        start: typeof el.selectionStart === "number" ? el.selectionStart : null,
+        end: typeof el.selectionEnd === "number" ? el.selectionEnd : null,
+        direction: el.selectionDirection || "none",
+      };
+    }
+  });
+
   let html = "";
   if (state.panel === "browser") {
     html += `<div class="overlay" id="ov">
@@ -1498,11 +1920,47 @@ function paintOverlays() {
       </div>
     </div>`;
   } else if (state.panel) {
-    html += `<div class="overlay" id="ov"><div class="sheet" id="sheet">${sheetHtml(state.panel)}</div></div>`;
+    const sheetClass = state.panel === "developer" ? "sheet dev-sheet" : "sheet";
+    html += `<div class="overlay" id="ov"><div class="${sheetClass}" id="sheet">${sheetHtml(state.panel)}</div></div>`;
   }
   if (state.call) html += callHtml();
   host.innerHTML = html;
   bindOverlay();
+
+  // Возвращаем значения и фокус после перерисовки.
+  // requestAnimationFrame нужен, чтобы браузер успел построить новый DOM.
+  requestAnimationFrame(() => {
+    const fields = host.querySelectorAll("input, textarea, select");
+    fields.forEach((el, index) => {
+      const key = el.id || `${el.form?.id || "form"}:${el.name || el.type || "field"}:${index}`;
+      const saved = fieldState.get(key);
+      if (!saved) return;
+      if (saved.value !== undefined) el.value = saved.value;
+      if (saved.checked !== undefined && "checked" in el) el.checked = saved.checked;
+    });
+
+    if (activeFieldKey) {
+      const current = Array.from(fields).find((el, index) => {
+        const key = el.id || `${el.form?.id || "form"}:${el.name || el.type || "field"}:${index}`;
+        return key === activeFieldKey;
+      });
+      if (current) {
+        current.focus({ preventScroll: true });
+        if (activeSelection && typeof current.setSelectionRange === "function" && activeSelection.start != null) {
+          try {
+            const len = current.value.length;
+            current.setSelectionRange(
+              Math.min(activeSelection.start, len),
+              Math.min(activeSelection.end ?? activeSelection.start, len),
+              activeSelection.direction || "none"
+            );
+          } catch {
+            /* input type may not support selection */
+          }
+        }
+      }
+    }
+  });
 }
 
 function sheetHtml(panel) {
@@ -1532,12 +1990,35 @@ function sheetHtml(panel) {
   let body = "";
   if (panel === "profile") {
     const [first, ...rest] = String(p.name || "").split(" ");
-    body = `<form id="pf">${field(t("firstName"), "first", first)}${field(t("lastName"), "last", rest.join(" "))}${field("@" + t("username"), "username", p.username)}<div class="field"><label>${esc(t("bio"))}</label><textarea name="bio">${esc(p.bio || "")}</textarea></div><button class="btn block" type="submit">${esc(t("save"))}</button></form>`;
+    body = `<form id="pf"><div class="profile-edit-avatar"><div id="profile-avatar-preview">${avatar({ name: p.name || "N", color: p.color, size: 88, photo: p.photo })}</div><input type="file" id="profile-avatar-file" accept="image/*" hidden><button type="button" class="btn sec sm" id="profile-avatar-pick">${icon("camera", 16)} Выбрать фото</button><button type="button" class="btn ghost sm" id="profile-avatar-remove">Убрать</button></div>${field(t("firstName"), "first", first)}${field(t("lastName"), "last", rest.join(" "))}${field("@" + t("username"), "username", p.username)}<div class="field"><label>${esc(t("bio"))}</label><textarea name="bio">${esc(p.bio || "")}</textarea></div><button class="btn block" type="submit">${esc(t("save"))}</button></form>`;
   } else if (panel === "devices") {
     body = `<div class="row">${avatar({ name: "Web", color: "#3D8BFD", size: 40 })}<div class="meta"><div class="name">${esc(t("currentSession"))}</div><div class="prev">Web · ${esc(navigator.userAgent.slice(0, 40))}</div></div></div>
       <button class="btn danger block mt" id="do-logout">${esc(t("endOther"))}</button>`;
   } else if (panel === "security") {
-    body = `<div class="flex-row"><div><div class="ttl" style="font-weight:700">${esc(t("twoFA"))}</div><div class="muted">Email · Firebase Auth</div></div>${sw(s.twoFA)}</div>`;
+    const enrolled = FB?.isTotpEnrolled?.() || false;
+    body = `<div class="flex-row"><div><div class="ttl" style="font-weight:700">${esc(t("twoFA"))}</div><div class="muted">${esc(enrolled ? t("totpEnabled") : t("totpDisabled"))}</div></div></div>
+      <div class="mt"><button class="btn block" data-totp-setup>${esc(enrolled ? t("totpEnabled") : t("totpSetup"))}</button></div>
+      ${enrolled ? `<div class="mt"><button class="btn danger block" data-totp-disable>${esc(t("totpDisable"))}</button></div>` : ""}
+      <p class="muted mt">${esc(t("totpConfigHint"))}</p>`;
+  } else if (panel === "totp-setup") {
+    if (!state.totpSecretKey) {
+      body = `<form id="totp-start-form">${field(t("totpPassword"), "password", "", "password")}<button class="btn block" type="submit">${esc(t("totpStart"))}</button><p class="muted mt">${esc(t("totpConfigHint"))}</p></form>`;
+    } else {
+      body = `<div class="totp-qr-card">
+          <div class="totp-qr-title">${esc(t("totpScanQr"))}</div>
+          <div id="totp-qr" class="totp-qr" aria-label="TOTP QR"></div>
+          <div id="totp-qr-fallback" class="muted totp-qr-fallback hidden">${esc(t("totpQrFallback"))}</div>
+        </div>
+        <div class="totp-secret-card"><div class="cap">${esc(t("totpSecret"))}</div><code>${esc(state.totpSecretKey)}</code><button type="button" class="btn sec sm mt" id="copy-totp-secret">${esc(t("copy"))}</button></div>
+        <div class="field mt"><label>${esc(t("totpCode"))}</label><input id="totp-enroll-code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"></div>
+        <button class="btn block" id="totp-finish" type="button">${esc(t("totpFinish"))}</button>
+        <p class="muted mt">${esc(t("totpAppHint"))}: Google Authenticator, 1Password, Aegis, Microsoft Authenticator.</p>
+        <div class="field mt"><label>${esc(t("totpUri"))}</label><input value="${esc(state.totpUri)}" readonly></div>`;
+    }
+  } else if (panel === "totp-disable") {
+    const factors = (FB.currentUser?.().multiFactor?.enrolledFactors || []).filter((f) => f.factorId === "totp");
+    const uid = factors[0]?.uid || "";
+    body = `<form id="totp-disable-form" data-enrollment-uid="${esc(uid)}">${field(t("totpPassword"), "password", "", "password")}<button class="btn danger block" type="submit">${esc(t("totpConfirmDisable"))}</button></form>`;
   } else if (panel === "privacy") {
     const opt = (key, val, lab) => `<button class="btn sm ${s[key] === val ? "" : "sec"}" data-set="${key}:${val}">${esc(lab)}</button>`;
     body = `<label>${esc(t("whoMessage"))}</label><div class="seg">${opt("whoCanMessage", "everyone", t("everyone"))}${opt("whoCanMessage", "contacts", t("onlyContacts"))}</div>
@@ -1570,10 +2051,77 @@ function sheetHtml(panel) {
   } else if (panel === "group" || panel === "channel") {
     body = `<form id="room">${field(panel === "group" ? t("groupName") : t("channelName"), "name", "")}${field(t("addMember"), "members", "")}<p class="muted">${esc(t("addMember"))}</p><button class="btn block">${esc(panel === "group" ? t("createGroup") : t("createChannel"))}</button></form>`;
   } else if (panel === "developer") {
-    body = `<p class="muted">Bot API · OAuth · Webhooks. Секреты — только на бэкенде.</p>
-      <pre style="background:var(--elevated);padding:12px;border-radius:12px;font-size:12px;overflow:auto">POST /bot<TOKEN>/sendMessage</pre>
-      <button class="btn sec block mt" id="tok">${icon("code", 16)} Token</button>
-      <pre id="tokv" class="muted"></pre>`;
+    const sec = state.devSection || "home";
+    const nav = [
+      ["bot-create", "Создать бота", "Новый бот и токен", "bot"],
+      ["bots", "Мои боты", "Список и управление", "users"],
+      ["api", "API и токены", "Токены и методы", "code"],
+      ["oauth-new", "Новое приложение", "OAuth-клиент", "lock"],
+      ["oauth-apps", "Мои приложения", "Список OAuth", "grid"],
+      ["oauth-guide", "Инструкция", "OAuth / Web App", "book"],
+      ["verify", "Верификация", "Бейджи профиля", "shield"],
+    ];
+    const side = nav.map(([id,label,sub,ic]) => `<button class="dev-nav-item ${sec===id?"on":""}" data-dev-section="${id}">${icon(ic,16)}<span><b>${esc(label)}</b><small>${esc(sub)}</small></span></button>`);
+
+    let main = "";
+    if (sec === "home") {
+      main = `<div class="dev-content">
+        <div class="dev-hero"><div><div class="dev-eyebrow">NEXLINK DEVELOPER</div><h1>Главная</h1><p>Консоль разработчика NexLink: боты, API, OAuth и верификация. Выберите раздел слева или быстрый переход ниже.</p></div><div class="dev-hero-mark">N</div></div>
+        <div class="dev-quick-grid">
+          <button data-dev-section="bot-create"><strong>Создать бота</strong><span>Новый бот и API-токен</span></button>
+          <button data-dev-section="bots"><strong>Мои боты</strong><span>Список и управление</span></button>
+          <button data-dev-section="oauth-new"><strong>OAuth-приложение</strong><span>Подключение сторонних сайтов</span></button>
+          <button data-dev-section="verify"><strong>Верификация</strong><span>Бейджи Dev и Creator</span></button>
+        </div>
+        <div class="dev-card"><h3>Как работает бот</h3><p>Создайте бота → получите токен → используйте API с вашего сервера. Секретный токен никогда не вставляйте в клиентский JavaScript.</p><div class="dev-code-row"><code>POST /bot-api/bot&lt;TOKEN&gt;/sendMessage</code><span>server-only</span></div></div>
+        <div class="dev-card"><h3>Сообщения и фото</h3><p><code>sendMessage</code> — текст; <code>sendPhoto</code> — изображение с подписью. Поддерживаются URL и загруженные файлы.</p></div>
+        <div class="dev-card"><h3>Mini App / Web App</h3><p>Кнопка с <code>web_app: { url }</code> открывает ваш сайт внутри NexLink. Для авторизации используйте подписанный init-data.</p></div>
+        <div class="dev-card"><h3>Обновления</h3><p>Используйте long polling или webhook. Для продакшена webhook обычно удобнее: сервер получает события сразу после их появления.</p></div>
+        <div class="dev-card"><h3>Безопасность</h3><p>Токены, client secrets и webhook secrets храните только на сервере. Никогда не публикуйте их в HTML или frontend-коде.</p></div>
+      </div>`;
+    } else if (sec === "bot-create") {
+      const createdToken = state.devToken ? `<div class="dev-secret-card"><div><div class="dev-secret-title">Токен создан</div><span class="dev-session-badge">доступен до выхода из Dev</span></div><code>${esc(state.devToken)}</code><div class="dev-secret-actions"><button class="btn sec sm" id="copy-dev-token">Копировать</button><button class="btn sec sm" data-dev-section="api">Перейти в API</button></div><p>Этот токен хранится только в памяти текущей сессии Dev.</p></div>` : "";
+      main = `<div class="dev-content"><div class="dev-page-head"><span class="dev-kicker">БОТЫ</span><h2>Создать бота</h2><p>Создайте профиль бота и получите токен доступа к API.</p></div><form id="dev-bot-form" class="dev-form"><div class="dev-field"><label>Название бота</label><input name="name" maxlength="48" placeholder="Например, NexBot" required></div><div class="dev-field"><label>Username бота</label><input name="username" maxlength="32" placeholder="nexbot" required></div><div class="dev-field"><label>Описание</label><textarea name="desc" placeholder="Что умеет ваш бот?"></textarea></div><button class="btn dev-primary" type="submit">Создать бота</button></form>${createdToken}<div class="dev-note">Токен показывается в Dev до выхода из консоли. После выхода он очищается.</div></div>`;
+    } else if (sec === "bots") {
+      let savedBots = [];
+      try { savedBots = JSON.parse(localStorage.getItem("nexlink_dev_bots") || "[]"); } catch { savedBots = []; }
+      const botRows = savedBots.length ? savedBots.map((b) => `<div class="dev-list-row"><div class="dev-bot-avatar">${esc((b.name || "B").slice(0,1).toUpperCase())}</div><div class="dev-list-main"><b>${esc(b.name)}</b><span>@${esc(b.username)}</span></div><span class="dev-status">Активен</span></div>`).join("") : `<div class="dev-empty">${icon("bot",32)}<h3>Ботов пока нет</h3><p>Создайте первого бота и подключите его к API.</p><button class="btn dev-primary" data-dev-section="bot-create">Создать бота</button></div>`;
+      main = `<div class="dev-content"><div class="dev-page-head"><span class="dev-kicker">БОТЫ</span><h2>Мои боты</h2><p>Здесь хранятся ваши проекты. Секретные токены не сохраняются в браузере.</p></div><div class="dev-card dev-list">${botRows}</div></div>`;
+    } else if (sec === "api") {
+      const tokenBlock = state.devToken ? `<div class="dev-secret-card"><div><div class="dev-secret-title">Секретный токен</div><span class="dev-session-badge">только в этой сессии Dev</span></div><code>${esc(state.devToken)}</code><div class="dev-secret-actions"><button class="btn sec sm" id="copy-dev-token">Копировать</button><button class="btn danger sm" id="clear-dev-token">Скрыть</button></div><p>Токен исчезнет автоматически после выхода из Dev. Для production храните секреты на сервере.</p></div>` : `<div class="dev-card dev-token-empty"><div class="dev-token-icon">${icon("lock",20)}</div><div><h3>Секретный токен не открыт</h3><p>Создайте бота, чтобы получить токен, или сгенерируйте временный токен для теста.</p></div><button class="btn sec sm" id="tok">Сгенерировать</button></div>`;
+      main = `<div class="dev-content"><div class="dev-page-head"><span class="dev-kicker">БОТЫ</span><h2>API и токены</h2><p>Справочник методов и безопасная работа с секретами.</p></div><div class="dev-code-card"><div><b>Отправить сообщение</b><span>POST</span></div><code>/bot-api/bot&lt;TOKEN&gt;/sendMessage</code><pre>{
+  "chat_id": "...",
+  "text": "Привет!"
+}</pre></div><div class="dev-code-card"><div><b>Отправить фото</b><span>POST</span></div><code>/bot-api/bot&lt;TOKEN&gt;/sendPhoto</code><pre>{
+  "chat_id": "...",
+  "photo": "https://...",
+  "caption": "Описание"
+}</pre></div>${tokenBlock}</div>`;
+    } else if (sec === "oauth-new") {
+      main = `<div class="dev-content"><div class="dev-page-head"><span class="dev-kicker">OAUTH</span><h2>Новое приложение</h2><p>Подключите внешний сайт или Mini App к NexLink.</p></div><form class="dev-form" id="dev-oauth-form"><div class="dev-field"><label>Название приложения</label><input name="name" maxlength="48" placeholder="My App" required></div><div class="dev-field"><label>Redirect URI</label><input name="redirect" placeholder="https://example.com/callback" required></div><div class="dev-field"><label>Описание</label><textarea name="desc" placeholder="Для чего используется приложение?"></textarea></div><button class="btn dev-primary" type="submit">Создать приложение</button></form><div class="dev-note">Client secret храните только на сервере.</div></div>`;
+    } else if (sec === "oauth-apps") {
+      let oauthApps = [];
+      try { oauthApps = JSON.parse(localStorage.getItem("nexlink_dev_demo_oauths_v2") || localStorage.getItem("nexlink_dev_demo_oauths") || "[]"); } catch { oauthApps = []; }
+      if (!oauthApps.length) {
+        oauthApps = [];
+        try {
+          const legacy = JSON.parse(localStorage.getItem("nexlink_dev_demo_oauth") || "null");
+          if (legacy?.name) oauthApps = [legacy];
+        } catch {}
+      }
+      const rows = oauthApps.length ? oauthApps.map((a) => `<div class="dev-list-row"><div class="dev-bot-avatar">A</div><div class="dev-list-main"><b>${esc(a.name)}</b><span>${esc(a.redirect)}</span><span>${esc(a.desc || "OAuth application")}</span></div><span class="dev-status">Сохранено</span></div>`).join("") : `<div class="dev-empty">${icon("grid",32)}<h3>Приложений пока нет</h3><p>Создайте OAuth-приложение, чтобы подключить вход через NexLink.</p></div>`;
+      main = `<div class="dev-content"><div class="dev-page-head"><span class="dev-kicker">OAUTH</span><h2>Мои приложения</h2><p>Ваши OAuth-клиенты и их redirect URI.</p></div><div class="dev-card dev-list">${rows}</div><button class="btn dev-primary" data-dev-section="oauth-new">Новое приложение</button></div>`;
+
+    } else if (sec === "oauth-guide") {
+      main = `<div class="dev-content"><div class="dev-page-head"><span class="dev-kicker">OAUTH</span><h2>Инструкция</h2><p>Короткая схема интеграции.</p></div><div class="dev-step"><b>1. Создайте приложение</b><p>Укажите название и точный Redirect URI.</p></div><div class="dev-step"><b>2. Перенаправьте пользователя</b><pre>/oauth/authorize?client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&response_type=code</pre></div><div class="dev-step"><b>3. Обменяйте code на token</b><p>Выполняйте обмен только на сервере и храните client secret вне frontend.</p></div><div class="dev-step"><b>4. Получайте профиль</b><p>После авторизации API возвращает идентификатор пользователя и базовый профиль.</p></div></div>`;
+    } else {
+      main = `<div class="dev-content"><div class="dev-page-head"><span class="dev-kicker">ПРОФИЛЬ</span><h2>Верификация</h2><p>Бейджи для разработчиков и создателей.</p></div><div class="verify-card"><div class="verify-badge">✓</div><div><h3>Developer</h3><p>Показывает, что аккаунт связан с активной разработкой ботов или приложений.</p></div></div><div class="verify-card"><div class="verify-badge creator">★</div><div><h3>Creator</h3><p>Для авторов проектов, публичных каналов и приложений.</p></div></div><div class="dev-note">Верификация не даёт дополнительных прав и не заменяет настройки безопасности.</div></div>`;
+    }
+
+    const botsNav = side.slice(0,3).join("");
+    const oauthNav = side.slice(3,6).join("");
+    const profileNav = side.slice(6).join("");
+    body = `<div class="dev-layout"><aside class="dev-sidebar"><div class="dev-brand"><div class="dev-logo">N</div><div><strong>NexLink</strong><span>Developer Console</span></div></div><button class="dev-home ${sec==="home"?"on":""}" data-dev-section="home">${icon("home",16)}<span>Главная</span></button><div class="dev-group-label">БОТЫ</div>${botsNav}<div class="dev-group-label">OAUTH</div>${oauthNav}<div class="dev-group-label">ПРОФИЛЬ</div>${profileNav}<div class="dev-sidebar-divider"></div><button class="dev-exit" id="dev-exit">${icon("x",15)}<span>Выйти из Dev</span></button><div class="dev-side-foot"><span class="dev-dot"></span><span>Dev session active</span></div></aside><main class="dev-main"><div class="dev-topbar"><div class="dev-crumb"><span>Developer Console</span><b>/</b><span>${sec === "home" ? "Главная" : (nav.find(x=>x[0]===sec)?.[1] || "Раздел")}</span></div><div class="dev-top-actions"><span class="dev-session-chip">${state.devToken ? "● Токен открыт" : "○ Без токена"}</span><button class="btn icon" id="sh-x" title="Выйти из Dev">${icon("x")}</button></div></div>${main}</main></div>`;
   } else if (panel === "music") {
     body = `<form id="mu">${field(t("track"), "musicTitle", p.musicTitle)}${field(t("artist"), "musicArtist", p.musicArtist)}<button class="btn block">${esc(t("save"))}</button></form>`;
   } else if (panel === "bots") {
@@ -1581,20 +2129,7 @@ function sheetHtml(panel) {
       (b) => `<button class="row" data-bot="${b.id}">${avatar({ name: b.name, color: b.color, type: "bot" })}<div class="meta"><div class="name">${esc(b.name)}</div><div class="prev">${esc(b.desc[s.locale] || b.desc.ru)}</div></div><span class="muted">${esc(t("openBot"))}</span></button>`,
     ).join("");
   } else if (panel === "chat-info") {
-    const chat = state.chats[state.activeChatId] || {};
-    const item = state.inbox[state.activeChatId] || {};
-    const title = chatTitle(chat, item);
-    const members = Object.keys(chat.members || {});
-    body = `<div class="center">${avatar({ name: title, color: chatColor(chat, item), type: chat.type, size: 72 })}
-      <h3 style="margin:10px 0 4px">${esc(title)}</h3>
-      <p class="muted">${esc(chat.description || chat.type || "")}</p></div>
-      <div class="mt">${members
-        .map((id) => {
-          const u = id === me()?.uid ? { name: t("you"), color: p.color } : state.users[id] || { name: id, color: "#3D8BFD" };
-          return `<div class="row">${avatar({ name: u.name, color: u.color, size: 36, online: state.presence[id]?.online })}<span>${esc(u.name)}</span></div>`;
-        })
-        .join("")}</div>
-      ${chat.type === "group" || chat.type === "channel" ? `<form id="addm" class="mt">${field(t("addMember"), "u", "")}<button class="btn block sm">${esc(t("add"))}</button></form>` : ""}`;
+    body = renderChatInfoPanel();
   } else if (panel === "forward") {
     const items = inboxItems();
     body = items
@@ -1607,14 +2142,80 @@ function sheetHtml(panel) {
   return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h2>${esc(titles[panel] || t("settings"))}</h2><button class="btn icon" id="sh-x">${icon("x")}</button></div><p class="desc"></p>${body}`;
 }
 
+function renderTotpQr() {
+  const host = document.getElementById("totp-qr");
+  const fallback = document.getElementById("totp-qr-fallback");
+  if (!host || !state.totpUri) return;
+  host.innerHTML = "";
+  try {
+    if (typeof window.qrcode !== "function") throw new Error("qr-library-missing");
+    const qr = window.qrcode(0, "M");
+    qr.addData(state.totpUri, "Byte");
+    qr.make();
+    host.innerHTML = qr.createSvgTag(4, 4);
+    host.querySelector("svg")?.setAttribute("role", "img");
+    host.querySelector("svg")?.setAttribute("aria-label", "TOTP QR code");
+    fallback?.classList.add("hidden");
+  } catch (err) {
+    console.warn("TOTP QR unavailable:", err);
+    fallback?.classList.remove("hidden");
+    host.innerHTML = "";
+  }
+}
+
 function bindOverlay() {
   const ov = document.getElementById("ov");
+  if (state.totpUri) setTimeout(renderTotpQr, 0);
   if (ov) {
     ov.addEventListener("click", (e) => {
       if (e.target === ov) closePanel();
     });
   }
   document.getElementById("sh-x")?.addEventListener("click", closePanel);
+  document.querySelectorAll("[data-dev-section]").forEach((b) => {
+    b.addEventListener("click", () => {
+      state.devSection = b.dataset.devSection;
+      paintOverlays();
+    });
+  });
+  document.getElementById("dev-bot-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const token = "nxl_bot_" + crypto.randomUUID().replaceAll("-", "");
+    state.devToken = token;
+    let bots = [];
+    try { bots = JSON.parse(localStorage.getItem("nexlink_dev_bots") || "[]"); } catch { bots = []; }
+    bots.push({ name: String(fd.get("name") || ""), username: String(fd.get("username") || ""), desc: String(fd.get("desc") || ""), createdAt: Date.now() });
+    localStorage.setItem("nexlink_dev_bots", JSON.stringify(bots.slice(-20)));
+    toast("Бот создан. Токен доступен до выхода из Dev.");
+    state.devSection = "bot-create";
+    paintOverlays();
+  });
+  document.getElementById("copy-dev-token")?.addEventListener("click", async () => {
+    if (!state.devToken) return;
+    await navigator.clipboard.writeText(state.devToken);
+    toast("Токен скопирован");
+  });
+  document.getElementById("clear-dev-token")?.addEventListener("click", () => {
+    state.devToken = "";
+    paintOverlays();
+    toast("Токен скрыт");
+  });
+  document.getElementById("dev-exit")?.addEventListener("click", () => closePanel());
+
+  document.getElementById("dev-oauth-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const appData = { ...Object.fromEntries(new FormData(e.target)), clientId: "nxl_app_" + crypto.randomUUID().replaceAll("-", "").slice(0, 20), createdAt: Date.now() };
+    let apps = [];
+    try { apps = JSON.parse(localStorage.getItem("nexlink_dev_demo_oauths_v2") || localStorage.getItem("nexlink_dev_demo_oauths") || "[]"); } catch { apps = []; }
+    apps.push(appData);
+    localStorage.setItem("nexlink_dev_demo_oauths_v2", JSON.stringify(apps.slice(-50)))
+    localStorage.setItem("nexlink_dev_demo_oauths", JSON.stringify(apps.slice(-50)));
+    localStorage.setItem("nexlink_dev_demo_oauth", JSON.stringify(appData));
+    toast("OAuth-приложение создано и сохранено");
+    state.devSection = "oauth-apps";
+    paintOverlays();
+  });
   document.getElementById("br-close")?.addEventListener("click", closePanel);
   document.getElementById("br-go")?.addEventListener("click", () => {
     openBrowser(document.getElementById("br-url").value);
@@ -1628,11 +2229,122 @@ function bindOverlay() {
     toast(t("savedOk"));
     closePanel();
   });
+
+  const profileTabs = document.querySelectorAll("#profile-tabs [data-profile-tab]");
+  profileTabs.forEach((btn) => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const nextTab = btn.dataset.profileTab || "files";
+      state.profileTab = nextTab;
+      profileTabs.forEach((b) => b.classList.toggle("on", b === btn));
+      renderProfileTab(nextTab);
+    };
+  });
+  if (profileTabs.length) {
+    const allowedTabs = new Set(Array.from(profileTabs).map((b) => b.dataset.profileTab));
+    if (!allowedTabs.has(state.profileTab)) state.profileTab = "files";
+    const active = document.querySelector(`#profile-tabs [data-profile-tab="${state.profileTab}"]`) || profileTabs[0];
+    profileTabs.forEach((b) => b.classList.toggle("on", b === active));
+    state.profileTab = active?.dataset.profileTab || "files";
+    renderProfileTab(state.profileTab);
+  }
+
+  document.querySelectorAll("[data-profile-link]").forEach((el) => {
+    el.onclick = (e) => {
+      e.preventDefault();
+      const url = el.dataset.profileLink;
+      if (url) openBrowser(url);
+    };
+  });
+
+  const avatarPick = document.getElementById("profile-avatar-pick");
+  const avatarFile = document.getElementById("profile-avatar-file");
+  const avatarRemove = document.getElementById("profile-avatar-remove");
+  avatarPick?.addEventListener("click", () => avatarFile?.click());
+  avatarFile?.addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith("image/")) return;
+    try {
+      const blob = await compressImage(file);
+      const upload = new File([blob], "avatar.jpg", { type: blob.type || "image/jpeg" });
+      const url = await uploadToImgBB(upload);
+      await FB.saveProfile(me().uid, { photo: url });
+      state.profile = { ...state.profile, photo: url };
+      const prev = document.getElementById("profile-avatar-preview");
+      if (prev) prev.innerHTML = avatar({ name: state.profile.name || "N", color: state.profile.color, size: 88, photo: url });
+      paintSidebar();
+      toast("Аватар обновлён");
+    } catch (ex) { toast(String(ex?.message || ex)); }
+  });
+  avatarRemove?.addEventListener("click", async () => {
+    await FB.saveProfile(me().uid, { photo: null });
+    state.profile = { ...state.profile, photo: "" };
+    const prev = document.getElementById("profile-avatar-preview");
+    if (prev) prev.innerHTML = avatar({ name: state.profile.name || "N", color: state.profile.color, size: 88 });
+  });
+
   document.getElementById("do-logout")?.addEventListener("click", () => FB.logout());
+  document.querySelector("[data-totp-setup]")?.addEventListener("click", () => openPanel("totp-setup"));
+  document.querySelector("[data-totp-disable]")?.addEventListener("click", () => openPanel("totp-disable"));
+
+  document.getElementById("totp-start-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const btn = e.target.querySelector("button[type=submit]");
+    btn.disabled = true;
+    try {
+      const result = await FB.beginTotpEnrollment(fd.get("password"));
+      state.totpSecret = result.secret;
+      state.totpSecretKey = result.secretKey;
+      state.totpUri = result.uri;
+      paintOverlays();
+      renderTotpQr();
+    } catch (ex) {
+      toast(FB.authError ? FB.authError(ex) : String(ex?.message || ex));
+      btn.disabled = false;
+    }
+  });
+  document.getElementById("copy-totp-secret")?.addEventListener("click", async () => {
+    await navigator.clipboard.writeText(state.totpSecretKey);
+    toast(t("copied"));
+  });
+  document.getElementById("totp-finish")?.addEventListener("click", async () => {
+    const code = document.getElementById("totp-enroll-code")?.value || "";
+    if (!/^\d{6,8}$/.test(code.replace(/\s/g, ""))) return toast(t("totpCode"));
+    try {
+      await FB.finishTotpEnrollment(state.totpSecret, code);
+      state.totpSecret = null;
+      state.totpSecretKey = "";
+      state.totpUri = "";
+      state.settings = { ...state.settings, twoFA: true };
+      await FB.saveProfile(me().uid, { settings: state.settings });
+      toast(t("totpEnabled"));
+      openPanel("security");
+    } catch (ex) {
+      toast(FB.authError ? FB.authError(ex) : String(ex?.message || ex));
+    }
+  });
+  document.getElementById("totp-disable-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const uid = e.target.dataset.enrollmentUid;
+    try {
+      await FB.disableTotpEnrollment(uid, fd.get("password"));
+      state.settings = { ...state.settings, twoFA: false };
+      await FB.saveProfile(me().uid, { settings: state.settings });
+      toast(t("totpDisabled"));
+      closePanel();
+      openPanel("security");
+    } catch (ex) {
+      toast(FB.authError ? FB.authError(ex) : String(ex?.message || ex));
+    }
+  });
+
   document.querySelectorAll("[data-sw]").forEach((b, i) => {
     b.onclick = async () => {
       const map = {
-        security: "twoFA",
+        security: null,
         notifications: i === 0 ? "notifications" : "messagePreview",
         sounds: "sounds",
         themes: "reduceMotion",
@@ -1694,10 +2406,10 @@ function bindOverlay() {
     await openChat(id);
   });
   document.getElementById("tok")?.addEventListener("click", async () => {
-    const tok = "nxl_" + crypto.randomUUID().replaceAll("-", "");
-    document.getElementById("tokv").textContent = tok;
-    await navigator.clipboard.writeText(tok);
-    toast(t("copied"));
+    state.devToken = "nxl_test_" + crypto.randomUUID().replaceAll("-", "");
+    paintOverlays();
+    await navigator.clipboard.writeText(state.devToken);
+    toast("Тестовый токен создан и скопирован");
   });
   document.getElementById("mu")?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1709,12 +2421,39 @@ function bindOverlay() {
   document.querySelectorAll("[data-bot]").forEach((b) => {
     b.onclick = () => openBot(BOTS.find((x) => x.id === b.dataset.bot));
   });
+  document.querySelectorAll("[data-role-user]").forEach((b) => {
+    b.onclick = () => {
+      const chat = state.chats[state.activeChatId] || {};
+      const uid = b.dataset.roleUser;
+      const current = (chat.members || {})[uid] || "member";
+      const slot = document.getElementById("role-editor-slot");
+      if (!slot) return;
+      const roles = ["admin", "moderator", "member"];
+      slot.innerHTML = `<div class="role-editor"><select id="role-select">${roles.map((r) => `<option value="${r}" ${r === current ? "selected" : ""}>${esc(roleLabel(r))}</option>`).join("")}</select><button class="btn sm" id="role-save">${esc(t("saveRole"))}</button></div>`;
+      slot.querySelector("#role-save").onclick = async () => {
+        const role = slot.querySelector("#role-select").value;
+        try {
+          await FB.setMemberRole(state.activeChatId, uid, role, me()?.uid);
+          if (state.chats[state.activeChatId]) state.chats[state.activeChatId].members[uid] = role;
+          toast(t("savedOk"));
+          paintOverlays();
+        } catch (e) {
+          toast(String(e?.message || e));
+        }
+      };
+    };
+  });
+
   document.getElementById("addm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const u = await FB.findByUsername(new FormData(e.target).get("u"));
     if (!u) return toast(t("notFound"));
-    await FB.addMember(state.activeChatId, u.uid);
-    toast(t("added"));
+    try {
+      await FB.addMember(state.activeChatId, u.uid, me()?.uid);
+      toast(t("added"));
+    } catch (e) {
+      toast(String(e?.message || e).replace("group-permission-denied", "Недостаточно прав"));
+    }
   });
   document.querySelectorAll("[data-fwd]").forEach((b) => {
     b.onclick = async () => {
@@ -1759,6 +2498,7 @@ async function startCall(kind) {
   const chatId = state.activeChatId;
   const chat = state.chats[chatId] || {};
   const item = state.inbox[chatId] || {};
+  if (chat.type !== "private") return toast("Звонки доступны только в личных чатах");
   const peer = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
   if (!peer) return toast("Нет собеседника");
   state.call = { chatId, kind, dir: "out", status: "ringing", name: chatTitle(chat, item), peer };
@@ -1931,6 +2671,11 @@ async function hydrateUser(user) {
   });
   unsub.incoming = FB.listenIncoming(user.uid, (inc) => {
     if (inc && inc.status === "ringing" && inc.from !== user.uid) {
+      const incomingChat = state.chats[inc.chatId];
+      if (incomingChat?.type === "group" || incomingChat?.type === "channel") {
+        FB.clearIncoming?.(user.uid);
+        return;
+      }
       state.call = { ...inc, dir: "in" };
       paintOverlays();
     }
@@ -1947,28 +2692,612 @@ async function main() {
   if (window.__NL_BOOTED) return;
   window.__NL_BOOTED = true;
   applyTheme("midnight");
-  state.ready = true;
-  render();
   try {
-    FB = await import("./firebase.js");
+    FB = await import("./api.js");
     await FB.boot();
+    state.ready = true;
     FB.onUser(async (user) => {
-      if (!user) {
-        state.user = null;
-        state.profile = null;
-        state.inbox = {};
-        state.chats = {};
-        state.activeChatId = null;
+      try {
+        if (!user) {
+          state.mfaResolver = null;
+          state.mfaHintUid = null;
+          state.mfaError = "";
+          state.user = null;
+          state.profile = null;
+          state.inbox = {};
+          state.chats = {};
+          state.activeChatId = null;
+        } else {
+          await hydrateUser(user);
+        }
+      } catch (e) {
+        state.bootError = FB?.authError ? FB.authError(e) : String(e?.message || e);
+      } finally {
+        state.authResolved = true;
         render();
-        return;
       }
-      await hydrateUser(user);
-      render();
     });
   } catch (e) {
     state.bootError = FB?.authError ? FB.authError(e) : String(e?.message || e);
+    state.ready = true;
+    state.authResolved = true;
     render();
   }
 }
 
 main();
+// ============================================================
+// Voice Message Player — добавьте этот код в конец файла app.js
+// перед закрывающим тегом </script> или в конце модуля
+// ============================================================
+
+/**
+ * Создаёт кастомный плеер для голосовых сообщений
+ * @param {string} url — ссылка на аудиофайл
+ * @param {string} sender — 'mine' или 'theirs'
+ * @returns {HTMLElement} готовый DOM-элемент плеера
+ */
+function createVoicePlayer(url, sender = 'theirs') {
+    const audio = new Audio(url);
+    audio.preload = 'metadata';
+
+    const container = document.createElement('div');
+    container.className = 'voice-player';
+
+    // --- Кнопка play/pause ---
+    const btn = document.createElement('button');
+    btn.className = 'voice-btn';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Play voice message');
+    btn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>`;
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        togglePlay();
+    });
+
+    // --- Волновая форма ---
+    const wave = document.createElement('div');
+    wave.className = 'voice-wave';
+    for (let i = 0; i < 10; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        wave.appendChild(bar);
+    }
+
+    // --- Прогресс-бар ---
+    const progressWrap = document.createElement('div');
+    progressWrap.className = 'voice-progress-wrap';
+
+    const track = document.createElement('div');
+    track.className = 'voice-track';
+    const fill = document.createElement('div');
+    fill.className = 'voice-fill';
+    fill.style.width = '0%';
+    track.appendChild(fill);
+
+    // Клик по треку для перемотки
+    track.addEventListener('click', (e) => {
+        const rect = track.getBoundingClientRect();
+        const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        if (audio.duration) {
+            audio.currentTime = pct * audio.duration;
+            updateProgress();
+        }
+    });
+
+    // --- Время ---
+    const timeDisplay = document.createElement('div');
+    timeDisplay.className = 'voice-time';
+    const currentSpan = document.createElement('span');
+    currentSpan.className = 'current';
+    currentSpan.textContent = '0:00';
+    const durationSpan = document.createElement('span');
+    durationSpan.className = 'duration';
+    durationSpan.textContent = '--:--';
+    timeDisplay.appendChild(currentSpan);
+    timeDisplay.appendChild(durationSpan);
+
+    progressWrap.appendChild(track);
+    progressWrap.appendChild(timeDisplay);
+
+    // Сборка
+    container.appendChild(btn);
+    container.appendChild(wave);
+    container.appendChild(progressWrap);
+
+    // --- Состояние ---
+    let isPlaying = false;
+    let progressInterval = null;
+
+    // --- Форматирование времени ---
+    function formatTime(seconds) {
+        if (!seconds || isNaN(seconds)) return '0:00';
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    // --- Обновление прогресса ---
+    function updateProgress() {
+        if (audio.duration) {
+            const pct = (audio.currentTime / audio.duration) * 100;
+            fill.style.width = Math.min(pct, 100) + '%';
+            currentSpan.textContent = formatTime(audio.currentTime);
+        }
+    }
+
+    // --- Переключение play/pause ---
+    function togglePlay() {
+        if (isPlaying) {
+            audio.pause();
+        } else {
+            audio.play().catch(() => {});
+        }
+    }
+
+    // --- События аудио ---
+    audio.addEventListener('loadedmetadata', () => {
+        durationSpan.textContent = formatTime(audio.duration);
+    });
+
+    audio.addEventListener('play', () => {
+        isPlaying = true;
+        btn.innerHTML = `<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
+        container.classList.add('playing');
+        btn.classList.add('playing');
+        progressInterval = setInterval(updateProgress, 80);
+    });
+
+    audio.addEventListener('pause', () => {
+        isPlaying = false;
+        btn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>`;
+        container.classList.remove('playing');
+        btn.classList.remove('playing');
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
+    });
+
+    audio.addEventListener('ended', () => {
+        isPlaying = false;
+        btn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>`;
+        container.classList.remove('playing');
+        btn.classList.remove('playing');
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
+        fill.style.width = '0%';
+        currentSpan.textContent = '0:00';
+        audio.currentTime = 0;
+    });
+
+    audio.addEventListener('timeupdate', updateProgress);
+
+    // Остановка при уходе со страницы
+    const cleanup = () => {
+        audio.pause();
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
+    };
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            audio.pause();
+        }
+    });
+
+    // Сохраняем ссылку на аудио для внешнего доступа
+    container._audio = audio;
+    container._cleanup = cleanup;
+
+    return container;
+}
+
+/**
+ * Останавливает все голосовые плееры на странице
+ * (вызывается перед созданием нового плеера)
+ */
+function stopAllVoicePlayers() {
+    document.querySelectorAll('.voice-player').forEach((el) => {
+        if (el._audio && !el._audio.paused) {
+            el._audio.pause();
+        }
+    });
+}
+
+// ============================================================
+// Модификация функции paintMessages() — замена <audio> на кастомный плеер
+// Найдите в app.js функцию paintMessages() и замените в ней блок:
+//
+//     if (msg.kind === "voice" && msg.mediaUrl) 
+//         body += `<audio controls src="${esc(msg.mediaUrl)}"></audio>`;
+//
+// НА:
+//
+//     if (msg.kind === "voice" && msg.mediaUrl) {
+//         const player = createVoicePlayer(msg.mediaUrl, mine ? 'mine' : 'theirs');
+//         body += player.outerHTML;
+//     }
+//
+// ============================================================
+
+// Если вы хотите заменить полностью — вот готовая версия paintMessages
+// с поддержкой голосовых плееров. Скопируйте её поверх существующей
+// функции paintMessages в app.js:
+
+/*
+async function paintMessages() {
+    const box = document.getElementById("msgs");
+    if (!box) return;
+    const thread = state.messages;
+    if (!thread.length) {
+        box.innerHTML = `<div class="empty" style="display:grid;height:100%;place-items:center">${esc(t("noMessages"))}</div>`;
+        return;
+    }
+    const chat = state.chats[state.activeChatId] || {};
+    let html = "";
+    const voicePlayers = [];
+    thread.forEach((msg, i) => {
+        const prev = thread[i - 1];
+        if (!prev || fmtDay(prev.createdAt) !== fmtDay(msg.createdAt)) {
+            html += `<div class="day"><span>${esc(fmtDay(msg.createdAt))}</span></div>`;
+        }
+        if (msg.kind === "system") {
+            html += `<p class="sys">${esc(msg.text)}</p>`;
+            return;
+        }
+        const mine = msg.senderId === me()?.uid;
+        const reply = msg.replyToId ? thread.find((x) => x.id === msg.replyToId) : null;
+        const showName = !mine && chat.type === "group" && prev?.senderId !== msg.senderId;
+        let body = "";
+        if (msg.forwardedFrom) body += `<div class="quote">${esc(t("forwarded"))}</div>`;
+        if (reply) body += `<div class="quote">${esc((reply.text || "").slice(0, 80))}</div>`;
+        if (msg.kind === "image" && msg.mediaUrl) body += `<button class="media-preview-btn" type="button" data-media-url="${esc(msg.mediaUrl)}" data-media-kind="image"><img class="pic" src="${esc(msg.mediaUrl)}" alt=""></button>`;
+        // ---- ЗАМЕНА: голосовое сообщение через кастомный плеер ----
+        if (msg.kind === "voice" && msg.mediaUrl) {
+            // Создаём плеер, но откладываем вставку, чтобы потом добавить события
+            const player = createVoicePlayer(msg.mediaUrl, mine ? 'mine' : 'theirs');
+            body += player.outerHTML;
+            voicePlayers.push({ el: player, msgId: msg.id });
+        }
+        // ------------------------------------------------------------
+        if (msg.kind === "call") body += `<div style="display:flex;gap:8px;align-items:center">${icon("phone", 16)} ${esc(msg.text || t("missedCall"))}</div>`;
+        if (msg.kind === "text" || (!msg.kind && msg.text)) body += `<p>${linkify(msg.text)}</p>`;
+        html += `<div class="bubble-row ${mine ? "mine" : "theirs"}">
+            <div>
+                ${showName ? `<div class="gname">${esc(displayUser(msg.senderId))}</div>` : ""}
+                <button class="bubble" data-msg="${esc(msg.id)}">${body}<div class="foot">${esc(fmtTime(msg.createdAt))}${mine ? icon("checks", 12) : ""}</div></button>
+            </div>
+        </div>`;
+    });
+    const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    box.innerHTML = html;
+    // Восстанавливаем ссылки на плееры (т.к. outerHTML создал новые элементы)
+    setTimeout(() => {
+        const allPlayers = box.querySelectorAll('.voice-player');
+        voicePlayers.forEach((vp, idx) => {
+            if (allPlayers[idx]) {
+                // Передаём ссылку на аудио из сохранённого плеера
+                const newPlayer = allPlayers[idx];
+                const oldAudio = vp.el._audio;
+                const newBtn = newPlayer.querySelector('.voice-btn');
+                const newFill = newPlayer.querySelector('.voice-fill');
+                const newCurrent = newPlayer.querySelector('.voice-time .current');
+                const newDuration = newPlayer.querySelector('.voice-time .duration');
+                // Копируем состояние
+                if (oldAudio) {
+                    newPlayer._audio = oldAudio;
+                    // Обновляем отображение
+                    if (oldAudio.duration) {
+                        newDuration.textContent = formatTime(oldAudio.duration);
+                    }
+                    const pct = oldAudio.duration ? (oldAudio.currentTime / oldAudio.duration) * 100 : 0;
+                    newFill.style.width = Math.min(pct, 100) + '%';
+                    newCurrent.textContent = formatTime(oldAudio.currentTime);
+                    // Переподключаем события
+                    const oldPlay = oldAudio.play.bind(oldAudio);
+                    const oldPause = oldAudio.pause.bind(oldAudio);
+                    newBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (oldAudio.paused) {
+                            stopAllVoicePlayers();
+                            oldAudio.play().catch(() => {});
+                        } else {
+                            oldAudio.pause();
+                        }
+                    };
+                    // Обновление прогресса
+                    const upd = () => {
+                        if (oldAudio.duration) {
+                            const p = (oldAudio.currentTime / oldAudio.duration) * 100;
+                            newFill.style.width = Math.min(p, 100) + '%';
+                            newCurrent.textContent = formatTime(oldAudio.currentTime);
+                        }
+                    };
+                    oldAudio.addEventListener('timeupdate', upd);
+                    oldAudio.addEventListener('play', () => {
+                        newPlayer.classList.add('playing');
+                        newBtn.classList.add('playing');
+                        newBtn.innerHTML = `<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
+                        // Остановить все другие
+                        document.querySelectorAll('.voice-player').forEach((p) => {
+                            if (p !== newPlayer && p._audio && !p._audio.paused) {
+                                p._audio.pause();
+                            }
+                        });
+                    });
+                    oldAudio.addEventListener('pause', () => {
+                        newPlayer.classList.remove('playing');
+                        newBtn.classList.remove('playing');
+                        newBtn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>`;
+                    });
+                    oldAudio.addEventListener('ended', () => {
+                        newPlayer.classList.remove('playing');
+                        newBtn.classList.remove('playing');
+                        newBtn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>`;
+                        newFill.style.width = '0%';
+                        newCurrent.textContent = '0:00';
+                        oldAudio.currentTime = 0;
+                    });
+                    // Клик по треку
+                    const track = newPlayer.querySelector('.voice-track');
+                    if (track) {
+                        track.onclick = (e) => {
+                            const rect = track.getBoundingClientRect();
+                            const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                            if (oldAudio.duration) {
+                                oldAudio.currentTime = pct * oldAudio.duration;
+                            }
+                        };
+                    }
+                }
+            }
+        });
+        // Обработка кликов по сообщениям
+        box.querySelectorAll("[data-msg]").forEach((b) => {
+            b.onclick = (e) => {
+                if (e.target.closest(".voice-player") || e.target.closest(".msg-link")) {
+                    if (e.target.closest(".msg-link")) {
+                        openBrowser(e.target.closest(".msg-link").dataset.url);
+                    }
+                    return;
+                }
+                const msg = state.messages.find((m) => m.id === b.dataset.msg);
+                if (!msg) return;
+                showMenu(b, [
+                    { id: "reply", label: t("reply"), icon: "reply" },
+                    { id: "copy", label: t("copy"), icon: "copy" },
+                    { id: "fwd", label: t("forward"), icon: "fwd" },
+                    ...(msg.senderId === me()?.uid ? [{ id: "del", label: t("delete"), icon: "trash", danger: true }] : []),
+                ], async (id) => {
+                    if (id === "reply") {
+                        state.replyTo = msg.id;
+                        paintReply();
+                    }
+                    if (id === "copy") {
+                        await navigator.clipboard.writeText(msg.text || "");
+                        toast(t("copied"));
+                    }
+                    if (id === "fwd") openPanel("forward", msg.id);
+                    if (id === "del") await FB.deleteMessage(state.activeChatId, msg.id);
+                });
+            };
+        });
+        if (nearBottom || true) box.scrollTop = box.scrollHeight;
+    }, 20);
+}
+*/
+
+// ============================================================
+// Вспомогательная функция formatTime для голосовых плееров
+// (если её нет в глобальной области)
+// ============================================================
+
+function formatTime(seconds) {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// ============================================================
+// Инициализация: если на странице уже есть голосовые сообщения
+// при загрузке — пересоздаём плееры (можно вызвать при рендере)
+// ============================================================
+
+// Вызов при загрузке новых сообщений
+// В функции paintMessages() уже используется createVoicePlayer
+
+// ============================================================
+// Профиль собеседника: фото, имя, username и медиа-вкладки
+// ============================================================
+async function exportChat(chatId) {
+  const chat = state.chats[chatId] || {};
+  const item = state.inbox[chatId] || {};
+  const title = chatTitle(chat, item);
+  const source = state.activeChatId === chatId ? state.messages : await FB.getMessages(chatId);
+  const rows = source.map((m) => ({ id:m.id, createdAt:m.createdAt, senderId:m.senderId, kind:m.kind||"text", text:m.text||"", mediaUrl:m.mediaUrl||null }));
+  const payload = { exportedAt: new Date().toISOString(), title, chatId, messages: rows };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `nexlink-${chatId}.json`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function renderChatInfoPanel() {
+  const chatId = state.activeChatId;
+  if (!chatId) return `<p class="muted">${esc(t("noChat"))}</p>`;
+
+  const chat = state.chats[chatId] || {};
+  const item = state.inbox[chatId] || {};
+  const peerId = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
+
+  if (!peerId || chat.type === "group" || chat.type === "channel") {
+    return renderGroupInfo(chat, item);
+  }
+
+  const user = state.users[peerId] || { name: peerId, username: "", color: "#3D8BFD" };
+  const displayName = user.name || peerId;
+  const username = user.username ? `@${user.username}` : "";
+  const online = !!state.presence[peerId]?.online;
+  const status = online ? t("online") : t("lastSeen");
+
+  return `
+    <div class="profile-view">
+      <div class="profile-hero">
+        <div class="profile-avatar ${online ? "is-online" : ""}">
+          ${avatar({ name: displayName, color: user.color || "#3D8BFD", size: 112, online: false, photo: user.photo })}
+        </div>
+        <div class="profile-name">${userNameHtml(user, displayName)}</div>
+        <div class="profile-username">${esc(username || "@" + peerId.slice(0, 10))}</div>
+        <div class="profile-status ${online ? "on" : ""}">${esc(status)}</div>
+        ${user.bio ? `<div class="profile-bio">${esc(user.bio)}</div>` : ""}
+      </div>
+
+      <div class="profile-tabs" id="profile-tabs" role="tablist">
+        <button class="${state.profileTab === "files" ? "on" : ""}" data-profile-tab="files" role="tab">${icon("folder", 16)}<span>${esc(t("files"))}</span></button>
+        <button class="${state.profileTab === "voice" ? "on" : ""}" data-profile-tab="voice" role="tab">${icon("mic", 16)}<span>${esc(t("voicePlural"))}</span></button>
+        <button class="${state.profileTab === "messages" ? "on" : ""}" data-profile-tab="messages" role="tab">${icon("chat", 16)}<span>${esc(t("messages"))}</span></button>
+        <button class="${state.profileTab === "links" ? "on" : ""}" data-profile-tab="links" role="tab">${icon("globe", 16)}<span>${esc(t("links"))}</span></button>
+      </div>
+
+      <div class="profile-content nl-scroll" id="profile-tab-content"></div>
+    </div>`;
+}
+
+function roleLabel(role) {
+  return t(role === "owner" ? "roleOwner" : role === "admin" ? "roleAdmin" : role === "moderator" ? "roleModerator" : "roleMember");
+}
+
+const GROUP_ROLE_PERMS = {
+  owner: ["addMembers", "manageMessages", "editInfo", "manageRoles"],
+  admin: ["addMembers", "manageMessages", "editInfo", "manageRoles"],
+  moderator: ["addMembers", "manageMessages"],
+  member: [],
+};
+
+function canGroupPermission(chat, uid, permission) {
+  const role = (chat.members || {})[uid] || "member";
+  return (GROUP_ROLE_PERMS[role] || []).includes(permission);
+}
+
+function renderGroupInfo(chat, item) {
+  const title = chatTitle(chat, item);
+  const members = Object.keys(chat.members || {});
+  const meUid = me()?.uid;
+  const myRole = (chat.members || {})[meUid] || "member";
+  const canManageRoles = chat.type === "group" && (myRole === "owner" || canGroupPermission(chat, meUid, "manageRoles"));
+  let body = `<div class="center">${avatar({ name: title, color: chatColor(chat, item), type: chat.type, size: 72 })}<h3 style="margin:10px 0 4px">${esc(title)}</h3><p class="muted">${esc(chat.description || chat.type || "")}</p><div class="role-badge">${esc(roleLabel(myRole))}</div></div><div class="mt">`;
+  members.forEach((id) => {
+    const u = id === meUid ? { name: t("you"), color: state.profile?.color } : state.users[id] || { name: id, color: "#3D8BFD" };
+    const role = (chat.members || {})[id] || "member";
+    body += `<div class="row group-member-row">${avatar({ name: u.name, color: u.color, size: 36, online: state.presence[id]?.online })}<div class="meta"><div class="name">${esc(u.name)}</div><div class="prev">${esc(roleLabel(role))}</div></div>${canManageRoles && id !== meUid ? `<button class="btn sm sec" data-role-user="${id}">${esc(roleLabel(role))}</button>` : ""}</div>`;
+  });
+  body += `</div>`;
+  if (chat.type === "group") {
+    body += `<div class="dev-card role-card mt"><h3>${esc(t("groupRoles"))}</h3><div class="role-help"><span><b>${esc(t("roleAdmin"))}</b>: ${esc(t("rightAddMembers"))}, ${esc(t("rightManageMessages"))}, ${esc(t("rightEditInfo"))}, ${esc(t("rightManageRoles"))}</span><span><b>${esc(t("roleModerator"))}</b>: ${esc(t("rightAddMembers"))}, ${esc(t("rightManageMessages"))}</span></div></div>`;
+  }
+  if (chat.type === "group" || chat.type === "channel") {
+    const canAdd = canGroupPermission(chat, meUid, "addMembers") || myRole === "owner";
+    if (canAdd) body += `<form id="addm" class="mt">${field(t("addMember"), "u", "")}<button class="btn block sm">${esc(t("add"))}</button></form>`;
+  }
+  body += `<div class="mt role-editor-slot" id="role-editor-slot"></div>`;
+  return body;
+}
+
+function profileMessages(tab) {
+  const messages = state.messages || [];
+  if (tab === "files") return messages.filter((m) => !!m.mediaUrl && m.kind !== "voice");
+  if (tab === "voice") return messages.filter((m) => m.kind === "voice" && m.mediaUrl);
+  if (tab === "messages") return messages.filter((m) => m.kind === "text" || (!m.kind && m.text));
+  if (tab === "links") return messages.filter((m) => {
+    if (m.kind && m.kind !== "text") return false;
+    return /https?:\/\/[^\s]+|www\.[^\s]+/i.test(m.text || "");
+  });
+  return [];
+}
+
+function renderProfileTab(tab) {
+  const container = document.getElementById("profile-tab-content");
+  if (!container) return;
+  const items = [...profileMessages(tab)].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+  if (!items.length) {
+    const labels = { files: t("noFiles"), voice: t("noVoices"), messages: t("noMessages"), links: t("noLinks") };
+    container.innerHTML = `<div class="profile-empty"><div class="profile-empty-icon">${icon(tab === "files" ? "folder" : tab === "voice" ? "mic" : tab === "links" ? "globe" : "chat", 24)}</div><div>${esc(labels[tab])}</div></div>`;
+    return;
+  }
+
+  container.innerHTML = items.map((msg) => {
+    const time = fmtTime(msg.createdAt);
+    if (tab === "files" && msg.mediaUrl) {
+      if (msg.kind === "image") {
+        return `<button class="profile-media-card" data-profile-media="${esc(msg.mediaUrl)}"><img src="${esc(msg.mediaUrl)}" alt=""><span class="profile-card-meta"><b>${esc(t("photo"))}</b><small>${esc(time)}</small></span></button>`;
+      }
+      return `<button class="profile-list-card" data-profile-media="${esc(msg.mediaUrl)}"><span class="profile-card-icon">${icon("clip", 18)}</span><span class="profile-card-meta"><b>${esc(t("attach"))}</b><small>${esc(time)}</small></span>${icon("chevron", 16)}</button>`;
+    }
+    if (tab === "voice") {
+      return `<div class="profile-list-card voice-summary"><span class="profile-card-icon voice">${icon("mic", 18)}</span><span class="profile-card-meta"><b>${esc(t("voiceMsg"))}</b><small>${esc(time)}</small></span><button class="profile-play" data-profile-audio="${esc(msg.mediaUrl)}" aria-label="${esc(t("voice"))}">${icon("play", 16)}</button></div>`;
+    }
+    let text = msg.text || "";
+    if (tab === "links") {
+      const match = text.match(/https?:\/\/[^\s]+|www\.[^\s]+/i);
+      text = match ? match[0] : text;
+      const href = /^https?:\/\//i.test(text) ? text : `https://${text}`;
+      return `<a class="profile-list-card" href="${esc(href)}" target="_blank" rel="noopener" data-profile-link="${esc(href)}"><span class="profile-card-icon link">${icon("globe", 18)}</span><span class="profile-card-meta"><b>${esc(text)}</b><small>${esc(time)}</small></span>${icon("chevron", 16)}</a>`;
+    }
+    return `<button class="profile-list-card"><span class="profile-card-icon message">${icon("chat", 18)}</span><span class="profile-card-meta"><b>${esc(text.length > 90 ? text.slice(0, 90) + "…" : text)}</b><small>${esc(time)}</small></span></button>`;
+  }).join("");
+
+  container.querySelectorAll("[data-profile-media]").forEach((el) => {
+    el.onclick = () => openBrowser(el.dataset.profileMedia);
+  });
+  container.querySelectorAll("[data-profile-audio]").forEach((btn) => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const current = btn._audio;
+      if (current && !current.paused) {
+        current.pause();
+        btn.innerHTML = icon("play", 16);
+        return;
+      }
+      document.querySelectorAll(".profile-play").forEach((b) => {
+        if (b._audio && !b._audio.paused) b._audio.pause();
+        b.innerHTML = icon("play", 16);
+      });
+      const audio = current || new Audio(btn.dataset.profileAudio);
+      btn._audio = audio;
+      audio.onended = () => { btn.innerHTML = icon("play", 16); };
+      btn.innerHTML = icon("square", 16);
+      audio.play().catch(() => { btn.innerHTML = icon("play", 16); });
+    };
+  });
+  container.querySelectorAll("[data-profile-link]").forEach((el) => {
+    el.onclick = (e) => {
+      e.preventDefault();
+      openBrowser(el.dataset.profileLink);
+    };
+  });
+}
+
+// Эти переводы нужны и для RU, и для EN.
+I18N.ru.files = "Файлы";
+I18N.ru.voicePlural = "Голосовые";
+I18N.ru.messages = "Сообщения";
+I18N.ru.links = "Ссылки";
+I18N.ru.noFiles = "Файлов пока нет";
+I18N.ru.noVoices = "Голосовых сообщений пока нет";
+I18N.ru.noLinks = "Ссылок пока нет";
+I18N.en.files = "Files";
+I18N.en.voicePlural = "Voice";
+I18N.en.messages = "Messages";
+I18N.en.links = "Links";
+I18N.en.noFiles = "No files yet";
+I18N.en.noVoices = "No voice messages yet";
+I18N.en.noLinks = "No links yet";
+I18N.ru.photo = I18N.ru.photo || "Фото";
+I18N.en.photo = I18N.en.photo || "Photo";
+I18N.ru.attach = I18N.ru.attach || "Вложение";
+I18N.en.attach = I18N.en.attach || "Attachment";
