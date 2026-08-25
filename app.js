@@ -1,4 +1,4 @@
-import { mountEmojiPicker, rememberEmoji } from "./emoji.js";
+import { mountEmojiPicker, rememberEmoji } from "emoji.js";
 
 let FB = null;
 
