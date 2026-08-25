@@ -445,8 +445,8 @@ export function authError(err) {
     "auth/too-many-requests": "Слишком много попыток, подождите",
     "auth/operation-not-allowed": "Email/пароль не включены в Firebase Auth",
     "auth/unauthorized-domain": "Домен не добавлен в Authorized domains Firebase",
-    "auth/network-request-failed": "Нет связи с Firebase. Проверьте сеть.",
-    "network-request-failed": "Нет связи с Firebase. Проверьте сеть.",
+    "auth/network-request-failed": "Нет интернета. Проверьте сеть.",
+    "network-request-failed": "Нет связи. Проверьте сеть.",
     "username-taken": "Этот @username уже занят",
     "username-short": "Юзернейм: минимум 3 символа (a-z, 0-9, _)",
   };
