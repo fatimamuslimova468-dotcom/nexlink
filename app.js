@@ -796,10 +796,6 @@ function handleSystemBack() {
     try { hangup(true); } catch { state.call = null; paintOverlays(); }
     return true;
   }
-  if (state.panel === "browser") {
-    closePanel({ fromHistory: true });
-    return true;
-  }
   if (state.panel) {
     closePanel({ fromHistory: true });
     return true;
@@ -824,6 +820,39 @@ function handleSystemBack() {
     return true;
   }
   return false;
+}
+
+function initWebViewKeyboardSupport() {
+  const root = document.documentElement;
+  let lastHeight = 0;
+  const apply = () => {
+    const vv = window.visualViewport;
+    const height = Math.max(320, Math.round(vv ? vv.height : window.innerHeight));
+    if (Math.abs(height - lastHeight) < 1) return;
+    lastHeight = height;
+    root.style.setProperty("--nl-vh", `${height}px`);
+    root.classList.toggle("keyboard-open", !!vv && (window.innerHeight - vv.height) > 120);
+  };
+  apply();
+  window.addEventListener("resize", apply, { passive: true });
+  window.addEventListener("orientationchange", () => setTimeout(apply, 80), { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", apply, { passive: true });
+    window.visualViewport.addEventListener("scroll", apply, { passive: true });
+  }
+  document.addEventListener("focusin", (e) => {
+    const el = e.target;
+    if (!(el instanceof HTMLTextAreaElement) && !(el instanceof HTMLInputElement)) return;
+    setTimeout(() => {
+      apply();
+      try { el.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" }); } catch {}
+      const thread = document.querySelector(".thread");
+      const msgs = document.querySelector(".msgs");
+      if (thread && msgs) {
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+    }, 120);
+  }, { passive: true });
 }
 
 function initNavigationHistory() {
@@ -983,7 +1012,7 @@ function renderApp(root) {
   const threadOpen = !!state.activeChatId;
   const tab = state.tab;
   root.innerHTML = `
-    <div class="shell ${threadOpen ? "thread-open" : ""} tab-${tab}">
+    <div class="shell ${threadOpen ? "thread-open" : ""} tab-${tab} ${isPhoneUi() ? "mobile-ui" : "desktop-ui"}">
       <aside class="sidebar" id="sidebar"></aside>
       <main class="main" id="main"></main>
     </div>
@@ -1100,9 +1129,13 @@ function paintChatList() {
     })
     .join("");
   list.querySelectorAll("[data-open]").forEach((b) => {
-    b.onclick = () => openChat(b.dataset.open);
-    b.oncontextmenu = async (e) => {
-      e.preventDefault();
+    b.onclick = () => {
+      if (b._nexConsumeLongPress?.()) return;
+      openChat(b.dataset.open);
+    };
+    const openContext = async (e) => {
+      e?.preventDefault?.();
+      e?.stopPropagation?.();
       const it = inboxItems().find((x) => x.id === b.dataset.open);
       if (!it) return;
       const blocked = it.chat.type === "private" && it.peerId ? await FB.isBlocked(me().uid, it.peerId) : false;
@@ -1121,6 +1154,8 @@ function paintChatList() {
         }
       });
     };
+    b.oncontextmenu = (e) => openContext(e);
+    bindLongPressMenu(b, openContext);
   });
 }
 
@@ -1320,7 +1355,6 @@ function paintSettings(el) {
           ${row("language", "lang", t("language"), s.locale === "en" ? "English" : "Русский")}
         </section>
         <section class="card"><div class="cap">${esc(t("extra"))}</div>
-          ${row("browser", "globe", t("browser"), t("browserHint"))}
           ${row("bots", "bot", t("bots"), "NexBot · Погода · Напоминания")}
           ${row("music", "music", t("music"), p.musicTitle || t("music"))}
           ${row("folders", "folder", t("folders"), t("foldersHint"))}
@@ -1331,7 +1365,6 @@ function paintSettings(el) {
         </section>
         <section class="card"><div class="cap">${esc(t("extra"))}</div>
           ${row("labs", "spark", t("labs"), t("labsHint"))}
-          ${row("developer", "code", t("developer"), "Bot API")}
           ${row("support", "head", t("support"), t("support"))}
           ${row("about", "info", t("about"), t("version"))}
           ${row("logout", "logout", t("logout"), t("endOther"))}
@@ -1366,7 +1399,8 @@ function paintThread(el) {
   else if (online) status = t("online");
   else if (peerId && state.presence[peerId]?.at) status = `${t("lastSeen")} · ${fmtListTime(state.presence[peerId].at)}`;
 
-  const canPost = chatType !== "channel" || chat.createdBy === me()?.uid;
+  const isSecurityBot = chatType === "bot" && (peerId === "security" || chat.peerId === "security" || title === "NexLink Security");
+  const canPost = !isSecurityBot && (chatType !== "channel" || chat.createdBy === me()?.uid);
   const canCall = chatType === "private";
 
   el.innerHTML = `
@@ -1387,24 +1421,15 @@ function paintThread(el) {
       <div id="emo-slot" class="${state.emojiOpen ? "" : "hidden"}"></div>
       <div id="sticker-slot" class="hidden"></div>
       ${canPost ? `<div class="composer">
-        ${state.voicePreview ? `<div class="voice-preview" id="voice-preview">
-          <button class="btn icon voice-preview-play" type="button" data-voice-preview-play title="Прослушать">${icon("play", 18)}</button>
-          <div class="voice-preview-main">
-            <div class="voice-preview-top"><span class="voice-preview-title">Голосовое сообщение</span><span class="voice-preview-time" data-voice-preview-time>0:00</span></div>
-            <div class="voice-preview-track" data-voice-preview-track><i data-voice-preview-fill></i></div>
-          </div>
-          <button class="btn icon" type="button" data-voice-preview-delete title="Удалить">${icon("x", 18)}</button>
-          <button class="btn send voice-preview-send" type="button" data-voice-preview-send title="Отправить">${icon("send", 18)}</button>
-        </div>` : ""}
         <input type="file" id="file" accept="image/*" hidden>
-        <button class="btn icon" data-attach title="${esc(t("attach"))}" ${state.voicePreview ? "disabled" : ""}>${icon("clip")}</button>
-        <div class="box ${state.voicePreview ? "voice-draft-hidden" : ""}">
-          <textarea id="comp" rows="1" placeholder="${esc(t("message"))}" ${state.voicePreview ? "disabled" : ""}>${esc(state.composer)}</textarea>
-          <button class="btn icon" data-emo title="${esc(t("emoji"))}" ${state.voicePreview ? "disabled" : ""}>${icon("smile")}</button>
-          <button class="btn icon" data-stickers title="Стикеры" ${state.voicePreview ? "disabled" : ""}>${icon("sticker", 17)}</button>
+        <button class="btn icon" data-attach title="${esc(t("attach"))}">${icon("clip")}</button>
+        <div class="box">
+          <textarea id="comp" rows="1" placeholder="${esc(t("message"))}">${esc(state.composer)}</textarea>
+          <button class="btn icon" data-emo title="${esc(t("emoji"))}">${icon("smile")}</button>
+          <button class="btn icon" data-stickers title="Стикеры">${icon("sticker", 17)}</button>
         </div>
-        <button class="btn send ${state.recording ? "rec" : ""}" data-send title="${state.recording ? "Остановить запись" : state.voicePreview ? "Отправить голосовое" : "Записать голосовое"}">${state.composer.trim() ? icon("send") : state.recording ? icon("square") : state.voicePreview ? icon("send") : icon("mic")}</button>
-      </div>` : `<div class="composer"><p class="muted" style="margin:8px auto">${esc(t("channelOnly"))}</p></div>`}
+        <button class="btn send" data-send title="Отправить сообщение">${icon("send")}</button>
+      </div>` : `<div class="composer"><p class="muted" style="margin:8px auto">${isSecurityBot ? "NexLink Security принимает только системные уведомления." : esc(t("channelOnly"))}</p></div>`}
     </div>`;
 
   el.querySelector("[data-close]").onclick = () => {
@@ -1564,10 +1589,10 @@ function paintMessages() {
     }
     if (msg.kind === "image" && msg.mediaUrl) body += `<button class="media-preview-btn" type="button" data-media-url="${esc(msg.mediaUrl)}" data-media-kind="image"><img class="pic" src="${esc(msg.mediaUrl)}" alt=""></button>`;
     if (msg.kind === "sticker" && msg.mediaUrl) body += `<button class="media-preview-btn sticker-btn" type="button" data-media-url="${esc(msg.mediaUrl)}" data-media-kind="sticker"><img class="sticker" src="${esc(msg.mediaUrl)}" alt=""></button>`;
-    if (msg.kind === "voice" && msg.voiceId) body += `<div class="voice-message-placeholder" data-voice-id="${esc(msg.voiceId)}" data-voice-mime="${esc(msg.mimeType || "audio/webm")}" data-voice-duration="${Number(msg.duration || 0)}"><span class="voice-loading">Загрузка голосового…</span></div>`;
+    if (msg.kind === "voice") body += `<div class="voice-disabled-msg">${esc("Голосовые сообщения временно отключены")}</div>`;
     if (msg.kind === "call") body += `<div style="display:flex;gap:8px;align-items:center">${icon("phone", 16)} ${esc(msg.text || t("missedCall"))}</div>`;
     if (msg.kind === "text" || (!msg.kind && msg.text)) body += `<p>${linkify(msg.text)}</p>`;
-    if ((msg.kind === "poll" && msg.poll) || (msg.kind === "voice" && msg.voiceId)) {
+    if (msg.kind === "poll" && msg.poll) {
       html += `<div class="bubble-row ${mine ? "mine" : "theirs"}">
         <div>
           ${showName ? `<div class="gname">${esc(displayUser(msg.senderId))}</div>` : ""}
@@ -1586,19 +1611,6 @@ function paintMessages() {
   });
   const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
   box.innerHTML = html;
-  box.querySelectorAll(".voice-message-placeholder[data-voice-id]").forEach(async (node) => {
-    try {
-      const result = await FB.getVoiceFromFirestore(node.dataset.voiceId);
-      const objectUrl = URL.createObjectURL(result.blob);
-      const player = createVoicePlayer(objectUrl, node.closest(".bubble-row")?.classList.contains("mine") ? "mine" : "theirs");
-      player.dataset.voiceId = node.dataset.voiceId;
-      player._voiceObjectUrl = objectUrl;
-      node.replaceWith(player);
-    } catch (error) {
-      console.error("voice load failed", error);
-      node.innerHTML = `<span class="voice-loading">Не удалось загрузить голосовое</span>`;
-    }
-  });
   if (nearBottom || true) box.scrollTop = box.scrollHeight;
   box.querySelectorAll("[data-media-url]").forEach((b) => {
     b.onclick = (e) => {
@@ -1622,12 +1634,14 @@ function paintMessages() {
     };
   });
   box.querySelectorAll("[data-msg]").forEach((b) => {
-    b.onclick = (e) => {
-      if (e.target.closest(".msg-link")) {
-        openBrowser(e.target.closest(".msg-link").dataset.url);
+    const openMessageMenu = async (e) => {
+      e?.preventDefault?.();
+      e?.stopPropagation?.();
+      if (e?.target?.closest?.(".msg-link")) {
+        openExternalLink(e.target.closest(".msg-link").dataset.url);
         return;
       }
-      if (e.target.closest("[data-media-url]") || e.target.closest(".voice-player")) return;
+      if (e?.target?.closest?.("[data-media-url]") || e?.target?.closest?.(".voice-player")) return;
       const msg = state.messages.find((m) => m.id === b.dataset.msg);
       if (!msg) return;
       showMenu(b, [
@@ -1648,7 +1662,71 @@ function paintMessages() {
         if (id === "del") await FB.deleteMessage(state.activeChatId, msg.id);
       });
     };
+    b.onclick = (e) => {
+      if (b._nexConsumeLongPress?.()) return;
+      if (isPhoneUi()) return;
+      openMessageMenu(e);
+    };
+    b.oncontextmenu = (e) => openMessageMenu(e);
+    bindLongPressMenu(b, openMessageMenu);
   });
+}
+
+
+const PHONE_UI_QUERY = "(max-width: 767px), (pointer: coarse)";
+function isPhoneUi() {
+  try { return !!window.matchMedia?.(PHONE_UI_QUERY).matches; } catch { return false; }
+}
+
+function bindLongPressMenu(el, handler) {
+  if (!el) return;
+  let timer = null;
+  let longPressed = false;
+  let moved = false;
+  const clear = () => {
+    if (timer) clearTimeout(timer);
+    timer = null;
+  };
+  el.addEventListener("touchstart", (e) => {
+    if (!isPhoneUi() || e.touches?.length !== 1) return;
+    longPressed = false;
+    moved = false;
+    clear();
+    timer = setTimeout(() => {
+      if (moved) return;
+      longPressed = true;
+      try { navigator.vibrate?.(18); } catch {}
+      handler(e);
+    }, 520);
+  }, { passive: true });
+  el.addEventListener("touchmove", () => {
+    moved = true;
+    clear();
+  }, { passive: true });
+  el.addEventListener("touchend", () => {
+    clear();
+    if (longPressed) {
+      setTimeout(() => { longPressed = false; }, 0);
+    }
+  }, { passive: true });
+  el.addEventListener("touchcancel", clear, { passive: true });
+  el._nexLongPressed = () => longPressed;
+  el._nexConsumeLongPress = () => {
+    if (!longPressed) return false;
+    longPressed = false;
+    return true;
+  };
+}
+
+function openExternalLink(url) {
+  let u = String(url || "").trim();
+  if (u && !/^https?:\/\//i.test(u)) u = "https://" + u;
+  if (!u) return;
+  try {
+    window.open(u, "_blank", "noopener,noreferrer");
+  } catch {
+    location.href = u;
+  }
 }
 
 function showMenu(anchor, items, onPick) {
@@ -1748,15 +1826,27 @@ function mountStickers() {
 }
 async function sendSticker(url) {
   try {
+    if (isSecurityChatId(state.activeChatId)) return toast("NexLink Security недоступен для обычных сообщений.");
     await FB.sendMessage(state.activeChatId, { senderId: me().uid, kind: "sticker", text: "Стикер", mediaUrl: url });
     const slot = document.getElementById("sticker-slot");
     if (slot) slot.classList.add("hidden");
   } catch (e) { toast(FB.authError(e)); }
 }
 
+function isSecurityChatId(chatId) {
+  const id = String(chatId || "");
+  const chat = state.chats[id] || {};
+  const item = state.inbox[id] || {};
+  return chat.type === "bot" && (chat.peerId === "security" || item.peerId === "security" || id.startsWith("bot_security_"));
+}
+
 async function sendText(raw) {
   const text = (raw ?? state.composer).trim();
   if (!text || !state.activeChatId) return;
+  if (isSecurityChatId(state.activeChatId)) {
+    toast("NexLink Security недоступен для обычных сообщений.");
+    return;
+  }
   const item = state.inbox[state.activeChatId] || {};
   const chat = state.chats[state.activeChatId] || {};
   const peerId = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
@@ -1809,6 +1899,7 @@ async function uploadToImgBB(file) {
 
 async function sendImage(file) {
   try {
+    if (isSecurityChatId(state.activeChatId)) return toast("NexLink Security недоступен для обычных сообщений.");
     if (!file?.type?.startsWith("image/")) return toast("Выберите изображение");
     const blob = await compressImage(file);
     const uploadFile = new File([blob], file.name || "image.jpg", { type: blob.type || file.type || "image/jpeg" });
@@ -1931,6 +2022,8 @@ function bindVoicePreview(root) {
 }
 
 async function sendVoicePreview() {
+  toast("Голосовые сообщения временно отключены.");
+  return;
   const draft = state.voicePreview;
   const chatId = state.activeChatId;
   if (!draft || !chatId || !me()?.uid) return;
@@ -1961,6 +2054,8 @@ async function sendVoicePreview() {
 }
 
 async function startRec() {
+  toast("Голосовые сообщения временно отключены.");
+  return;
   if (state.recording || state.voicePreview) return;
   if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
     toast("Голосовые сообщения не поддерживаются этим браузером");
@@ -2245,12 +2340,7 @@ function closePanel(opts = {}) {
 }
 
 function openBrowser(url) {
-  let u = String(url || "").trim();
-  if (u && !/^https?:\/\//i.test(u)) u = "https://" + u;
-  state.browserUrl = u || "https://example.com";
-  state.panel = "browser";
-  navPush("panel", { panel: "browser" });
-  paintOverlays();
+  openExternalLink(url);
 }
 
 function field(label, name, value, type = "text") {
@@ -2290,18 +2380,7 @@ function paintOverlays() {
   });
 
   let html = "";
-  if (state.panel === "browser") {
-    html += `<div class="overlay" id="ov">
-      <div class="browser">
-        <div class="bar">
-          <button class="btn sec sm" id="br-close">${esc(t("close"))}</button>
-          <input id="br-url" value="${esc(state.browserUrl)}">
-          <button class="btn sm" id="br-go">${esc(t("go"))}</button>
-        </div>
-        <iframe src="${esc(state.browserUrl)}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
-      </div>
-    </div>`;
-  } else if (state.panel) {
+  if (state.panel) {
     const sheetClass = state.panel === "developer" ? "sheet dev-sheet" : "sheet";
     html += `<div class="overlay" id="ov"><div class="${sheetClass}" id="sheet">${sheetHtml(state.panel)}</div></div>`;
   }
@@ -2542,7 +2621,7 @@ function sheetHtml(panel) {
   } else if (panel === "music") {
     body = `<form id="mu">${field(t("track"), "musicTitle", p.musicTitle)}${field(t("artist"), "musicArtist", p.musicArtist)}<button class="btn block">${esc(t("save"))}</button></form>`;
   } else if (panel === "bots") {
-    body = BOTS.map(
+    body = BOTS.filter((b) => !b.security).map(
       (b) => `<button class="row" data-bot="${b.id}">${avatar({ name: b.name, color: b.color, type: "bot" })}<div class="meta"><div class="name">${esc(b.name)}</div><div class="prev">${esc(b.desc[s.locale] || b.desc.ru)}</div></div><span class="muted">${esc(t("openBot"))}</span></button>`,
     ).join("");
   } else if (panel === "chat-info") {
@@ -2632,10 +2711,6 @@ function bindOverlay() {
     toast("OAuth-приложение создано и сохранено");
     state.devSection = "oauth-apps";
     paintOverlays();
-  });
-  document.getElementById("br-close")?.addEventListener("click", closePanel);
-  document.getElementById("br-go")?.addEventListener("click", () => {
-    openBrowser(document.getElementById("br-url").value);
   });
   document.getElementById("pf")?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -3392,6 +3467,7 @@ async function main() {
 }
 
 main();
+initWebViewKeyboardSupport();
 initNavigationHistory();
 // ============================================================
 // Voice Message Player — добавьте этот код в конец файла app.js
@@ -3616,7 +3692,7 @@ async function paintMessages() {
         if (reply) body += `<div class="quote">${esc((reply.text || "").slice(0, 80))}</div>`;
         if (msg.kind === "image" && msg.mediaUrl) body += `<button class="media-preview-btn" type="button" data-media-url="${esc(msg.mediaUrl)}" data-media-kind="image"><img class="pic" src="${esc(msg.mediaUrl)}" alt=""></button>`;
         // ---- ЗАМЕНА: голосовое сообщение через кастомный плеер ----
-        if (msg.kind === "voice" && msg.mediaUrl) {
+        if (false && msg.kind === "voice" && msg.mediaUrl) {
             // Создаём плеер, но откладываем вставку, чтобы потом добавить события
             const player = createVoicePlayer(msg.mediaUrl, mine ? 'mine' : 'theirs');
             body += player.outerHTML;
@@ -3720,7 +3796,7 @@ async function paintMessages() {
             b.onclick = (e) => {
                 if (e.target.closest(".voice-player") || e.target.closest(".msg-link")) {
                     if (e.target.closest(".msg-link")) {
-                        openBrowser(e.target.closest(".msg-link").dataset.url);
+                        openExternalLink(e.target.closest(".msg-link").dataset.url);
                     }
                     return;
                 }

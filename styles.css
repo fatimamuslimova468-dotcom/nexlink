@@ -34,6 +34,8 @@
 
 * { box-sizing: border-box; border-color: var(--border); }
 html, body, #nl-root, #app { height: 100%; }
+html, body, #nl-root { min-height: 0; }
+#nl-root { height: var(--nl-vh, 100%); }
 html, body {
   margin: 0;
   background: var(--bg);
@@ -180,7 +182,7 @@ img { max-width: 100%; }
 .btn.pill { border-radius: 999px; }
 
 /* Shell */
-.shell { display: flex; height: 100%; min-height: 0; overflow: hidden; }
+.shell { display: flex; height: var(--nl-vh, 100%); min-height: 0; overflow: hidden; }
 .sidebar {
   width: 100%;
   max-width: 100%;
@@ -367,7 +369,7 @@ img { max-width: 100%; }
 }
 
 /* Thread */
-.thread { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--bg); position: relative; overflow: hidden; }
+.thread { display: flex; flex-direction: column; height: var(--nl-vh, 100%); min-height: 0; background: var(--bg); position: relative; overflow: hidden; }
 .thread-hdr {
   height: var(--hdr-h);
   display: flex;
@@ -2249,3 +2251,120 @@ body.media-viewer-open { overflow: hidden; }
   .voice-player { min-width: 210px; max-width: 290px; }
   .voice-wave { min-width: 95px; }
 }
+
+
+/* WebView virtual keyboard support */
+@supports (height: 100dvh) {
+  html, body { min-height: 100dvh; }
+}
+@media (max-width: 767px) {
+  #nl-root, .shell, .thread {
+    min-height: 0;
+    height: var(--nl-vh, 100dvh);
+  }
+  .thread {
+    padding-bottom: 0;
+  }
+  .msgs {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-bottom: 90px;
+  }
+  .composer {
+    position: relative;
+    bottom: auto;
+    transform: translateZ(0);
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+  .composer textarea {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+
+/* Phone UI: separate mobile composition and long-press context menu. */
+.mobile-ui {
+  --hdr-h: 58px;
+}
+.mobile-ui .sidebar {
+  border-right: 0;
+}
+.mobile-ui .hdr {
+  padding-left: max(14px, env(safe-area-inset-left));
+  padding-right: max(14px, env(safe-area-inset-right));
+}
+.mobile-ui .brand {
+  font-size: 20px;
+}
+.mobile-ui .row {
+  min-height: 64px;
+  padding: 12px 14px;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+.mobile-ui .thread-hdr {
+  padding-top: env(safe-area-inset-top);
+  height: calc(58px + env(safe-area-inset-top));
+}
+.mobile-ui .msgs {
+  padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+  -webkit-overflow-scrolling: touch;
+}
+.mobile-ui .composer {
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+}
+.mobile-ui .composer .box {
+  border-radius: 20px;
+}
+.mobile-ui .composer textarea {
+  min-height: 40px;
+  font-size: 16px;
+}
+.mobile-ui .nav {
+  backdrop-filter: blur(16px);
+}
+.mobile-ui .ctx {
+  width: min(270px, calc(100vw - 24px));
+  border-radius: 18px;
+  padding: 6px;
+  box-shadow: var(--shadow-lg);
+  animation: nl-context-pop .14s var(--ease-out);
+}
+.mobile-ui .ctx button {
+  min-height: 48px;
+  font-size: 14px;
+  border-radius: 12px;
+  padding: 0 14px;
+}
+.mobile-ui .voice-player,
+.mobile-ui .voice-preview,
+.mobile-ui [data-send][aria-label*="голос"],
+.mobile-ui .rec {
+  display: none !important;
+}
+.voice-disabled-msg {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  color: var(--muted);
+  background: color-mix(in oklab, var(--elevated) 80%, transparent);
+  font-size: 12px;
+}
+@keyframes nl-context-pop {
+  from { opacity: 0; transform: translateY(4px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* No embedded browser UI in the app. External links open in the system browser. */
+.browser,
+.browser iframe,
+.dev-sheet,
+.dev-layout {
+  display: none !important;
+}
+
+.mobile-ui .bubble, .mobile-ui .ctx, .mobile-ui button { -webkit-touch-callout: none; }

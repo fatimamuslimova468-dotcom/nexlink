@@ -557,6 +557,11 @@ export async function sendMessage(chatId, msg) {
   const chatSnap = await get(ref(db, `chats/${chatId}`));
   const chat = chatSnap.val();
   if (!chat) throw new Error("chat-not-found");
+  if (chat.type === "bot" && chat.peerId === "security" && msg.senderId !== "security") {
+    const err = new Error("security-bot-readonly");
+    err.code = "security-bot-readonly";
+    throw err;
+  }
   if (chat.type === "private" && msg.senderId) {
     const peer = chat.peers?.[msg.senderId];
     if (peer) {
