@@ -8,9 +8,6 @@ import {
   updateProfile,
   EmailAuthProvider,
   reauthenticateWithCredential,
-  multiFactor,
-  TotpMultiFactorGenerator,
-  getMultiFactorResolver,
   setPersistence,
   browserLocalPersistence,
   sendEmailVerification,
@@ -93,56 +90,6 @@ export function currentUser() {
   return auth?.currentUser || null;
 }
 
-export function isTotpEnrolled() {
-  return !!auth?.currentUser?.multiFactor?.enrolledFactors?.some(
-    (factor) => factor.factorId === TotpMultiFactorGenerator.FACTOR_ID,
-  );
-}
-
-export function getMfaResolver(error) {
-  return getMultiFactorResolver(auth, error);
-}
-
-export async function verifyTotpSignIn(resolver, hintUid, code) {
-  const assertion = TotpMultiFactorGenerator.assertionForSignIn(hintUid, String(code).replace(/\s/g, ""));
-  return resolver.resolveSignIn(assertion);
-}
-
-export async function beginTotpEnrollment(password) {
-  const user = auth?.currentUser;
-  if (!user) throw new Error("auth/no-current-user");
-  if (!user.email) throw new Error("auth/email-required");
-  const credential = EmailAuthProvider.credential(user.email, password);
-  await reauthenticateWithCredential(user, credential);
-  const session = await multiFactor(user).getSession();
-  const secret = await TotpMultiFactorGenerator.generateSecret(session);
-  return {
-    secret,
-    uri: secret.generateQrCodeUrl(user.email, "NexLink"),
-    secretKey: secret.secretKey,
-  };
-}
-
-export async function finishTotpEnrollment(secret, code, displayName = "NexLink Authenticator") {
-  const user = auth?.currentUser;
-  if (!user) throw new Error("auth/no-current-user");
-  const assertion = TotpMultiFactorGenerator.assertionForEnrollment(
-    secret,
-    String(code).replace(/\s/g, ""),
-  );
-  await multiFactor(user).enroll(assertion, displayName);
-  return true;
-}
-
-export async function disableTotpEnrollment(enrollmentUid, password) {
-  const user = auth?.currentUser;
-  if (!user) throw new Error("auth/no-current-user");
-  if (!user.email) throw new Error("auth/email-required");
-  const credential = EmailAuthProvider.credential(user.email, password);
-  await reauthenticateWithCredential(user, credential);
-  await multiFactor(user).unenroll(enrollmentUid);
-  return true;
-}
 
 function cleanUsername(raw) {
   return String(raw || "")
@@ -279,10 +226,11 @@ export function defaultSettings() {
     sounds: true,
     reduceMotion: false,
     locale: "ru",
-    twoFA: false,
     whoCanMessage: "everyone",
     whoCanCall: "contacts",
     whoCanAdd: "contacts",
+    whoCanSeeProfile: "everyone",
+    whoCanSeeLastSeen: "contacts",
   };
 }
 
@@ -793,6 +741,14 @@ export async function addMember(chatId, uid, actorUid = null) {
     const perms = chat.rolePermissions?.[role] || {};
     if (role !== "owner" && !perms.addMembers) throw new Error("group-permission-denied");
   }
+  if (actorUid && uid !== actorUid) {
+    const target = await loadProfile(uid);
+    const mode = target?.settings?.whoCanAdd || "contacts";
+    if (mode === "contacts") {
+      const contactSnap = await get(ref(db, `contacts/${uid}/${actorUid}`));
+      if (!contactSnap.exists()) throw new Error("privacy-add-denied");
+    }
+  }
   await update(ref(db, `chats/${chatId}/members`), { [uid]: "member" });
   await set(ref(db, `inbox/${uid}/${chatId}`), {
     chatId,
@@ -830,6 +786,12 @@ export function listenContacts(uid, cb) {
   return onValue(ref(db, `contacts/${uid}`), (s) => cb(s.val() || {}));
 }
 
+export async function isContact(ownerUid, otherUid) {
+  if (!ownerUid || !otherUid) return false;
+  const snap = await get(ref(db, `contacts/${ownerUid}/${otherUid}`));
+  return snap.exists();
+}
+
 export async function setTyping(chatId, uid, on) {
   const r = ref(db, `typing/${chatId}/${uid}`);
   if (on) await set(r, Date.now());
@@ -865,8 +827,8 @@ export function listenIce(chatId, side, cb) {
   return onChildAdded(ref(db, `calls/${chatId}/ice/${side}`), (s) => cb(s.val()));
 }
 
-export async function endCall(chatId) {
-  await update(ref(db, `calls/${chatId}`), { status: "ended", at: Date.now() });
+export async function endCall(chatId, extra = {}) {
+  await update(ref(db, `calls/${chatId}`), { status: "ended", at: Date.now(), ...extra });
 }
 
 export async function ringUser(uid, payload) {
@@ -879,6 +841,44 @@ export function listenIncoming(uid, cb) {
 
 export async function clearIncoming(uid) {
   await remove(ref(db, `incoming/${uid}`));
+}
+
+
+export function listenGroupCall(chatId, cb) {
+  return onValue(ref(db, `calls/${chatId}`), (s) => cb(s.val()));
+}
+
+export function listenGroupParticipants(chatId, cb) {
+  return onValue(ref(db, `calls/${chatId}/participants`), (s) => cb(s.val() || {}));
+}
+
+export async function getGroupParticipantsOnce(chatId) {
+  const snap = await get(ref(db, `calls/${chatId}/participants`));
+  return snap.val() || {};
+}
+
+export async function setGroupParticipant(chatId, uid, data) {
+  await set(ref(db, `calls/${chatId}/participants/${uid}`), { ...data, uid, at: Date.now() });
+}
+
+export async function removeGroupParticipant(chatId, uid) {
+  await remove(ref(db, `calls/${chatId}/participants/${uid}`));
+}
+
+export async function writeGroupSignal(chatId, pairKey, side, data) {
+  await set(ref(db, `calls/${chatId}/signals/${pairKey}/${side}`), { ...data, at: Date.now() });
+}
+
+export function listenGroupSignals(chatId, cb) {
+  return onValue(ref(db, `calls/${chatId}/signals`), (s) => cb(s.val() || {}));
+}
+
+export async function pushGroupIce(chatId, pairKey, side, cand) {
+  await push(ref(db, `calls/${chatId}/signals/${pairKey}/ice/${side}`), cand);
+}
+
+export function listenGroupIce(chatId, pairKey, side, cb) {
+  return onChildAdded(ref(db, `calls/${chatId}/signals/${pairKey}/ice/${side}`), (s) => cb(s.val()));
 }
 
 export async function sendSupport({ uid, topic, text }) {
@@ -896,13 +896,10 @@ export function authError(err) {
     "auth/wrong-password": "Неверный пароль",
     "auth/invalid-credential": "Неверный email или пароль",
     "auth/too-many-requests": "Слишком много попыток, подождите",
-    "auth/operation-not-allowed": "Авторизация по email/паролю недоступна",
+    "auth/operation-not-allowed": "Вход по email/паролю отключён в Firebase. В Firebase Console включите Authentication → Sign-in method → Email/Password.",
+    "privacy-add-denied": "Пользователь разрешает добавление в группы только своим контактам.",
     "auth/unauthorized-domain": "Домен не разрешён для авторизации",
-    "auth/multi-factor-auth-required": "Требуется код двухэтапной проверки",
-    "auth/invalid-verification-code": "Неверный код двухэтапной проверки",
-    "auth/invalid-multi-factor-session": "Сессия двухэтапной проверки истекла",
     "auth/requires-recent-login": "Нужно повторно подтвердить пароль",
-    "auth/email-required": "Для TOTP нужен email",
     "auth/email-not-verified": "Подтвердите email. Мы не можем завершить вход без подтверждения.",
     "auth/no-current-user": "Пользователь не авторизован",
     "verification-rate-limited": "Письмо уже недавно отправлялось. Проверьте входящие и попробуйте позже." ,

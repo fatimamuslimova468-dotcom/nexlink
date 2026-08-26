@@ -10,10 +10,11 @@ const DEFAULT_SETTINGS = {
   sounds: true,
   reduceMotion: false,
   locale: "ru",
-  twoFA: false,
   whoCanMessage: "everyone",
   whoCanCall: "contacts",
   whoCanAdd: "contacts",
+  whoCanSeeProfile: "everyone",
+  whoCanSeeLastSeen: "contacts",
 };
 
 const THEMES = {
@@ -194,6 +195,10 @@ const I18N = {
     reply: "Ответить",
     copy: "Копировать",
     forward: "Переслать",
+    translate: "Перевести",
+    translation: "Перевод",
+    translationFailed: "Не удалось перевести сообщение",
+    translating: "Перевод…",
     delete: "Удалить",
     pin: "Закрепить",
     unpin: "Открепить",
@@ -222,27 +227,6 @@ const I18N = {
     emptySearch: "Ничего не найдено",
     today: "Сегодня",
     yesterday: "Вчера",
-    twoFA: "Двухэтапная проверка",
-    twoFAOn: "Включена",
-    twoFAOff: "Выключена",
-    totpAppHint: "Приложение-аутентификатор",
-    totpSetup: "Настроить TOTP",
-    totpEnabled: "TOTP включён",
-    totpDisabled: "TOTP выключен",
-    totpPassword: "Текущий пароль",
-    totpCode: "Код из приложения",
-    totpSecret: "Секретный ключ",
-    totpUri: "Ключ URI",
-    totpStart: "Создать секрет",
-    totpFinish: "Включить TOTP",
-    totpDisable: "Отключить TOTP",
-    totpConfirmDisable: "Подтвердить отключение",
-    totpLoginTitle: "Подтвердите вход",
-    totpLoginHint: "Введите 6-значный код из приложения-аутентификатора.",
-    totpVerify: "Подтвердить",
-    totpConfigHint: "Для работы TOTP MFA функция должна быть включена в настройках проекта авторизации.",
-    totpScanQr: "Отсканируйте QR-код приложением-аутентификатором",
-    totpQrFallback: "QR-код недоступен. Используйте URI или секретный ключ ниже.",
     currentSession: "Этот браузер",
     endOther: "Выйти на этом устройстве",
     aboutBody: "NexLink — приложение для общения с живыми чатами, звонками, ботами и темами. Данные синхронизируются в реальном времени.",
@@ -275,7 +259,16 @@ const I18N = {
     artist: "Исполнитель",
     foldersHint: "Папки над списком чатов: все, непрочитанные, группы, каналы.",
     labsHint: "WebRTC-звонки и живые темы.",
-    storageHint: "Медиа хранится в защищённом облачном хранилище. Выход не удаляет переписку на сервере.",
+    storageHint: "Медиа хранится в защищённом облачном хранилище. Здесь можно очистить локальный кэш и временные данные.",
+    storageCache: "Локальный кэш NexLink",
+    storageCacheHint: "Кэш браузера, превью и временные данные. Переписка на сервере не удаляется.",
+    storageStickers: "Стикеры на этом устройстве",
+    storageStickersHint: "Локально сохранённые стикеры и их превью.",
+    storageClearCache: "Очистить кэш",
+    storageClearStickers: "Очистить стикеры",
+    storageClearDone: "Локальные данные очищены",
+    qrScanSettings: "Отсканировать QR-код",
+    qrScanSettingsHint: "Войти в NexLink по QR-коду с компьютера",
     browserHint: "Ссылки из чатов открываются внутри NexLink.",
     go: "Открыть",
     back: "Назад",
@@ -372,6 +365,10 @@ const I18N = {
     reply: "Reply",
     copy: "Copy",
     forward: "Forward",
+    translate: "Translate",
+    translation: "Translation",
+    translationFailed: "Could not translate the message",
+    translating: "Translating…",
     delete: "Delete",
     pin: "Pin",
     unpin: "Unpin",
@@ -400,27 +397,6 @@ const I18N = {
     emptySearch: "Nothing found",
     today: "Today",
     yesterday: "Yesterday",
-    twoFA: "Two-step verification",
-    twoFAOn: "On",
-    twoFAOff: "Off",
-    totpAppHint: "Authenticator app",
-    totpSetup: "Set up TOTP",
-    totpEnabled: "TOTP enabled",
-    totpDisabled: "TOTP disabled",
-    totpPassword: "Current password",
-    totpCode: "Code from app",
-    totpSecret: "Secret key",
-    totpUri: "Key URI",
-    totpStart: "Create secret",
-    totpFinish: "Enable TOTP",
-    totpDisable: "Disable TOTP",
-    totpConfirmDisable: "Confirm disable",
-    totpLoginTitle: "Confirm sign-in",
-    totpLoginHint: "Enter the 6-digit code from your authenticator app.",
-    totpVerify: "Verify",
-    totpConfigHint: "TOTP MFA must be enabled in the authentication project settings before enrollment.",
-    totpScanQr: "Scan this QR code with your authenticator app",
-    totpQrFallback: "QR code unavailable. Use the URI or secret key below.",
     currentSession: "This browser",
     endOther: "Sign out on this device",
     aboutBody: "NexLink is a modern communication app with live chats, calls, bots and themes. Data is synchronized in real time.",
@@ -453,7 +429,16 @@ const I18N = {
     artist: "Artist",
     foldersHint: "Folders above the chat list: all, unread, groups, channels.",
     labsHint: "WebRTC calls and live themes.",
-    storageHint: "Media is stored in secure cloud storage. Signing out does not delete server history.",
+    storageHint: "Media is stored in secure cloud storage. Clear local cache and temporary data here without deleting server history.",
+    storageCache: "NexLink local cache",
+    storageCacheHint: "Browser cache, previews and temporary data. Server history is not deleted.",
+    storageStickers: "Stickers on this device",
+    storageStickersHint: "Locally saved stickers and their previews.",
+    storageClearCache: "Clear cache",
+    storageClearStickers: "Clear stickers",
+    storageClearDone: "Local data cleared",
+    qrScanSettings: "Scan QR code",
+    qrScanSettingsHint: "Sign in to NexLink using a QR code from a computer",
     browserHint: "Links from chats open inside NexLink.",
     go: "Go",
     back: "Back",
@@ -563,6 +548,9 @@ const state = {
   reads: {},
   e2ee: { ready: false, status: "" },
   call: null,
+  groupCallPeers: {},
+  groupCallUnsubs: [],
+  callStartedAt: 0,
   ctx: null,
   foundUser: null,
   foundUsers: [],
@@ -570,14 +558,9 @@ const state = {
   foundCommunities: [],
   profileTab: "files",
   chatInfoTab: "media",
-  mfaResolver: null,
-  mfaHintUid: null,
-  mfaError: "",
-  totpSecret: null,
-  totpSecretKey: "",
-  totpUri: "",
   devSection: "home",
   devToken: "",
+  translation: null,
   security: { device: null, requestId: null, pending: null, requests: {} },
   profileLoadingPeer: {},
   commonGroupsByPeer: {},
@@ -919,7 +902,6 @@ function render() {
 }
 
 function renderAuth(root) {
-  if (state.mfaResolver) { renderMfaChallenge(root); return; }
   const reg = state.mode === "register";
   const isPhone = window.matchMedia?.("(max-width: 760px), (pointer: coarse)")?.matches;
   const notice = state.authVerification ? `
@@ -983,7 +965,6 @@ function renderAuth(root) {
       if (!reg && result?.uid) { state.authPassword = ""; toast("Вход выполнен"); }
     } catch (ex) {
       if (ex?.code === "auth/email-not-verified") { state.authError = "Подтвердите email перед входом."; state.authEmail = ex.email || emailValue; state.authVerification = { email: state.authEmail }; render(); return; }
-      if (ex?.code === "auth/multi-factor-auth-required") { state.mfaResolver = FB.getMfaResolver(ex); state.mfaHintUid = state.mfaResolver?.hints?.find((h) => h.factorId === "totp")?.uid || state.mfaResolver?.hints?.[0]?.uid || null; state.mfaError = ""; render(); return; }
       err.textContent = FB?.authError ? FB.authError(ex) : String(ex?.message || ex); btn.disabled = false; btn.textContent = prev;
     }
   };
@@ -1054,48 +1035,6 @@ function closeQrLogin() {
   if (state.qrLogin.stream) { try { state.qrLogin.stream.getTracks().forEach(t=>t.stop()); } catch {} }
   state.qrLogin.detector=null; state.qrLogin.stream=null; state.qrLogin.timer=null; state.qrLogin.mode=null; state.qrLogin.sessionId=""; state.qrLogin.secret=""; state.qrLogin.status="idle";
   document.getElementById("qr-auth-dialog")?.remove();
-}
-
-function renderMfaChallenge(root) {
-  const hint = state.mfaResolver?.hints?.find((h) => h.factorId === "totp") || state.mfaResolver?.hints?.[0];
-  state.mfaHintUid = hint?.uid || null;
-  root.innerHTML = `
-    <div class="nl-center nl-pattern">
-      <form class="auth-card" id="mfa-form">
-        <div class="mark">N</div>
-        <h1>${esc(t("totpLoginTitle"))}</h1>
-        <p class="sub">${esc(t("totpLoginHint"))}</p>
-        <div class="field"><label>${esc(t("totpCode"))}</label><input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,8}" maxlength="8" required autofocus></div>
-        <div class="err" id="mfa-err">${esc(state.mfaError)}</div>
-        <button class="btn block" type="submit">${esc(t("totpVerify"))}</button>
-        <p class="hint"><button type="button" class="linkish" id="mfa-cancel">${esc(t("cancel"))}</button></p>
-      </form>
-    </div>`;
-  root.querySelector("#mfa-cancel").onclick = async () => {
-    state.mfaResolver = null;
-    state.mfaHintUid = null;
-    state.mfaError = "";
-    try { await FB.logout(); } catch {}
-    render();
-  };
-  root.querySelector("#mfa-form").onsubmit = async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const err = root.querySelector("#mfa-err");
-    const btn = e.target.querySelector("button[type=submit]");
-    btn.disabled = true;
-    err.textContent = "";
-    try {
-      await FB.verifyTotpSignIn(state.mfaResolver, state.mfaHintUid, fd.get("code"));
-      state.mfaResolver = null;
-      state.mfaHintUid = null;
-      state.mfaError = "";
-    } catch (ex) {
-      state.mfaError = FB?.authError ? FB.authError(ex) : String(ex?.message || ex);
-      err.textContent = state.mfaError;
-      btn.disabled = false;
-    }
-  };
 }
 
 function renderApp(root) {
@@ -1417,6 +1356,54 @@ function paintContactList() {
   });
 }
 
+
+function localStorageBytes() {
+  let total = 0;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i) || "";
+      const v = localStorage.getItem(k) || "";
+      total += (k.length + v.length) * 2;
+    }
+  } catch {}
+  return total;
+}
+
+function formatBytes(bytes) {
+  const n = Math.max(0, Number(bytes) || 0);
+  if (n < 1024) return `${Math.round(n)} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(n / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+}
+
+async function clearNexLinkLocalCache() {
+  try {
+    if (window.caches?.keys) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    }
+  } catch {}
+  try {
+    const keep = new Set();
+    // Preserve only Firebase/runtime persistence and unrelated site storage.
+    // NexLink's explicit local collections are small and safe to reset.
+    for (const k of ["nexlink_dev_bots", "nexlink_dev_demo_oauths_v2", "nexlink_dev_demo_oauths", "nexlink_dev_demo_oauth"]) keep.add(k);
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith("nexlink_") && !keep.has(key)) localStorage.removeItem(key);
+    }
+  } catch {}
+  toast(t("storageClearDone"));
+  closePanel();
+}
+
+function clearNexLinkStickers() {
+  try { localStorage.removeItem("nexlink-stickers"); } catch {}
+  toast(t("storageClearDone"));
+  closePanel();
+}
+
 function paintSettings(el) {
   const p = state.profile || {};
   const s = state.settings;
@@ -1435,12 +1422,12 @@ function paintSettings(el) {
         <section class="card"><div class="cap">${esc(t("account"))}</div>
           ${row("profile", "user", t("profile"), `${p.name || ""} · @${p.username || ""}`)}
           ${row("devices", "monitor", t("devices"), t("currentSession"))}
-          ${row("security", "shield", t("security"), s.twoFA ? t("twoFAOn") : t("twoFAOff"))}
           ${row("privacy", "lock", t("privacy"), t("whoMessage"))}
+          ${row("storage", "folder", t("storage"), t("storageHint"))}
         </section>
         <section class="card"><div class="cap">${esc(t("appearance"))}</div>
           ${row("themes", "palette", t("themes"), s.theme)}
-          ${row("notifications", "bell", t("notifications"), s.notifications ? t("twoFAOn") : t("twoFAOff"))}
+          ${row("notifications", "bell", t("notifications"), s.notifications ? "Включены" : "Выключены")}
           ${row("sounds", "volume", t("sounds"), t("msgSound"))}
           ${row("language", "lang", t("language"), s.locale === "en" ? "English" : "Русский")}
         </section>
@@ -1487,12 +1474,13 @@ function paintThread(el) {
   else if (chatType === "saved") status = t("saved");
   else if (typingOthers) status = t("typing");
   else if (online) status = t("online");
-  else if (peerId && state.presence[peerId]?.at) status = `${t("lastSeen")} · ${fmtListTime(state.presence[peerId].at)}`;
+  else if (peerId && state.presence[peerId]?.at && privacyAllows(state.users?.[peerId], "whoCanSeeLastSeen", me()?.uid)) status = `${t("lastSeen")} · ${fmtListTime(state.presence[peerId].at)}`;
+  else if (peerId) status = "был(а) недавно";
 
   const isSecurityBot = chatType === "bot" && (peerId === "security" || chat.peerId === "security" || title === "NexLink Security");
   const isSavedContact = chatType !== "private" || !peerId || Object.values(state.contacts || {}).some((c) => (c?.uid || c?.id) === peerId) || !!state.contacts?.[peerId];
   const canPost = !isSecurityBot && (chatType !== "channel" || chat.createdBy === me()?.uid);
-  const canCall = chatType === "private";
+  const canCall = chatType === "private" || chatType === "group";
 
   el.innerHTML = `
     <div class="thread">
@@ -1502,7 +1490,7 @@ function paintThread(el) {
           ${avatar({ name: title, color, size: 40, online, type: chatType })}
           <div class="min"><div class="who">${chatType === "private" && peerId ? userNameHtml(state.users[peerId], title) : esc(title)}</div><div class="st ${online || typingOthers ? "on" : ""}">${esc(status)}</div></div>
         </button>
-        ${canCall && chatType === "private" ? `<button class="btn icon" data-call="audio" title="${esc(t("call"))}">${icon("phone")}</button>
+        ${canCall ? `<button class="btn icon" data-call="audio" title="${esc(t("call"))}">${icon("phone")}</button>
         <button class="btn icon" data-call="video" title="${esc(t("videoCall"))}">${icon("video")}</button>` : ""}
         <button type="button" class="btn icon" data-menu aria-label="Меню чата">${icon("more")}</button>
       </header>
@@ -1632,6 +1620,33 @@ function messageReadMarkup(msg) {
   return `<span class="msg-status ${read ? "read" : "sent"}" title="${read ? "Прочитано" : "Доставлено"}">${icon("checks", 12)}</span>`;
 }
 
+async function translateMessageText(text, targetLocale = null) {
+  const raw = String(text || "").trim();
+  if (!raw) throw new Error("Нет текста для перевода");
+  const target = targetLocale || (state.settings?.locale === "en" ? "en" : "ru");
+
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(target)}&dt=t&q=${encodeURIComponent(raw)}`;
+    const response = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error(`Translation HTTP ${response.status}`);
+    const data = await response.json();
+    const translated = Array.isArray(data) && Array.isArray(data[0])
+      ? data[0].map((part) => Array.isArray(part) ? part[0] : "").join("")
+      : "";
+    if (translated.trim()) return { translated, target };
+  } catch {
+    /* fallback below */
+  }
+
+  const fallbackUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(raw)}&langpair=auto|${encodeURIComponent(target)}`;
+  const fallbackResponse = await fetch(fallbackUrl, { headers: { Accept: "application/json" } });
+  if (!fallbackResponse.ok) throw new Error(`Translation HTTP ${fallbackResponse.status}`);
+  const fallback = await fallbackResponse.json();
+  const translated = String(fallback?.responseData?.translatedText || "").trim();
+  if (!translated) throw new Error("Empty translation");
+  return { translated, target };
+}
+
 function paintMessages() {
   const box = document.getElementById("msgs");
   if (!box) return;
@@ -1739,6 +1754,7 @@ function paintMessages() {
       if (!msg) return;
       showMenu(b, [
         { id: "reply", label: t("reply"), icon: "reply" },
+        ...(String(msg.text || "").trim() ? [{ id: "translate", label: t("translate"), icon: "language" }] : []),
         { id: "copy", label: t("copy"), icon: "copy" },
         { id: "fwd", label: t("forward"), icon: "fwd" },
         ...(msg.senderId === me()?.uid ? [{ id: "del", label: t("delete"), icon: "trash", danger: true }] : []),
@@ -1746,6 +1762,18 @@ function paintMessages() {
         if (id === "reply") {
           state.replyTo = msg.id;
           paintReply();
+        }
+        if (id === "translate") {
+          const original = String(msg.text || "").trim();
+          if (!original) return;
+          toast(t("translating"));
+          try {
+            const result = await translateMessageText(original);
+            state.translation = { original, translated: result.translated, target: result.target, messageId: msg.id };
+            openPanel("translate");
+          } catch (err) {
+            toast(`${t("translationFailed")}: ${String(err?.message || err)}`);
+          }
         }
         if (id === "copy") {
           await navigator.clipboard.writeText(msg.text || "");
@@ -1920,6 +1948,10 @@ function mountStickers() {
 async function sendSticker(url) {
   try {
     if (isSecurityChatId(state.activeChatId)) return toast("NexLink Security недоступен для обычных сообщений.");
+    const chat = state.chats[state.activeChatId] || {};
+    const item = state.inbox[state.activeChatId] || {};
+    const peerId = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
+    if (chat.type === "private" && peerId && !(await canMessagePeer(peerId))) return toast("Этот пользователь ограничил входящие сообщения.");
     await FB.sendMessage(state.activeChatId, { senderId: me().uid, kind: "sticker", text: "Стикер", mediaUrl: url });
     const slot = document.getElementById("sticker-slot");
     if (slot) slot.classList.add("hidden");
@@ -1933,6 +1965,105 @@ function isSecurityChatId(chatId) {
   return chat.type === "bot" && (chat.peerId === "security" || item.peerId === "security" || id.startsWith("bot_security_"));
 }
 
+function isContactUid(uid) {
+  if (!uid) return false;
+  return !!state.contacts?.[uid] || Object.values(state.contacts || {}).some((c) => (c?.uid || c?.id) === uid);
+}
+
+async function loadPeerProfile(uid) {
+  if (!uid || !FB?.loadProfile) return null;
+  if (state.users?.[uid]) return state.users[uid];
+  try {
+    const p = await FB.loadProfile(uid);
+    if (p) state.users[uid] = { ...p, uid };
+    return p || null;
+  } catch {
+    return null;
+  }
+}
+
+function privacyAllows(profile, key, senderUid) {
+  const mode = profile?.settings?.[key] || "everyone";
+  if (mode === "everyone") return true;
+  if (mode === "contacts") return isContactUid(senderUid);
+  return false;
+}
+
+async function privacyAllowsPeer(profile, key, peerUid, senderUid) {
+  const mode = profile?.settings?.[key] || "everyone";
+  if (mode === "everyone") return true;
+  if (mode === "nobody") return false;
+  if (mode === "contacts") {
+    try { return !!(FB?.isContact ? await FB.isContact(peerUid, senderUid) : isContactUid(peerUid)); } catch { return false; }
+  }
+  return false;
+}
+
+async function canMessagePeer(peerId) {
+  if (!peerId || peerId === me()?.uid) return true;
+  const profile = await loadPeerProfile(peerId);
+  return privacyAllowsPeer(profile, "whoCanMessage", peerId, me()?.uid);
+}
+
+function startCallTone() {
+  stopCallTone();
+  if (!state.settings.sounds) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ac = new AC();
+    let stopped = false;
+    let timeout = null;
+
+    const ringBurst = () => {
+      if (stopped || !state.call || state.call.status !== "ringing") return;
+      const now = ac.currentTime;
+      const makeTone = (start, duration, freq = 480) => {
+        const o = ac.createOscillator();
+        const g = ac.createGain();
+        o.type = "sine";
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, start);
+        g.gain.exponentialRampToValueAtTime(0.055, start + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, start + duration - 0.02);
+        o.connect(g);
+        g.connect(ac.destination);
+        o.start(start);
+        o.stop(start + duration);
+      };
+      // Two short tones per ring cycle, followed by a pause.
+      makeTone(now, 0.42, 480);
+      makeTone(now + 0.54, 0.42, 480);
+    };
+
+    const schedule = async () => {
+      if (stopped || !state.call || state.call.status !== "ringing") {
+        stopCallTone();
+        return;
+      }
+      try {
+        if (ac.state === "suspended") await ac.resume();
+      } catch {}
+      ringBurst();
+      timeout = setTimeout(schedule, 1900);
+    };
+
+    window.__nexCallTone = {
+      ac,
+      stop: () => { stopped = true; if (timeout) clearTimeout(timeout); }
+    };
+    schedule();
+  } catch {}
+}
+
+function stopCallTone() {
+  const tone = window.__nexCallTone;
+  if (!tone) return;
+  try { tone.stop?.(); } catch {}
+  try { tone.ac?.close?.(); } catch {}
+  window.__nexCallTone = null;
+}
+
 async function sendText(raw) {
   const text = (raw ?? state.composer).trim();
   if (!text || !state.activeChatId) return;
@@ -1943,6 +2074,10 @@ async function sendText(raw) {
   const item = state.inbox[state.activeChatId] || {};
   const chat = state.chats[state.activeChatId] || {};
   const peerId = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
+  if (chat.type === "private" && peerId && !(await canMessagePeer(peerId))) {
+    toast("Этот пользователь ограничил входящие сообщения.");
+    return;
+  }
   let peerPublicKey = null;
   if (peerId && FB.loadE2EEPublicKey && chat.type === "private") {
     try { peerPublicKey = await FB.loadE2EEPublicKey(peerId); } catch {}
@@ -1993,6 +2128,10 @@ async function uploadToImgBB(file) {
 async function sendImage(file) {
   try {
     if (isSecurityChatId(state.activeChatId)) return toast("NexLink Security недоступен для обычных сообщений.");
+    const chat = state.chats[state.activeChatId] || {};
+    const item = state.inbox[state.activeChatId] || {};
+    const peerId = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
+    if (chat.type === "private" && peerId && !(await canMessagePeer(peerId))) return toast("Этот пользователь ограничил входящие сообщения.");
     if (!file?.type?.startsWith("image/")) return toast("Выберите изображение");
     const blob = await compressImage(file);
     const uploadFile = new File([blob], file.name || "image.jpg", { type: blob.type || file.type || "image/jpeg" });
@@ -2241,6 +2380,7 @@ function closePanel(opts = {}) {
   }
   state.panel = null;
   state.panelPayload = null;
+  state.translation = null;
   paintOverlays();
 }
 
@@ -2261,7 +2401,7 @@ function paintOverlays() {
   if (!host) return;
 
   // Сохраняем текущее состояние полей перед полной перерисовкой overlay.
-  // Это особенно важно для Dev и TOTP: обновление realtime-данных не должно
+  // Это особенно важно для Dev: обновление realtime-данных не должно
   // выбрасывать фокус и закрывать клавиатуру у пользователя.
   const fieldState = new Map();
   let activeFieldKey = null;
@@ -2349,12 +2489,14 @@ function renderChatInfoPanel() {
   const type = String(chat.type || item.type || "private").toLowerCase();
   const peerId = type === "private" ? (item.peerId || chat.peers?.[uid]) : null;
   const peer = peerId ? (state.users[peerId] || {}) : null;
+  const canSeePeerProfile = !peerId || privacyAllows(peer, "whoCanSeeProfile", uid);
+  const canSeePeerLastSeen = !peerId || privacyAllows(peer, "whoCanSeeLastSeen", uid);
   const isChannel = type === "channel";
   const isGroup = type === "group";
   const isContact = !!peerId && Object.values(state.contacts || {}).some((c) => (c?.uid || c?.id) === peerId);
   const online = !!(peerId && state.presence[peerId]?.online);
-  const username = peer?.username ? `@${peer.username}` : "@username не указан";
-  const status = online ? "в сети" : (peerId ? t("lastSeen") : (isChannel ? "Публичный канал" : "Группа"));
+  const username = canSeePeerProfile && peer?.username ? `@${peer.username}` : (peerId ? "Профиль скрыт настройками конфиденциальности" : "@username не указан");
+  const status = online ? "в сети" : (peerId ? (canSeePeerLastSeen ? t("lastSeen") : "был(а) недавно") : (isChannel ? "Публичный канал" : "Группа"));
   const memberEntries = Object.entries(chat.members || {});
   const memberCount = memberEntries.length;
   const messages = Array.isArray(state.messages) ? state.messages : [];
@@ -2477,6 +2619,7 @@ function sheetHtml(panel) {
     group: t("newGroup"),
     channel: t("newChannel"),
     developer: t("developer"),
+    storage: t("storage"),
     music: t("music"),
     "chat-info": t("profile"),
     "invite-members": "Пригласить участников",
@@ -2492,37 +2635,32 @@ function sheetHtml(panel) {
     body = `<div class="danger-card"><div class="ttl" style="font-weight:800">${esc(t("deleteAccount"))}</div><p class="muted mt">${esc(t("deleteAccountConfirm"))}</p><form id="delete-account-form"><div class="field"><label>${esc(t("deleteAccountPassword"))}</label><input name="password" type="password" autocomplete="current-password" required></div><button class="btn danger block" type="submit">${esc(t("deleteAccount"))}</button></form></div>`;
   } else if (panel === "devices") {
     body = `<div class="row">${avatar({ name: "Web", color: "#3D8BFD", size: 40 })}<div class="meta"><div class="name">${esc(t("currentSession"))}</div><div class="prev">Web · ${esc(navigator.userAgent.slice(0, 40))}</div></div></div>
+      ${isPhoneDevice() ? `<button class="row devices-qr-action" id="settings-qr-scan-open"><span class="ico">${icon("qr", 20)}</span><span class="grow"><span class="ttl">${esc(t("qrScanSettings"))}</span><span class="sub">${esc(t("qrScanSettingsHint"))}</span></span>${icon("chevron",18)}</button>` : ""}
       <button class="btn danger block mt" id="do-logout">${esc(t("endOther"))}</button>`;
   } else if (panel === "security") {
-    const enrolled = FB?.isTotpEnrolled?.() || false;
-    body = `<div class="flex-row"><div><div class="ttl" style="font-weight:700">${esc(t("twoFA"))}</div><div class="muted">${esc(enrolled ? t("totpEnabled") : t("totpDisabled"))}</div></div></div>
-      <div class="mt"><button class="btn block" data-totp-setup>${esc(enrolled ? t("totpEnabled") : t("totpSetup"))}</button></div>
-      ${enrolled ? `<div class="mt"><button class="btn danger block" data-totp-disable>${esc(t("totpDisable"))}</button></div>` : ""}
-      <p class="muted mt">${esc(t("totpConfigHint"))}</p>`;
-  } else if (panel === "totp-setup") {
-    if (!state.totpSecretKey) {
-      body = `<form id="totp-start-form">${field(t("totpPassword"), "password", "", "password")}<button class="btn block" type="submit">${esc(t("totpStart"))}</button><p class="muted mt">${esc(t("totpConfigHint"))}</p></form>`;
-    } else {
-      body = `<div class="totp-qr-card">
-          <div class="totp-qr-title">${esc(t("totpScanQr"))}</div>
-          <div id="totp-qr" class="totp-qr" aria-label="TOTP QR"></div>
-          <div id="totp-qr-fallback" class="muted totp-qr-fallback hidden">${esc(t("totpQrFallback"))}</div>
-        </div>
-        <div class="totp-secret-card"><div class="cap">${esc(t("totpSecret"))}</div><code>${esc(state.totpSecretKey)}</code><button type="button" class="btn sec sm mt" id="copy-totp-secret">${esc(t("copy"))}</button></div>
-        <div class="field mt"><label>${esc(t("totpCode"))}</label><input id="totp-enroll-code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"></div>
-        <button class="btn block" id="totp-finish" type="button">${esc(t("totpFinish"))}</button>
-        <p class="muted mt">${esc(t("totpAppHint"))}: Google Authenticator, 1Password, Aegis, Microsoft Authenticator.</p>
-        <div class="field mt"><label>${esc(t("totpUri"))}</label><input value="${esc(state.totpUri)}" readonly></div>`;
-    }
-  } else if (panel === "totp-disable") {
-    const factors = (FB.currentUser?.().multiFactor?.enrolledFactors || []).filter((f) => f.factorId === "totp");
-    const uid = factors[0]?.uid || "";
-    body = `<form id="totp-disable-form" data-enrollment-uid="${esc(uid)}">${field(t("totpPassword"), "password", "", "password")}<button class="btn danger block" type="submit">${esc(t("totpConfirmDisable"))}</button></form>`;
+    body = `<div class="storage-hero"><div class="storage-hero-icon">${icon("shield", 22)}</div><div><b>Безопасность аккаунта</b><p class="muted">Основные параметры защиты и текущая сессия.</p></div></div>
+      <div class="storage-card"><div><strong>Email</strong><span>Адрес подтверждён после регистрации</span></div><b>${state.profile?.emailVerified ? "✓" : ""}</b></div>
+      <div class="storage-card"><div><strong>Текущая сессия</strong><span>${esc(t("currentSession"))}</span></div><b>Активна</b></div>`;
+  } else if (panel === "storage") {
+    const cacheSize = formatBytes(localStorageBytes());
+    let stickerCount = 0;
+    try { stickerCount = JSON.parse(localStorage.getItem("nexlink-stickers") || "[]").filter(Boolean).length; } catch {}
+    body = `<div class="storage-panel">
+      <div class="storage-hero"><div class="storage-hero-icon">${icon("folder", 22)}</div><div><b>${esc(t("storage"))}</b><p class="muted">${esc(t("storageHint"))}</p></div></div>
+      <div class="storage-card"><div><strong>${esc(t("storageCache"))}</strong><span>${esc(t("storageCacheHint"))}</span></div><b>${esc(cacheSize)}</b></div>
+      <button class="row storage-action" id="storage-clear-cache"><span class="ico">${icon("trash", 18)}</span><span class="grow"><span class="ttl">${esc(t("storageClearCache"))}</span><span class="sub">${esc(t("storageCacheHint"))}</span></span>${icon("chevron",18)}</button>
+      <div class="storage-card"><div><strong>${esc(t("storageStickers"))}</strong><span>${esc(t("storageStickersHint"))}</span></div><b>${stickerCount}</b></div>
+      <button class="row storage-action" id="storage-clear-stickers"><span class="ico">${icon("trash", 18)}</span><span class="grow"><span class="ttl">${esc(t("storageClearStickers"))}</span><span class="sub">${esc(t("storageStickersHint"))}</span></span>${icon("chevron",18)}</button>
+      <p class="muted storage-foot">${esc(t("storageHint"))}</p>
+    </div>`;
   } else if (panel === "privacy") {
     const opt = (key, val, lab) => `<button class="btn sm ${s[key] === val ? "" : "sec"}" data-set="${key}:${val}">${esc(lab)}</button>`;
-    body = `<label>${esc(t("whoMessage"))}</label><div class="seg">${opt("whoCanMessage", "everyone", t("everyone"))}${opt("whoCanMessage", "contacts", t("onlyContacts"))}</div>
-      <label class="mt" style="display:block">${esc(t("whoCall"))}</label><div class="seg">${opt("whoCanCall", "everyone", t("everyone"))}${opt("whoCanCall", "contacts", t("onlyContacts"))}${opt("whoCanCall", "nobody", t("nobody"))}</div>
-      <label class="mt" style="display:block">${esc(t("whoAdd"))}</label><div class="seg">${opt("whoCanAdd", "everyone", t("everyone"))}${opt("whoCanAdd", "contacts", t("onlyContacts"))}</div>`;
+    body = `<div class="privacy-hero"><div class="privacy-hero-icon">${icon("lock", 24)}</div><div><b>Управление конфиденциальностью</b><span>Эти параметры реально ограничивают сообщения, звонки и доступ к профилю.</span></div></div>
+      <div class="privacy-section"><strong>Сообщения</strong><span>Кто может писать вам и отправлять изображения.</span><div class="seg">${opt("whoCanMessage", "everyone", t("everyone"))}${opt("whoCanMessage", "contacts", t("onlyContacts"))}</div></div>
+      <div class="privacy-section"><strong>Звонки</strong><span>Кто может инициировать аудио- и видеозвонки.</span><div class="seg">${opt("whoCanCall", "everyone", t("everyone"))}${opt("whoCanCall", "contacts", t("onlyContacts"))}${opt("whoCanCall", "nobody", t("nobody"))}</div></div>
+      <div class="privacy-section"><strong>Добавление в группы</strong><span>Кто может добавлять вас в группы и приглашения.</span><div class="seg">${opt("whoCanAdd", "everyone", t("everyone"))}${opt("whoCanAdd", "contacts", t("onlyContacts"))}</div></div>
+      <div class="privacy-section"><strong>Профиль</strong><span>Кто видит основную информацию профиля.</span><div class="seg">${opt("whoCanSeeProfile", "everyone", t("everyone"))}${opt("whoCanSeeProfile", "contacts", t("onlyContacts"))}</div></div>
+      <div class="privacy-section"><strong>Был(а) в сети</strong><span>Кто может видеть ваше последнее посещение.</span><div class="seg">${opt("whoCanSeeLastSeen", "everyone", t("everyone"))}${opt("whoCanSeeLastSeen", "contacts", t("onlyContacts"))}</div></div>`;
   } else if (panel === "notifications") {
     body = `<div class="flex-row"><span style="font-weight:700">${esc(t("notifications"))}</span>${sw(s.notifications)}</div>
       <div class="flex-row"><span style="font-weight:700">${esc(t("previews"))}</span>${sw(s.messagePreview)}</div>`;
@@ -2666,6 +2804,16 @@ function sheetHtml(panel) {
     ).join("");
   } else if (panel === "chat-info") {
     return renderChatInfoPanel();
+  } else if (panel === "translate") {
+    const tr = state.translation || {};
+    body = `<div class="translate-panel">
+      <div class="translate-language"><span>Оригинал</span><b>${tr.target === "en" ? "English" : "Русский"}</b></div>
+      <div class="translate-original">${esc(tr.original || "")}</div>
+      <div class="translate-divider">↓</div>
+      <div class="translate-language"><span>${esc(t("translation"))}</span><b>${tr.target === "en" ? "English" : "Русский"}</b></div>
+      <div class="translate-result">${esc(tr.translated || "")}</div>
+      <button class="btn block" id="translate-copy">${esc(t("copy"))}</button>
+    </div>`;
   } else if (panel === "forward") {
     const items = inboxItems();
     body = items
@@ -2678,40 +2826,22 @@ function sheetHtml(panel) {
   return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h2>${esc(titles[panel] || t("settings"))}</h2><button class="btn icon" id="sh-x">${icon("x")}</button></div><p class="desc"></p>${body}`;
 }
 
-function renderTotpQr() {
-  const host = document.getElementById("totp-qr");
-  const fallback = document.getElementById("totp-qr-fallback");
-  if (!host || !state.totpUri) return;
-  host.innerHTML = "";
-  try {
-    if (typeof window.qrcode !== "function") throw new Error("qr-library-missing");
-    const qr = window.qrcode(0, "M");
-    qr.addData(state.totpUri, "Byte");
-    qr.make();
-    host.innerHTML = qr.createSvgTag(4, 4);
-    host.querySelector("svg")?.setAttribute("role", "img");
-    host.querySelector("svg")?.setAttribute("aria-label", "TOTP QR code");
-    fallback?.classList.add("hidden");
-  } catch (err) {
-    console.warn("TOTP QR unavailable:", err);
-    fallback?.classList.remove("hidden");
-    host.innerHTML = "";
-  }
-}
-
 function bindOverlay() {
   const ov = document.getElementById("ov");
-  if (state.totpUri) setTimeout(renderTotpQr, 0);
   if (ov) {
     ov.addEventListener("click", (e) => {
       if (e.target === ov) closePanel();
     });
   }
   document.getElementById("sh-x")?.addEventListener("click", closePanel);
+  document.getElementById("translate-copy")?.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(state.translation?.translated || ""); toast(t("copied")); } catch {}
+  });
   document.getElementById("chat-info-close")?.addEventListener("click", closePanel);
   document.getElementById("chat-info-invite")?.addEventListener("click", () => openPanel("invite-members"));
   document.getElementById("chat-info-chat")?.addEventListener("click", closePanel);
   document.getElementById("chat-info-call")?.addEventListener("click", () => { closePanel(); setTimeout(() => startCall("audio"), 0); });
+  document.getElementById("chat-info-video")?.addEventListener("click", () => { closePanel(); setTimeout(() => startCall("video"), 0); });
   document.getElementById("chat-info-video")?.addEventListener("click", () => { closePanel(); setTimeout(() => startCall("video"), 0); });
   document.getElementById("chat-info-sound")?.addEventListener("click", async () => {
     if (!state.activeChatId || !me()?.uid) return;
@@ -2932,61 +3062,9 @@ function bindOverlay() {
       toast(FB?.authError ? FB.authError(e) : String(e?.message || e));
     }
   });
-  document.querySelector("[data-totp-setup]")?.addEventListener("click", () => openPanel("totp-setup"));
-  document.querySelector("[data-totp-disable]")?.addEventListener("click", () => openPanel("totp-disable"));
-
-  document.getElementById("totp-start-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const btn = e.target.querySelector("button[type=submit]");
-    btn.disabled = true;
-    try {
-      const result = await FB.beginTotpEnrollment(fd.get("password"));
-      state.totpSecret = result.secret;
-      state.totpSecretKey = result.secretKey;
-      state.totpUri = result.uri;
-      paintOverlays();
-      renderTotpQr();
-    } catch (ex) {
-      toast(FB.authError ? FB.authError(ex) : String(ex?.message || ex));
-      btn.disabled = false;
-    }
-  });
-  document.getElementById("copy-totp-secret")?.addEventListener("click", async () => {
-    await navigator.clipboard.writeText(state.totpSecretKey);
-    toast(t("copied"));
-  });
-  document.getElementById("totp-finish")?.addEventListener("click", async () => {
-    const code = document.getElementById("totp-enroll-code")?.value || "";
-    if (!/^\d{6,8}$/.test(code.replace(/\s/g, ""))) return toast(t("totpCode"));
-    try {
-      await FB.finishTotpEnrollment(state.totpSecret, code);
-      state.totpSecret = null;
-      state.totpSecretKey = "";
-      state.totpUri = "";
-      state.settings = { ...state.settings, twoFA: true };
-      await FB.saveProfile(me().uid, { settings: state.settings });
-      toast(t("totpEnabled"));
-      openPanel("security");
-    } catch (ex) {
-      toast(FB.authError ? FB.authError(ex) : String(ex?.message || ex));
-    }
-  });
-  document.getElementById("totp-disable-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const uid = e.target.dataset.enrollmentUid;
-    try {
-      await FB.disableTotpEnrollment(uid, fd.get("password"));
-      state.settings = { ...state.settings, twoFA: false };
-      await FB.saveProfile(me().uid, { settings: state.settings });
-      toast(t("totpDisabled"));
-      closePanel();
-      openPanel("security");
-    } catch (ex) {
-      toast(FB.authError ? FB.authError(ex) : String(ex?.message || ex));
-    }
-  });
+  document.getElementById("storage-clear-cache")?.addEventListener("click", clearNexLinkLocalCache);
+  document.getElementById("storage-clear-stickers")?.addEventListener("click", clearNexLinkStickers);
+  document.getElementById("settings-qr-scan-open")?.addEventListener("click", async () => { await openQrLogin(); });
 
   document.querySelectorAll("[data-sw]").forEach((b, i) => {
     b.onclick = async () => {
@@ -3182,23 +3260,84 @@ function bindOverlay() {
       await openChat(b.dataset.fwd);
     };
   });
-  document.getElementById("call-end")?.addEventListener("click", hangup);
+  document.getElementById("call-end")?.addEventListener("click", () => hangup());
   document.getElementById("call-acc")?.addEventListener("click", () => acceptCall());
   document.getElementById("call-dec")?.addEventListener("click", () => declineCall());
+  document.getElementById("call-collapse")?.addEventListener("click", () => { if (state.call?.status !== "ringing") { state.call = null; hangupPcOnly(); stopGroupCallListeners(); paintOverlays(); } });
+  document.getElementById("call-mic")?.addEventListener("click", () => {
+    const next = !state.call?.muted;
+    state.call = { ...state.call, muted: next };
+    localStream?.getAudioTracks().forEach(t => t.enabled = !next);
+    paintOverlays();
+  });
+  document.getElementById("call-camera")?.addEventListener("click", () => {
+    if (state.call?.group || state.call?.kind === "video") {
+      const next = !state.call?.cameraOff;
+      state.call = { ...state.call, cameraOff: next };
+      localStream?.getVideoTracks().forEach(t => t.enabled = !next);
+      paintOverlays();
+    }
+  });
+  if (state.call?.status === "active") {
+    clearTimeout(paintOverlays._callTick);
+    paintOverlays._callTick = setTimeout(() => { if (state.call) paintOverlays(); }, 1000);
+  }
+}
+
+function groupCallTitle() {
+  const chat = state.chats[state.call?.chatId] || {};
+  return chat.title || chat.name || "Групповой звонок";
+}
+
+function groupCallParticipants() {
+  return Object.values(state.call?.participants || {});
+}
+
+function callElapsedText() {
+  const started = state.callStartedAt || state.call?.at || Date.now();
+  const sec = Math.max(0, Math.floor((Date.now() - started) / 1000));
+  const mm = String(Math.floor(sec / 60)).padStart(2, "0");
+  const ss = String(sec % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
 }
 
 function callHtml() {
   const c = state.call;
-  const name = c.name || t("call");
-  if (c.dir === "in" && c.status === "ringing") {
-    return `<div class="call"><div class="info">${avatar({ name, color: "#3D8BFD", size: 88 })}<h2>${esc(name)}</h2><p class="muted">${esc(t("incoming"))} · ${esc(c.kind === "video" ? t("videoCall") : t("call"))}</p></div>
-      <div class="acts"><button class="btn" id="call-acc">${icon("phone")}</button><button class="btn danger" id="call-dec">${icon("phoneOff")}</button></div></div>`;
+  if (c?.group) {
+    const pts = groupCallParticipants();
+    const incoming = c.dir === "in" && c.status === "ringing";
+    const title = groupCallTitle();
+    const muted = !!c.muted;
+    const camOff = !!c.cameraOff;
+    return `<div class="call group-call-screen ${c.kind === "video" ? "video-mode" : "audio-mode"}">
+      <div class="group-call-topbar">
+        <button class="call-round-btn" id="call-collapse">${icon("back", 21)}</button>
+        <div class="group-call-heading"><strong>${esc(title)}</strong><span>${incoming ? "Входящий групповой звонок" : `${callElapsedText()} · ${pts.length} участник${pts.length === 1 ? "" : pts.length < 5 ? "а" : "ов"}`}</span></div>
+        <button class="call-round-btn">${icon("users", 19)}</button>
+      </div>
+      <div class="group-call-grid ${pts.length <= 1 ? "single" : ""}">
+        ${pts.map(p => `<div class="group-call-tile"><div class="group-call-avatar">${avatar({name:p.name||"Участник",color:"#3D8BFD",size:82,photo:p.photo||null})}</div><div class="group-call-name">${esc(p.uid===me()?.uid ? "Вы" : (p.name||"Участник"))}</div><span class="group-call-mic">${p.muted ? icon("micOff",15) : icon("mic",15)}</span></div>`).join("")}
+        ${!pts.length ? `<div class="group-call-empty">${avatar({name:title,color:"#3D8BFD",size:90})}<strong>${esc(title)}</strong><span>Подключаем участников…</span></div>` : ""}
+      </div>
+      ${incoming ? `<div class="call-incoming-card"><div><b>${esc(c.fromName || title)}</b><span> приглашает вас в групповой звонок</span></div><div class="call-incoming-actions"><button class="call-control accept" id="call-acc">${icon("phone",20)}</button><button class="call-control danger" id="call-dec">${icon("phoneOff",20)}</button></div></div>` : `<div class="call-bottom-bar"><button class="call-control ${muted?"on": ""}" id="call-mic">${icon(muted?"micOff":"mic",21)}</button><button class="call-control ${camOff?"on": ""}" id="call-camera">${icon(camOff?"videoOff":"video",21)}</button><button class="call-control danger" id="call-end">${icon("phoneOff",21)}</button></div>`}
+    </div>`;
   }
-  return `<div class="call">
-    <video id="remote" autoplay playsinline></video>
-    ${c.kind === "video" ? `<video id="local" autoplay muted playsinline></video>` : ""}
-    <div class="info">${avatar({ name, color: "#3D8BFD", size: 72 })}<h2>${esc(name)}</h2><p class="muted">${esc(c.status === "active" ? t("call") : t("connecting"))}</p></div>
-    <div class="acts"><button class="btn danger" id="call-end">${icon("phoneOff")}</button></div>
+  const name = c.name || t("call");
+  const incoming = c.dir === "in" && c.status === "ringing";
+  const isVideo = c.kind === "video";
+  const media = isVideo
+    ? `<video id="remote" autoplay playsinline></video><video id="local" autoplay muted playsinline></video>`
+    : `<div class="private-call-bg"></div>`;
+  const subtitle = incoming ? t("incoming") : (c.status === "active" ? callElapsedText() : t("connecting"));
+  const centerText = incoming ? t(isVideo ? "videoCall" : "call") : (c.status === "active" ? callElapsedText() : t("connecting"));
+  const controls = incoming
+    ? `<div class="call-incoming-actions"><button class="call-control accept" id="call-acc">${icon("phone",21)}</button><button class="call-control danger" id="call-dec">${icon("phoneOff",21)}</button></div>`
+    : `<div class="private-call-controls"><button class="call-control" id="call-camera">${icon("video",21)}</button><button class="call-control" id="call-mic">${icon("mic",21)}</button><button class="call-control danger" id="call-end">${icon("phoneOff",21)}</button></div>`;
+  return `<div class="call private-call-screen ${isVideo ? "video-mode" : "audio-mode"}">
+    ${media}
+    <div class="private-call-top"><button class="call-round-btn" id="call-collapse">${icon("back",21)}</button><div><strong>${esc(name)}</strong><span>${esc(subtitle)}</span></div></div>
+    <div class="private-call-center">${avatar({name,color:"#3D8BFD",size:116})}<h2>${esc(name)}</h2><span>${esc(centerText)}</span></div>
+    ${controls}
   </div>`;
 }
 
@@ -3209,13 +3348,130 @@ async function startCall(kind) {
   const chatId = state.activeChatId;
   const chat = state.chats[chatId] || {};
   const item = state.inbox[chatId] || {};
-  if (chat.type !== "private") return toast("Звонки доступны только в личных чатах");
+  if (!chat || !chat.type) return;
+  if (chat.type === "group") return startGroupCall(kind, chatId);
+  if (chat.type !== "private") return toast("Звонки доступны только в личных чатах и группах");
   const peer = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
   if (!peer) return toast("Нет собеседника");
-  state.call = { chatId, kind, dir: "out", status: "ringing", name: chatTitle(chat, item), peer };
+  const peerProfile = await loadPeerProfile(peer);
+  if (!(await privacyAllowsPeer(peerProfile, "whoCanCall", peer, me()?.uid))) return toast("Этот пользователь ограничил входящие звонки.");
+  state.call = { chatId, kind, dir: "out", status: "ringing", name: chatTitle(chat, item), peer, muted:false, cameraOff:kind !== "video" };
+  state.callStartedAt = Date.now();
   paintOverlays();
+  startCallTone();
   await FB.sendMessage(chatId, { senderId: me().uid, kind: "call", text: kind === "video" ? t("videoCall") : t("call"), callType: kind });
   await setupPc(kind, true, chatId, peer);
+}
+
+async function startGroupCall(kind, chatId) {
+  const chat = state.chats[chatId] || {};
+  const members = Object.keys(chat.members || {});
+  if (members.length > 100) return toast("В групповых звонках может участвовать не более 100 человек.");
+  const uid = me()?.uid;
+  if (!uid) return;
+  const name = chat.title || chat.name || "Групповой звонок";
+  state.call = { chatId, kind, dir:"out", status:"active", group:true, name, muted:false, cameraOff:kind !== "video", participants:{} };
+  state.callStartedAt = Date.now();
+  paintOverlays();
+  await FB.writeCall(chatId, { group:true, status:"active", kind, from:uid, to:null, createdBy:uid, name, at:Date.now(), maxParticipants:100 });
+  await joinGroupCallRoom(chatId, kind, true);
+  for (const member of members) {
+    if (member === uid) continue;
+    await FB.ringUser(member, { chatId, from: uid, fromName: myName(), kind, status:"ringing", group:true, name });
+  }
+}
+
+async function joinGroupCallRoom(chatId, kind, notify=true) {
+  const uid = me()?.uid;
+  if (!uid) return;
+  state.call = { ...(state.call||{}), group:true, chatId, kind, dir: state.call?.dir || "in", status:"active", participants: state.call?.participants || {} };
+  const currentParticipants = await FB.getGroupParticipantsOnce(chatId).catch(() => ({}));
+  if (Object.keys(currentParticipants || {}).length >= 100 && !currentParticipants?.[uid]) {
+    toast("Групповой звонок уже заполнен (максимум 100 участников).");
+    return;
+  }
+  await FB.setGroupParticipant(chatId, uid, { name: myName(), photo: me()?.photoURL || state.profile?.photo || null, muted:false, cameraOff:kind !== "video" });
+  setupGroupCallListeners(chatId, kind);
+  paintOverlays();
+  if (notify) {
+    FB.clearIncoming(uid).catch(()=>{});
+  }
+}
+
+function stopGroupCallListeners() {
+  state.groupCallUnsubs.forEach((u)=>{ try{u?.();}catch{} });
+  state.groupCallUnsubs = [];
+  Object.values(state.groupCallPeers).forEach((entry)=>{ try{entry.pc?.close();}catch{} entry.stream?.getTracks?.().forEach(t=>t.stop()); });
+  state.groupCallPeers = {};
+}
+
+async function setupGroupPeer(chatId, kind, otherUid, remoteMeta, participants) {
+  const self = me()?.uid;
+  if (!self || self === otherUid || state.groupCallPeers[otherUid]) return;
+  const pairKey = [self, otherUid].sort().join("__");
+  const offerer = self.localeCompare(otherUid) < 0;
+  const peerPc = new RTCPeerConnection({ iceServers: ICE });
+  const entry = { pc: peerPc, remoteUid:otherUid };
+  state.groupCallPeers[otherUid] = entry;
+  if (!localStream) {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio:true, video:kind === "video" });
+  }
+  localStream.getTracks().forEach(track=>peerPc.addTrack(track,localStream));
+  const tileId = `gcall-${CSS.escape(otherUid)}`;
+  peerPc.ontrack = (e) => {
+    const tile = document.querySelector(`[data-gcall-uid="${CSS.escape(otherUid)}"]`);
+    if (tile && e.streams[0]) {
+      let v = tile.querySelector("video");
+      if (!v) { v=document.createElement("video"); v.autoplay=true; v.playsInline=true; v.className="group-call-video"; tile.appendChild(v); }
+      v.srcObject=e.streams[0];
+    }
+  };
+  peerPc.onicecandidate = (e)=>{ if(e.candidate) FB.pushGroupIce(chatId,pairKey,offerer?"a":"b",e.candidate.toJSON()).catch(()=>{}); };
+  const iceSide = offerer ? "b" : "a";
+  const iceUnsub2 = FB.listenGroupIce(chatId,pairKey,iceSide, async c=>{ try{await peerPc.addIceCandidate(c);}catch{} });
+  state.groupCallUnsubs.push(iceUnsub2);
+  const sigUnsub = FB.listenGroupSignals(chatId, async (signals)=>{
+    const sig = signals?.[pairKey];
+    if (!sig || !state.groupCallPeers[otherUid]) return;
+    try {
+      if (offerer && sig.b?.answer && !peerPc.currentRemoteDescription) await peerPc.setRemoteDescription(sig.b.answer);
+      if (!offerer && sig.a?.offer && !peerPc.currentRemoteDescription) {
+        await peerPc.setRemoteDescription(sig.a.offer);
+        const answer = await peerPc.createAnswer();
+        await peerPc.setLocalDescription(answer);
+        await FB.writeGroupSignal(chatId,pairKey,"b",{answer});
+      }
+    } catch(err) { console.warn("group signal",err); }
+  });
+  state.groupCallUnsubs.push(sigUnsub);
+  if (offerer) {
+    const offer = await peerPc.createOffer();
+    await peerPc.setLocalDescription(offer);
+    await FB.writeGroupSignal(chatId,pairKey,"a",{offer});
+  }
+}
+
+function setupGroupCallListeners(chatId, kind) {
+  stopGroupCallListeners();
+  const pUnsub = FB.listenGroupParticipants(chatId, async (participants)=>{
+    if (!state.call || state.call.chatId !== chatId) return;
+    state.call.participants = participants || {};
+    paintOverlays();
+    const list = Object.values(participants || {});
+    if (list.length > 100) return;
+    for (const p of list) if (p.uid !== me()?.uid) {
+      try { await setupGroupPeer(chatId,kind,p.uid,p,participants); } catch(err) { console.warn("group peer",err); }
+    }
+    for (const uid of Object.keys(state.groupCallPeers)) if (!participants?.[uid]) {
+      try { state.groupCallPeers[uid].pc?.close(); } catch{}
+      delete state.groupCallPeers[uid];
+    }
+  });
+  const cUnsub = FB.listenGroupCall(chatId,(room)=>{
+    if (!room) { if(state.call?.group && state.call?.chatId===chatId){ state.call=null; stopGroupCallListeners(); paintOverlays(); } return; }
+    if (state.call?.chatId===chatId) { state.call = { ...state.call, ...room, group:true }; paintOverlays(); }
+  });
+  state.groupCallUnsubs.push(pUnsub,cUnsub);
 }
 
 async function setupPc(kind, isOfferer, chatId, peer) {
@@ -3232,51 +3488,45 @@ async function setupPc(kind, isOfferer, chatId, peer) {
   pc.onicecandidate = (e) => {
     if (e.candidate) FB.pushIce(chatId, isOfferer ? "offerer" : "answerer", e.candidate.toJSON());
   };
-  iceUnsub = FB.listenIce(chatId, isOfferer ? "answerer" : "offerer", async (c) => {
-    try {
-      await pc.addIceCandidate(c);
-    } catch {
-      /* ignore */
-    }
-  });
+  iceUnsub = FB.listenIce(chatId, isOfferer ? "answerer" : "offerer", async (c) => { try { await pc.addIceCandidate(c); } catch {} });
   if (isOfferer) {
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
-    await FB.writeCall(chatId, {
-      status: "ringing",
-      kind,
-      from: me().uid,
-      to: peer,
-      offer: offer,
-    });
+    await FB.writeCall(chatId, { status: "ringing", kind, from: me().uid, to: peer, offer });
     await FB.ringUser(peer, { chatId, from: me().uid, kind, name: myName(), status: "ringing" });
     FB.listenCall(chatId, async (c) => {
       if (!c || !pc) return;
       if (c.answer && !pc.currentRemoteDescription) {
         await pc.setRemoteDescription(c.answer);
         state.call = { ...state.call, status: "active" };
+        state.callStartedAt = Date.now();
+        stopCallTone();
         paintOverlays();
-        attachLocalVideo();
       }
-      if (c.status === "ended") hangup(true);
+      if (c.status === "declined" || c.status === "ended") {
+        stopCallTone();
+        toast(c.status === "declined" ? "Звонок отклонён" : "Звонок завершён");
+        hangup(true);
+      }
     });
-  }
-}
-
-function attachLocalVideo() {
-  const localV = document.getElementById("local");
-  if (localV && localStream) localV.srcObject = localStream;
-  const remote = document.getElementById("remote");
-  if (remote && pc) {
-    const st = pc.getReceivers().map((r) => r.track).filter(Boolean);
-    if (st.length) remote.srcObject = new MediaStream(st);
   }
 }
 
 async function acceptCall() {
   const incoming = state.call;
   if (!incoming) return;
+  if (incoming.group) {
+    state.call = { ...incoming, dir:"in", status:"active", participants: incoming.participants || {} };
+    state.callStartedAt = Date.now();
+    stopCallTone();
+    paintOverlays();
+    await joinGroupCallRoom(incoming.chatId, incoming.kind, false);
+    await FB.clearIncoming(me().uid);
+    return;
+  }
   state.call = { ...incoming, dir: "in", status: "active" };
+  state.callStartedAt = Date.now();
+  stopCallTone();
   paintOverlays();
   await setupPc(incoming.kind, false, incoming.chatId, incoming.from);
   const snap = await FB.get(FB.ref(FB.getFb().db, `calls/${incoming.chatId}`));
@@ -3291,12 +3541,25 @@ async function acceptCall() {
 }
 
 async function declineCall() {
-  if (state.call?.chatId) await FB.endCall(state.call.chatId);
+  const incoming = state.call;
+  stopCallTone();
+  if (incoming?.group) {
+    if (me()?.uid) await FB.clearIncoming(me().uid).catch(()=>{});
+    if (incoming.from) await FB.ringUser(incoming.from, { chatId: incoming.chatId, from: me()?.uid, kind: incoming.kind, name: myName(), status: "declined", reason: "declined", group:true }).catch(()=>{});
+    state.call = null;
+    paintOverlays();
+    return;
+  }
+  if (incoming?.chatId) {
+    await FB.endCall(incoming.chatId, { reason: "declined", by: me()?.uid });
+    if (incoming.from) await FB.ringUser(incoming.from, { chatId: incoming.chatId, from: me()?.uid, kind: incoming.kind, name: myName(), status: "declined", reason: "declined" }).catch(() => {});
+  }
   if (me()) await FB.clearIncoming(me().uid);
   hangup(true);
 }
 
 function hangupPcOnly() {
+  stopCallTone();
   iceUnsub?.();
   iceUnsub = null;
   pc?.getSenders().forEach((s) => s.track?.stop());
@@ -3307,17 +3570,25 @@ function hangupPcOnly() {
 }
 
 async function hangup(silent) {
-  const chatId = state.call?.chatId;
-  const peer = state.call?.peer || state.call?.from;
+  const current = state.call;
+  if (current?.group) {
+    const chatId = current.chatId;
+    const uid = me()?.uid;
+    try { if (uid) await FB.removeGroupParticipant(chatId,uid); } catch{}
+    const remain = Object.keys(current.participants || {}).filter(x=>x!==uid);
+    if (!silent && remain.length===0) { try{ await FB.endCall(chatId,{reason:"ended",by:uid}); }catch{} }
+    stopGroupCallListeners();
+    hangupPcOnly();
+    state.call = null;
+    paintOverlays();
+    return;
+  }
+  const chatId = current?.chatId;
+  const peer = current?.peer || current?.from;
   hangupPcOnly();
   state.call = null;
   if (!silent && chatId) {
-    try {
-      await FB.endCall(chatId);
-      if (peer) await FB.clearIncoming(peer);
-    } catch {
-      /* ignore */
-    }
+    try { await FB.endCall(chatId); if (peer) await FB.clearIncoming(peer); } catch {}
   }
   paintOverlays();
 }
@@ -3485,14 +3756,42 @@ async function hydrateUser(user) {
     }
     if (state.tab === "contacts") paintContactList();
   });
-  unsub.incoming = FB.listenIncoming(user.uid, (inc) => {
+  unsub.incoming = FB.listenIncoming(user.uid, async (inc) => {
+    if (!inc) {
+      if (state.call?.dir === "in" && state.call.status === "ringing") {
+        stopCallTone();
+        state.call = null;
+        paintOverlays();
+      }
+      return;
+    }
+    if (inc.status === "declined" && state.call?.chatId === inc.chatId) {
+      stopCallTone();
+      toast("Звонок отклонён");
+      hangup(true);
+      FB.clearIncoming?.(user.uid);
+      return;
+    }
     if (inc && inc.status === "ringing" && inc.from !== user.uid) {
       const incomingChat = state.chats[inc.chatId];
-      if (incomingChat?.type === "group" || incomingChat?.type === "channel") {
+      if (inc.group || incomingChat?.type === "group") {
+        const count = Object.keys(incomingChat?.members || {}).length;
+        if (count > 100) { FB.clearIncoming?.(user.uid); return; }
+        state.call = { ...inc, dir: "in", group:true, participants:{} };
+        state.callStartedAt = Date.now();
+        startCallTone();
+        paintOverlays();
+        return;
+      }
+      await loadPeerProfile(inc.from).catch(()=>null);
+      if (!privacyAllows(state.profile, "whoCanCall", inc.from)) {
+        FB.endCall?.(inc.chatId, { reason: "privacy", by: user.uid }).catch(() => {});
         FB.clearIncoming?.(user.uid);
         return;
       }
       state.call = { ...inc, dir: "in" };
+      state.callStartedAt = Date.now();
+      startCallTone();
       paintOverlays();
     }
   });
@@ -3515,9 +3814,6 @@ async function main() {
     FB.onUser(async (user) => {
       try {
         if (!user) {
-          state.mfaResolver = null;
-          state.mfaHintUid = null;
-          state.mfaError = "";
           state.user = null;
           state.profile = null;
           state.inbox = {};
