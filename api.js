@@ -191,29 +191,38 @@ export async function register({ email, password, name, username }) {
 }
 
 export async function login({ email, password }) {
-  const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
-  if (!cred.user.emailVerified) {
-    try {
-      await sendEmailVerification(cred.user);
-    } catch (error) {
-      console.warn("Email verification resend failed", error);
-    }
+  const cred = await signInWithEmailAndPassword(auth, String(email || "").trim(), password);
+  if (!cred?.user) throw new Error("auth/no-current-user");
+  if (!cred.user.emailVerified && !isVerifiedEmail(cred.user.email)) {
     await signOut(auth);
     const error = new Error("email-not-verified");
     error.code = "auth/email-not-verified";
+    error.email = String(email || "").trim();
     throw error;
   }
   return cred.user;
 }
 
 export async function resendVerificationEmail(email, password) {
-  const cred = await signInWithEmailAndPassword(auth, String(email || "").trim(), password);
-  if (cred.user.emailVerified) {
+  const cleanEmail = String(email || "").trim();
+  if (!cleanEmail || !String(password || "")) throw new Error("auth/invalid-credential");
+  const cred = await signInWithEmailAndPassword(auth, cleanEmail, password);
+  if (!cred?.user) throw new Error("auth/no-current-user");
+  if (cred.user.emailVerified || isVerifiedEmail(cred.user.email)) {
+    await signOut(auth);
     return { alreadyVerified: true };
   }
-  await sendEmailVerification(cred.user);
-  await signOut(auth);
-  return { alreadyVerified: false };
+  try {
+    await sendEmailVerification(cred.user);
+    return { alreadyVerified: false, sent: true };
+  } catch (error) {
+    if (error?.code === "auth/too-many-requests") {
+      throw Object.assign(new Error("verification-rate-limited"), { code: "auth/too-many-requests" });
+    }
+    throw error;
+  } finally {
+    try { await signOut(auth); } catch {}
+  }
 }
 
 export async function logout() {
@@ -409,6 +418,30 @@ export async function getLoginNetworkMeta() {
   return { ip, userAgent: ua, timezone, location: tzMap[timezone] || timezone || "Не определена" };
 }
 
+const QR_LOGIN_EXCHANGE_URL = "https://europe-west1-quickchat-f5012.cloudfunctions.net/qrLoginExchange";
+function randomToken(len = 32) { const bytes = new Uint8Array(len); crypto.getRandomValues(bytes); return Array.from(bytes, b => b.toString(16).padStart(2,"0")).join(""); }
+export async function createQrLoginSession() {
+  const sessionId = randomToken(16); const secret = randomToken(24);
+  await set(ref(db, `qrLoginSessions/${sessionId}`), { sessionId, secret, status:"pending", createdAt:Date.now(), expiresAt:Date.now()+120000 });
+  return { sessionId, secret };
+}
+export async function approveQrLoginSession(sessionId, secret, uid) {
+  const snap=await get(ref(db,`qrLoginSessions/${sessionId}`)); const row=snap.val();
+  if (!row || row.secret !== secret || row.expiresAt < Date.now()) throw new Error("QR-код истёк");
+  await update(ref(db,`qrLoginSessions/${sessionId}`), { status:"approved", approvedBy:uid, approvedAt:Date.now() }); return true;
+}
+export async function waitForQrLoginApproval(sessionId, secret, timeout=120000) {
+  const start=Date.now();
+  return await new Promise((resolve,reject)=>{ let off=null; const finish=(err,val)=>{ if(off) off(); err?reject(err):resolve(val); }; off=onValue(ref(db,`qrLoginSessions/${sessionId}`),(snap)=>{ const row=snap.val(); if(!row) return; if(row.secret!==secret){finish(new Error("QR session invalid"));return;} if(row.expiresAt<Date.now()){finish(new Error("QR-код истёк"));return;} if(row.status==="approved"){finish(null,row);return;} if(Date.now()-start>timeout){finish(new Error("Время ожидания истекло"));} }); setTimeout(()=>finish(new Error("Время ожидания истекло")), timeout+250); });
+}
+export async function exchangeQrLogin(sessionId, secret) {
+  if (!QR_LOGIN_EXCHANGE_URL) throw new Error("QR-вход требует подключённой серверной функции обмена");
+  const r=await fetch(QR_LOGIN_EXCHANGE_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({sessionId,secret})});
+  const data=await r.json().catch(()=>({})); if(!r.ok || !data.customToken) throw new Error(data.error || "Не удалось выполнить QR-вход");
+  const { signInWithCustomToken } = await import("https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js");
+  return (await signInWithCustomToken(auth,data.customToken)).user;
+}
+
 export async function registerLoginDevice(uid, meta = {}) {
   const deviceId = getDeviceId();
   const base = `trustedDevices/${uid}/${deviceId}`;
@@ -510,7 +543,7 @@ export async function loadE2EEPublicKey(uid) {
   return snap.exists() ? snap.val() : null;
 }
 
-export async function createPoll(chatId, { senderId, question, options }) {
+export async function createPoll(chatId, { senderId, question, options, anonymous = true }) {
   const chatSnap = await get(ref(db, `chats/${chatId}`));
   const chat = chatSnap.val();
   if (!chat) throw new Error("chat-not-found");
@@ -525,7 +558,7 @@ export async function createPoll(chatId, { senderId, question, options }) {
     senderId,
     kind: "poll",
     text: cleanQuestion,
-    poll: { question: cleanQuestion, options: cleanOptions, votes: {}, createdBy: senderId },
+    poll: { question: cleanQuestion, options: cleanOptions, votes: {}, createdBy: senderId, anonymous: !!anonymous },
     createdAt: Date.now(),
   };
   await set(ref(db, `messages/${chatId}/${id}`), payload);
@@ -578,9 +611,7 @@ export async function sendMessage(chatId, msg) {
   const preview =
     msg.kind === "image"
       ? "📷"
-      : msg.kind === "voice"
-        ? "🎤"
-        : msg.kind === "call"
+      : msg.kind === "call"
           ? "📞"
           : msg.kind === "poll"
             ? `📊 ${String(msg.poll?.question || msg.text || "Опрос")}`.slice(0, 140)
@@ -813,43 +844,6 @@ function blobToUint8Array(blob) {
   return blob.arrayBuffer().then((buffer) => new Uint8Array(buffer));
 }
 
-export async function saveVoiceToFirestore(uid, blob, mimeType = "audio/webm") {
-  if (!firestore) throw new Error("firestore-not-ready");
-  const MAX_VOICE_BYTES = 700 * 1024;
-  if (blob.size > MAX_VOICE_BYTES) {
-    throw new Error("Голосовое слишком большое для Firestore. Запишите более короткое сообщение.");
-  }
-  const id = `${uid}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  const data = await blobToUint8Array(blob);
-  await setDoc(fdoc(firestore, "voiceMessages", id), {
-    uid,
-    mimeType: mimeType || "audio/webm",
-    size: blob.size,
-    data: Bytes.fromUint8Array(data),
-    createdAt: Date.now(),
-  });
-  return id;
-}
-
-export async function getVoiceFromFirestore(id) {
-  if (!firestore) throw new Error("firestore-not-ready");
-  const snap = await getDoc(fdoc(firestore, "voiceMessages", id));
-  if (!snap.exists()) throw new Error("voice-not-found");
-  const value = snap.data();
-  const bytes = value.data?.toUint8Array ? value.data.toUint8Array() : value.data;
-  const blob = new Blob([bytes], { type: value.mimeType || "audio/webm" });
-  return { blob, mimeType: value.mimeType || "audio/webm" };
-}
-
-export async function deleteVoiceFromFirestore(id) {
-  if (!firestore || !id) return;
-  await deleteDoc(fdoc(firestore, "voiceMessages", id));
-}
-
-export async function uploadMedia(uid, file, folder = "media") {
-  if (folder === "voice") return saveVoiceToFirestore(uid, file, file.type || "audio/webm");
-  throw new Error("media-storage-disabled");
-}
 
 export function listenCall(chatId, cb) {
   return onValue(ref(db, `calls/${chatId}`), (s) => cb(s.val()));
@@ -909,7 +903,9 @@ export function authError(err) {
     "auth/invalid-multi-factor-session": "Сессия двухэтапной проверки истекла",
     "auth/requires-recent-login": "Нужно повторно подтвердить пароль",
     "auth/email-required": "Для TOTP нужен email",
+    "auth/email-not-verified": "Подтвердите email. Мы не можем завершить вход без подтверждения.",
     "auth/no-current-user": "Пользователь не авторизован",
+    "verification-rate-limited": "Письмо уже недавно отправлялось. Проверьте входящие и попробуйте позже." ,
     "auth/network-request-failed": "Нет связи с сервером. Проверьте сеть.",
     "network-request-failed": "Нет связи с сервером. Проверьте сеть.",
     "username-taken": "Этот @username уже занят",

@@ -30,7 +30,7 @@ async function importPrivate(jwk) {
 }
 
 // End-to-end encrypted message layer using ECDH P-256 + AES-GCM.
-// This is E2EE, but it is NOT a full Signal Protocol implementation: no X3DH/PQXDH, Double Ratchet, prekey bundles, or multi-device sessions.
+// Это клиентское E2EE; полноценная серверная мультиустройственная схема в этот модуль не входит.
 export async function encryptText(text, chatId, peerPublicKey) {
   if (!isE2EEReady() || !text) return null;
   if (!peerPublicKey) return null;

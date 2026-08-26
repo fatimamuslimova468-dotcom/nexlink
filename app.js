@@ -119,7 +119,7 @@ const BOTS = [
 const I18N = {
   ru: {
     app: "NexLink",
-    tag: "Живой мессенджер. Без демо-аккаунтов — только реальные люди.",
+    tag: "Живые чаты. Только реальные люди.",
     login: "Войти",
     register: "Создать аккаунт",
     have: "Уже есть аккаунт? Войти",
@@ -157,7 +157,7 @@ const I18N = {
     noMessages: "Нет сообщений. Напишите первым.",
     selectChat: "Выберите чат",
     selectChatHint: "Найдите человека по @username или создайте группу.",
-    noChats: "Пока нет диалогов. Добавьте контакт по юзернейму — как в Telegram.",
+    noChats: "Пока нет диалогов. Добавьте контакт по юзернейму.",
     newChat: "Новый чат",
     myContacts: "Мои контакты",
     noContacts: "Контактов нет. Введите @username и нажмите Найти.",
@@ -206,11 +206,9 @@ const I18N = {
     incoming: "Входящий звонок",
     accept: "Ответить",
     decline: "Отклонить",
-    mic: "Микрофон",
     camera: "Камера",
     attach: "Вложение",
     emoji: "Эмодзи",
-    voice: "Голосовое",
     all: "Все",
     unread: "Непрочитанные",
     groups: "Группы",
@@ -247,7 +245,7 @@ const I18N = {
     totpQrFallback: "QR-код недоступен. Используйте URI или секретный ключ ниже.",
     currentSession: "Этот браузер",
     endOther: "Выйти на этом устройстве",
-    aboutBody: "NexLink — мессенджер с живыми чатами, звонками, ботами и темами. Данные синхронизируются в реальном времени.",
+    aboutBody: "NexLink — приложение для общения с живыми чатами, звонками, ботами и темами. Данные синхронизируются в реальном времени.",
     version: "Версия 2026.8",
     whoMessage: "Кто может писать",
     whoCall: "Кто может звонить",
@@ -286,7 +284,6 @@ const I18N = {
     channel: "канал",
     group: "группа",
     lastSeen: "был(а) недавно",
-    voiceMsg: "Голосовое сообщение",
     photo: "Фото",
     missedCall: "Звонок",
     forwarded: "Переслано",
@@ -300,7 +297,7 @@ const I18N = {
   },
   en: {
     app: "NexLink",
-    tag: "A live messenger. No demo accounts — only real people.",
+    tag: "Live chats. Real people only.",
     login: "Log in",
     register: "Create account",
     have: "Already have an account? Log in",
@@ -338,7 +335,7 @@ const I18N = {
     noMessages: "No messages yet. Say hello.",
     selectChat: "Select a chat",
     selectChatHint: "Find someone by @username or create a group.",
-    noChats: "No conversations yet. Add a contact by username — like Telegram.",
+    noChats: "No conversations yet. Add a contact by username.",
     newChat: "New chat",
     myContacts: "My contacts",
     noContacts: "No contacts. Type a @username and tap Find.",
@@ -387,11 +384,9 @@ const I18N = {
     incoming: "Incoming call",
     accept: "Accept",
     decline: "Decline",
-    mic: "Microphone",
     camera: "Camera",
     attach: "Attach",
     emoji: "Emoji",
-    voice: "Voice",
     all: "All",
     unread: "Unread",
     groups: "Groups",
@@ -428,7 +423,7 @@ const I18N = {
     totpQrFallback: "QR code unavailable. Use the URI or secret key below.",
     currentSession: "This browser",
     endOther: "Sign out on this device",
-    aboutBody: "NexLink is a modern messenger with live chats, calls, bots and themes. Data is synchronized in real time.",
+    aboutBody: "NexLink is a modern communication app with live chats, calls, bots and themes. Data is synchronized in real time.",
     version: "Version 2026.8",
     whoMessage: "Who can message you",
     whoCall: "Who can call you",
@@ -467,7 +462,6 @@ const I18N = {
     channel: "channel",
     group: "group",
     lastSeen: "last seen recently",
-    voiceMsg: "Voice message",
     photo: "Photo",
     missedCall: "Call",
     forwarded: "Forwarded",
@@ -486,11 +480,13 @@ const PATHS = {
   send: "M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z",
   smile: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01",
   clip: "M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48",
-  mic: "M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v3",
   phone: "M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z",
   video: "M23 7l-7 5 7 5V7zM14 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z",
   more: "M12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM19 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM5 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z",
   back: "M19 12H5M12 19l-7-7 7-7",
+  "arrow-left": "M19 12H5M12 19l-7-7 7-7",
+  edit: "M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z",
+  "user-plus": "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM19 8v6M22 11h-6",
   pin: "M12 17v5M9 2h6l-1 7h4l-7 8-7-8h4L9 2z",
   mute: "M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6",
   info: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01",
@@ -522,6 +518,7 @@ const PATHS = {
   palette: "M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20zM12 8h.01M8 12h.01M16 12h.01M9 16h.01",
   lang: "M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M12.5 22l5-12 5 12M14 18h7",
   volume: "M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07",
+  qr: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h3v3h-3zM18 18h2v2h-2zM14 11h2v2h-2zM18 11h2v2h-2z",
   chevron: "M9 18l6-6-6-6",
   play: "M8 5v14l11-7z",
   bookmark: "M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z",
@@ -539,6 +536,10 @@ const state = {
   authResolved: false,
   bootError: "",
   mode: "login",
+  authEmail: "",
+  authPassword: "",
+  authVerification: null,
+  qrLogin: { mode: null, sessionId: "", secret: "", status: "idle", stream: null, detector: null, timer: null },
   user: null,
   profile: null,
   settings: { ...DEFAULT_SETTINGS },
@@ -558,9 +559,6 @@ const state = {
   panel: null,
   panelPayload: null,
   browserUrl: "",
-  recording: false,
-  recordingStartedAt: 0,
-  voicePreview: null,
   typing: {},
   reads: {},
   e2ee: { ready: false, status: "" },
@@ -571,6 +569,7 @@ const state = {
   contactSearchMode: "people",
   foundCommunities: [],
   profileTab: "files",
+  chatInfoTab: "media",
   mfaResolver: null,
   mfaHintUid: null,
   mfaError: "",
@@ -800,12 +799,8 @@ function handleSystemBack() {
     closePanel({ fromHistory: true });
     return true;
   }
-  if (state.emojiOpen || state.recording || state.voicePreview) {
+  if (state.emojiOpen) {
     state.emojiOpen = false;
-    if (state.recording) {
-      try { stopRec(); } catch { state.recording = false; }
-    }
-    if (state.voicePreview) state.voicePreview = null;
     paintThread(document.querySelector("#main"));
     return true;
   }
@@ -824,35 +819,65 @@ function handleSystemBack() {
 
 function initWebViewKeyboardSupport() {
   const root = document.documentElement;
+  const nlRoot = document.getElementById("nl-root");
   let lastHeight = 0;
-  const apply = () => {
+  let keyboardOpen = false;
+  let settleTimer = null;
+
+  const measure = () => {
     const vv = window.visualViewport;
-    const height = Math.max(320, Math.round(vv ? vv.height : window.innerHeight));
-    if (Math.abs(height - lastHeight) < 1) return;
-    lastHeight = height;
-    root.style.setProperty("--nl-vh", `${height}px`);
-    root.classList.toggle("keyboard-open", !!vv && (window.innerHeight - vv.height) > 120);
+    const windowHeight = Math.max(320, Math.round(window.innerHeight || 0));
+    const viewportHeight = vv ? Math.max(320, Math.round(vv.height || 0)) : windowHeight;
+    // Android WebView variants expose keyboard resize through either innerHeight or visualViewport.
+    // Use the smaller value so the composer follows the keyboard in both cases.
+    const height = Math.min(windowHeight, viewportHeight);
+    const fullHeight = Math.max(window.screen?.height || 0, window.outerHeight || 0, windowHeight);
+    const delta = Math.max(0, fullHeight - height);
+    const nextKeyboardOpen = delta > 120 || height < Math.round(fullHeight * 0.82);
+
+    if (Math.abs(height - lastHeight) >= 1 || nextKeyboardOpen !== keyboardOpen) {
+      lastHeight = height;
+      keyboardOpen = nextKeyboardOpen;
+      root.style.setProperty("--nl-vh", `${height}px`);
+      root.style.setProperty("--nl-keyboard-bottom", keyboardOpen ? `${Math.max(0, delta)}px` : "0px");
+      root.classList.toggle("keyboard-open", keyboardOpen);
+      if (nlRoot) nlRoot.style.setProperty("--nl-vh", `${height}px`);
+    }
   };
+
+  const apply = () => {
+    measure();
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(measure, 80);
+  };
+
   apply();
   window.addEventListener("resize", apply, { passive: true });
-  window.addEventListener("orientationchange", () => setTimeout(apply, 80), { passive: true });
+  window.addEventListener("orientationchange", () => setTimeout(apply, 120), { passive: true });
+
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", apply, { passive: true });
     window.visualViewport.addEventListener("scroll", apply, { passive: true });
   }
+
   document.addEventListener("focusin", (e) => {
     const el = e.target;
     if (!(el instanceof HTMLTextAreaElement) && !(el instanceof HTMLInputElement)) return;
+    // Let Android open the IME first, then re-measure the WebView and reveal the composer.
     setTimeout(() => {
       apply();
-      try { el.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" }); } catch {}
-      const thread = document.querySelector(".thread");
+      try { el.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" }); } catch {}
       const msgs = document.querySelector(".msgs");
-      if (thread && msgs) {
-        msgs.scrollTop = msgs.scrollHeight;
-      }
-    }, 120);
+      if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    }, 80);
+    setTimeout(() => {
+      apply();
+      try { el.scrollIntoView({ block: "center", inline: "nearest" }); } catch {}
+    }, 300);
+    setTimeout(apply, 600);
   }, { passive: true });
+
+  document.addEventListener("focusout", () => setTimeout(apply, 120), { passive: true });
 }
 
 function initNavigationHistory() {
@@ -894,76 +919,141 @@ function render() {
 }
 
 function renderAuth(root) {
-  if (state.mfaResolver) {
-    renderMfaChallenge(root);
-    return;
-  }
+  if (state.mfaResolver) { renderMfaChallenge(root); return; }
   const reg = state.mode === "register";
+  const isPhone = window.matchMedia?.("(max-width: 760px), (pointer: coarse)")?.matches;
+  const notice = state.authVerification ? `
+    <div class="auth-notice-backdrop">
+      <div class="auth-notice-card" role="dialog" aria-modal="true">
+        <div class="auth-notice-icon">✉</div>
+        <div class="auth-notice-title">На вашу почту отправлено письмо</div>
+        <div class="auth-notice-text">Откройте письмо и подтвердите адрес <b>${esc(state.authVerification.email || state.authEmail)}</b>.</div>
+        <div class="auth-notice-status" id="auth-notice-status"></div>
+        <div class="auth-notice-actions">
+          <button type="button" class="btn sec" id="auth-notice-cancel">Отмена</button>
+          <button type="button" class="btn" id="auth-notice-resend">Повторно отправить</button>
+        </div>
+      </div>
+    </div>` : "";
   root.innerHTML = `
-    <div class="nl-center nl-pattern">
-      <form class="auth-card" id="auth-form">
-        <div class="mark">N</div>
-        <h1>Nex<span>Link</span></h1>
-        <p class="sub">${esc(t("tag"))}</p>
-        ${reg ? `<div class="field"><label>${esc(t("name"))}</label><input name="name" required maxlength="40" autocomplete="name"></div>
-        <div class="field"><label>@${esc(t("username"))}</label><input name="username" required minlength="3" maxlength="24" autocomplete="username" placeholder="username"></div>` : ""}
-        <div class="field"><label>${esc(t("email"))}</label><input name="email" type="email" required autocomplete="email"></div>
-        <div class="field"><label>${esc(t("password"))}</label><input name="password" type="password" required minlength="6" autocomplete="${reg ? "new-password" : "current-password"}"></div>
-        <div class="err" id="auth-err">${esc(state.bootError)}</div>
-        <button class="btn block" type="submit">${esc(reg ? t("register") : t("login"))}</button>
-        <p class="hint"><button type="button" class="linkish" id="auth-switch">${esc(reg ? t("have") : t("noacc"))}</button></p>
-      </form>
+    <div class="auth-screen">
+      <div class="auth-glow auth-glow-a"></div><div class="auth-glow auth-glow-b"></div>
+      <div class="auth-stage">
+        <section class="auth-brand-panel">
+          <div class="auth-brand-mark">N</div>
+          <div class="auth-brand-name">NexLink</div>
+          <div class="auth-brand-line"></div>
+          <p>Приватные чаты, каналы и группы в одном пространстве.</p>
+          <div class="auth-brand-pills"><span>Безопасность</span><span>Приватность</span><span>Синхронизация</span></div>
+        </section>
+        <section class="auth-form-panel">
+          <form class="auth-card auth-card-modern" id="auth-form">
+            <div class="auth-card-head">
+              <div><div class="auth-kicker">NEXLINK</div><h1>${reg ? "Создание аккаунта" : "С возвращением"}</h1><p class="sub">${reg ? "Заполните форму, чтобы начать работу" : "Войдите в свой аккаунт"}</p></div>
+              <div class="auth-mini-logo">N</div>
+            </div>
+            <div class="auth-fields-scroll">
+              ${reg ? `<div class="field"><label>${esc(t("name"))}</label><input name="name" required maxlength="40" autocomplete="name"></div>
+              <div class="field"><label>@${esc(t("username"))}</label><input name="username" required minlength="3" maxlength="24" autocomplete="username" placeholder="username"></div>` : ""}
+              <div class="field"><label>${esc(t("email"))}</label><input name="email" type="email" required autocomplete="email"></div>
+              <div class="field"><label>${esc(t("password"))}</label><input name="password" type="password" required minlength="6" autocomplete="${reg ? "new-password" : "current-password"}"></div>
+              <div class="err" id="auth-err">${esc(state.authError || state.bootError)}</div>
+              <button class="btn block auth-primary" type="submit">${esc(reg ? t("register") : t("login"))}</button>
+              <div class="auth-divider"><span>или</span></div>
+              <button type="button" class="auth-qr-btn" id="auth-qr-open">${icon("qr",20)}<span>Войти по QR-коду</span><small>${isPhone ? "Сканировать код" : "Код появится на экране"}</small></button>
+              <p class="hint"><button type="button" class="linkish" id="auth-switch">${esc(reg ? t("have") : t("noacc"))}</button></p>
+            </div>
+          </form>
+        </section>
+      </div>
+      ${notice}
     </div>`;
-  root.querySelector("#auth-switch").onclick = () => {
-    state.mode = reg ? "login" : "register";
-    render();
-  };
+  root.querySelector("#auth-switch").onclick = () => { state.mode = reg ? "login" : "register"; state.authError = ""; render(); };
+  root.querySelector("#auth-qr-open")?.addEventListener("click", openQrLogin);
   root.querySelector("#auth-form").onsubmit = async (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
-    const err = root.querySelector("#auth-err");
-    const btn = e.target.querySelector("button[type=submit]");
-    btn.disabled = true;
-    const prev = btn.textContent;
-    btn.textContent = "…";
-    err.textContent = "";
+    const fd = new FormData(e.target); const emailValue = String(fd.get("email") || "").trim(); const passwordValue = String(fd.get("password") || "");
+    const err = root.querySelector("#auth-err"); const btn = e.target.querySelector("button[type=submit]"); btn.disabled = true; const prev = btn.textContent; btn.textContent = "…"; err.textContent = "";
+    state.authEmail = emailValue; state.authPassword = passwordValue;
     try {
-      if (!FB) FB = await import("./api.js");
-      if (!FB.getFb().auth) await FB.boot();
-      const op = reg
-        ? FB.register({
-            email: fd.get("email"),
-            password: fd.get("password"),
-            name: fd.get("name"),
-            username: fd.get("username"),
-          })
-        : FB.login({ email: fd.get("email"), password: fd.get("password") });
-      const result = await Promise.race([
-        op,
-        new Promise((_, rej) => setTimeout(() => rej(new Error("network-request-failed")), 20000)),
-      ]);
-      if (reg) {
-        if (result?.verificationSent) {
-          toast("Письмо для подтверждения email отправлено");
-        } else {
-          toast("Аккаунт создан. Письмо подтверждения пока не отправлено");
-        }
-      } else if (result?.uid) {
-        toast("Вход выполнен");
-      }
+      if (!FB) FB = await import("./api.js"); if (!FB.getFb().auth) await FB.boot();
+      const result = await Promise.race([reg ? FB.register({email:emailValue,password:passwordValue,name:fd.get("name"),username:fd.get("username")}) : FB.login({email:emailValue,password:passwordValue}), new Promise((_,rej)=>setTimeout(()=>rej(new Error("network-request-failed")),20000))]);
+      state.authError = "";
+      if (reg && result?.verificationSent) { state.authVerification = { email: emailValue }; render(); return; }
+      if (!reg && result?.uid) { state.authPassword = ""; toast("Вход выполнен"); }
     } catch (ex) {
-      if (ex?.code === "auth/multi-factor-auth-required") {
-        state.mfaResolver = FB.getMfaResolver(ex);
-        state.mfaHintUid = state.mfaResolver?.hints?.find((h) => h.factorId === "totp")?.uid || state.mfaResolver?.hints?.[0]?.uid || null;
-        state.mfaError = "";
-        render();
-        return;
-      }
-      err.textContent = FB?.authError ? FB.authError(ex) : String(ex?.message || ex);
-      btn.disabled = false;
-      btn.textContent = prev;
+      if (ex?.code === "auth/email-not-verified") { state.authError = "Подтвердите email перед входом."; state.authEmail = ex.email || emailValue; state.authVerification = { email: state.authEmail }; render(); return; }
+      if (ex?.code === "auth/multi-factor-auth-required") { state.mfaResolver = FB.getMfaResolver(ex); state.mfaHintUid = state.mfaResolver?.hints?.find((h) => h.factorId === "totp")?.uid || state.mfaResolver?.hints?.[0]?.uid || null; state.mfaError = ""; render(); return; }
+      err.textContent = FB?.authError ? FB.authError(ex) : String(ex?.message || ex); btn.disabled = false; btn.textContent = prev;
     }
   };
+  root.querySelector("#auth-notice-cancel")?.addEventListener("click", () => { state.authVerification = null; state.authError = ""; render(); });
+  root.querySelector("#auth-notice-resend")?.addEventListener("click", async () => {
+    const b = root.querySelector("#auth-notice-resend"); const status = root.querySelector("#auth-notice-status"); if (!b) return; b.disabled = true; status.textContent = "Отправляем письмо…";
+    try { if (!FB) FB = await import("./api.js"); if (!FB.getFb().auth) await FB.boot(); const result = await FB.resendVerificationEmail(state.authEmail, state.authPassword); status.textContent = result?.alreadyVerified ? "Адрес уже подтверждён. Можно войти." : "Письмо отправлено ещё раз."; }
+    catch(ex) { status.textContent = ex?.code === "auth/too-many-requests" ? "Слишком частые запросы. Повторите позже." : (FB?.authError ? FB.authError(ex) : String(ex?.message || ex)); }
+    finally { setTimeout(() => { if (b) b.disabled = false; }, 2500); }
+  });
+}
+
+function isPhoneDevice() { return window.matchMedia?.("(max-width: 760px), (pointer: coarse)")?.matches; }
+
+async function openQrLogin() {
+  if (!FB) FB = await import("./api.js");
+  if (!FB.getFb().auth) await FB.boot();
+  if (isPhoneDevice()) { state.qrLogin = { ...state.qrLogin, mode: "scan", status: "starting" }; renderQrAuthOverlay(); return; }
+  const session = await FB.createQrLoginSession();
+  state.qrLogin = { ...state.qrLogin, mode: "desktop", sessionId: session.sessionId, secret: session.secret, status: "waiting" };
+  renderQrAuthOverlay();
+}
+
+function renderQrAuthOverlay() {
+  const existing = document.getElementById("qr-auth-dialog"); existing?.remove();
+  const host = document.createElement("div"); host.id = "qr-auth-dialog"; host.className = "qr-auth-backdrop";
+  const desktop = state.qrLogin.mode === "desktop";
+  host.innerHTML = desktop ? `<div class="qr-auth-card"><button class="qr-auth-close" id="qr-auth-close">×</button><div class="qr-auth-kicker">NEXLINK ACCESS</div><h2>Вход по QR-коду</h2><p>Откройте NexLink на телефоне и отсканируйте этот код.</p><div class="qr-auth-code" id="qr-auth-code"></div><div class="qr-auth-status" id="qr-auth-status">Ожидание сканирования…</div><div class="qr-auth-note">Код одноразовый и действует ограниченное время.</div></div>` : `<div class="qr-auth-card qr-scanner-card"><button class="qr-auth-close" id="qr-auth-close">×</button><div class="qr-auth-kicker">NEXLINK ACCESS</div><h2>Сканирование QR</h2><p>Разрешите доступ к камере и наведите её на код.</p><div class="qr-scanner-box"><video id="qr-camera" playsinline muted autoplay></video><div class="qr-scan-line"></div></div><div class="qr-auth-status" id="qr-auth-status">Запуск камеры…</div><button class="btn sec block" id="qr-manual">Ввести код вручную</button></div>`;
+  document.body.appendChild(host);
+  host.querySelector("#qr-auth-close")?.addEventListener("click", closeQrLogin);
+  if (desktop) {
+    renderQrCodeInto(host.querySelector("#qr-auth-code"), `nexlink://login?session=${encodeURIComponent(state.qrLogin.sessionId)}&secret=${encodeURIComponent(state.qrLogin.secret)}`);
+    listenDesktopQrLogin();
+  } else { startQrScanner(host); }
+}
+
+function renderQrCodeInto(host, value) {
+  if (!host || typeof window.qrcode !== "function") { if (host) host.textContent = value; return; }
+  try { const qr=window.qrcode(0,"M"); qr.addData(value,"Byte"); qr.make(); host.innerHTML=qr.createSvgTag(6,6); host.querySelector("svg")?.setAttribute("aria-label","NexLink QR login"); } catch { host.textContent=value; }
+}
+
+async function listenDesktopQrLogin() {
+  if (!state.qrLogin.sessionId) return;
+  try {
+    const result = await FB.waitForQrLoginApproval(state.qrLogin.sessionId, state.qrLogin.secret, 120000);
+    document.getElementById("qr-auth-status") && (document.getElementById("qr-auth-status").textContent = "Подтверждено. Выполняем вход…");
+    const user = await FB.exchangeQrLogin(result.sessionId, state.qrLogin.secret);
+    if (user?.uid) { closeQrLogin(); toast("Вход выполнен"); }
+  } catch(ex) { const s=document.getElementById("qr-auth-status"); if(s) s.textContent = ex?.message || "Не удалось завершить вход."; }
+}
+
+async function startQrScanner(host) {
+  const video = host.querySelector("#qr-camera"); const status=host.querySelector("#qr-auth-status");
+  host.querySelector("#qr-manual")?.addEventListener("click", async () => { const code=prompt("Вставьте QR-код или строку входа"); if(code) handleQrScannedValue(code, status); });
+  if (!navigator.mediaDevices?.getUserMedia) { status.textContent="Камера недоступна. Используйте ввод кода."; return; }
+  try {
+    state.qrLogin.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal:"environment" } }, audio:false }); video.srcObject=state.qrLogin.stream; await video.play();
+    if ("BarcodeDetector" in window) { state.qrLogin.detector = new BarcodeDetector({ formats:["qr_code"] }); const scan=async()=>{ if(!state.qrLogin.stream) return; try { const codes=await state.qrLogin.detector.detect(video); if(codes[0]?.rawValue){ await handleQrScannedValue(codes[0].rawValue,status); return; } } catch{} requestAnimationFrame(scan); }; requestAnimationFrame(scan); status.textContent="Наведите камеру на QR-код"; }
+    else status.textContent="Ваше устройство не поддерживает автоматическое сканирование. Используйте ввод кода.";
+  } catch(ex) { status.textContent="Нет доступа к камере. Разрешите камеру или введите код вручную."; }
+}
+
+async function handleQrScannedValue(raw, status) {
+  try { const u=new URL(raw); if(u.protocol!=="nexlink:") throw new Error(); const session=u.searchParams.get("session"); const secret=u.searchParams.get("secret"); if(!session||!secret) throw new Error(); if(!me()?.uid) { status.textContent="Сначала войдите в NexLink на телефоне."; return; } await FB.approveQrLoginSession(session, secret, me().uid); status.textContent="Код подтверждён. Возвращаемся к входу…"; setTimeout(closeQrLogin,700); } catch { status.textContent="QR-код NexLink не распознан."; }
+}
+
+function closeQrLogin() {
+  if (state.qrLogin.stream) { try { state.qrLogin.stream.getTracks().forEach(t=>t.stop()); } catch {} }
+  state.qrLogin.detector=null; state.qrLogin.stream=null; state.qrLogin.timer=null; state.qrLogin.mode=null; state.qrLogin.sessionId=""; state.qrLogin.secret=""; state.qrLogin.status="idle";
+  document.getElementById("qr-auth-dialog")?.remove();
 }
 
 function renderMfaChallenge(root) {
@@ -1400,6 +1490,7 @@ function paintThread(el) {
   else if (peerId && state.presence[peerId]?.at) status = `${t("lastSeen")} · ${fmtListTime(state.presence[peerId].at)}`;
 
   const isSecurityBot = chatType === "bot" && (peerId === "security" || chat.peerId === "security" || title === "NexLink Security");
+  const isSavedContact = chatType !== "private" || !peerId || Object.values(state.contacts || {}).some((c) => (c?.uid || c?.id) === peerId) || !!state.contacts?.[peerId];
   const canPost = !isSecurityBot && (chatType !== "channel" || chat.createdBy === me()?.uid);
   const canCall = chatType === "private";
 
@@ -1407,15 +1498,16 @@ function paintThread(el) {
     <div class="thread">
       <header class="thread-hdr">
         <button class="btn icon" data-close>${icon("back")}</button>
-        <button class="peer-btn" data-info>
+        <button type="button" class="peer-btn" data-info aria-label="Открыть профиль">
           ${avatar({ name: title, color, size: 40, online, type: chatType })}
           <div class="min"><div class="who">${chatType === "private" && peerId ? userNameHtml(state.users[peerId], title) : esc(title)}</div><div class="st ${online || typingOthers ? "on" : ""}">${esc(status)}</div></div>
         </button>
         ${canCall && chatType === "private" ? `<button class="btn icon" data-call="audio" title="${esc(t("call"))}">${icon("phone")}</button>
         <button class="btn icon" data-call="video" title="${esc(t("videoCall"))}">${icon("video")}</button>` : ""}
-        <button class="btn icon" data-menu>${icon("more")}</button>
+        <button type="button" class="btn icon" data-menu aria-label="Меню чата">${icon("more")}</button>
       </header>
       <div class="chat-pattern-layer" aria-hidden="true"></div>
+      ${chatType === "private" && peerId && !isSavedContact ? `<div class="contact-warning" role="status"><strong>Человек не в ваших контактах</strong><span>Будьте внимательны при отправке сообщений и файлов незнакомому пользователю.</span></div>` : ""}
       <div class="msgs nl-scroll" id="msgs"></div>
       <div id="reply-slot"></div>
       <div id="emo-slot" class="${state.emojiOpen ? "" : "hidden"}"></div>
@@ -1435,7 +1527,13 @@ function paintThread(el) {
   el.querySelector("[data-close]").onclick = () => {
     closeChat();
   };
-  el.querySelector("[data-info]").onclick = () => openPanel("chat-info");
+  const infoBtn = el.querySelector("[data-info]");
+  const openChatInfo = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    openPanel("chat-info");
+  };
+  infoBtn?.addEventListener("click", openChatInfo);
   el.querySelector("[data-menu]").onclick = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -1458,6 +1556,7 @@ function paintThread(el) {
       if (id === "info") openPanel("chat-info");
       if (id === "pin") await FB.patchInbox(me().uid, state.activeChatId, { pinned: !item.pinned });
       if (id === "mute") await FB.patchInbox(me().uid, state.activeChatId, { muted: !item.muted });
+      if (id === "create-poll") openPanel("create-poll");
       if (id === "export") exportChat(state.activeChatId);
       if (id === "clear") { if (confirm("Очистить сообщения этого чата?")) { await FB.clearChat(state.activeChatId); state.messages = []; paintMessages(); } }
       if (id === "toggle-block" && peerId) {
@@ -1497,12 +1596,7 @@ function paintThread(el) {
     };
     el.querySelector("[data-send]").onclick = () => {
       if (state.composer.trim()) sendText();
-      else if (state.voicePreview) sendVoicePreview();
-      else if (state.recording) stopRec();
-      else startRec();
     };
-    const vp = el.querySelector("#voice-preview");
-    if (vp && state.voicePreview) bindVoicePreview(vp);
   }
   paintReply();
   paintMessages();
@@ -1512,8 +1606,8 @@ function paintThread(el) {
 function paintSendBtn() {
   const b = document.querySelector("[data-send]");
   if (!b) return;
-  b.innerHTML = state.composer.trim() ? icon("send") : state.recording ? icon("square") : icon("mic");
-  b.classList.toggle("rec", state.recording && !state.composer.trim());
+  b.innerHTML = icon("send");
+  b.classList.remove("rec");
 }
 
 function paintReply() {
@@ -1571,7 +1665,7 @@ function paintMessages() {
       const showResults = totalVotes > 0 && myVote !== undefined;
       body += `<div class="poll-card">
         <div class="poll-question">${esc(msg.poll.question || msg.text || "Опрос")}</div>
-        <div class="poll-kicker">Анонимный опрос</div>
+        <div class="poll-kicker">${msg.poll.anonymous ? "Анонимный опрос" : "Обычный опрос"}</div>
         <div class="poll-options">${options.map((opt, idx) => {
           const count = Object.values(votes).filter((v) => Number(v) === idx).length;
           const pct = totalVotes ? Math.round((count / totalVotes) * 100) : 0;
@@ -1589,7 +1683,6 @@ function paintMessages() {
     }
     if (msg.kind === "image" && msg.mediaUrl) body += `<button class="media-preview-btn" type="button" data-media-url="${esc(msg.mediaUrl)}" data-media-kind="image"><img class="pic" src="${esc(msg.mediaUrl)}" alt=""></button>`;
     if (msg.kind === "sticker" && msg.mediaUrl) body += `<button class="media-preview-btn sticker-btn" type="button" data-media-url="${esc(msg.mediaUrl)}" data-media-kind="sticker"><img class="sticker" src="${esc(msg.mediaUrl)}" alt=""></button>`;
-    if (msg.kind === "voice") body += `<div class="voice-disabled-msg">${esc("Голосовые сообщения временно отключены")}</div>`;
     if (msg.kind === "call") body += `<div style="display:flex;gap:8px;align-items:center">${icon("phone", 16)} ${esc(msg.text || t("missedCall"))}</div>`;
     if (msg.kind === "text" || (!msg.kind && msg.text)) body += `<p>${linkify(msg.text)}</p>`;
     if (msg.kind === "poll" && msg.poll) {
@@ -1641,7 +1734,7 @@ function paintMessages() {
         openExternalLink(e.target.closest(".msg-link").dataset.url);
         return;
       }
-      if (e?.target?.closest?.("[data-media-url]") || e?.target?.closest?.(".voice-player")) return;
+      if (e?.target?.closest?.("[data-media-url]")) return;
       const msg = state.messages.find((m) => m.id === b.dataset.msg);
       if (!msg) return;
       showMenu(b, [
@@ -1933,194 +2026,6 @@ function compressImage(file) {
 }
 
 
-let rec = null;
-let recChunks = [];
-
-function revokeVoicePreview() {
-  if (state.voicePreview?.url) {
-    try { URL.revokeObjectURL(state.voicePreview.url); } catch {}
-  }
-  if (state.voicePreview?.audio) {
-    try { state.voicePreview.audio.pause(); } catch {}
-  }
-  state.voicePreview = null;
-}
-
-function formatVoiceDuration(seconds) {
-  const sec = Math.max(0, Math.round(Number(seconds) || 0));
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}:${String(s).padStart(2, "0")}`;
-}
-
-function setVoicePreview(blob, mimeType, duration = 0) {
-  revokeVoicePreview();
-  const url = URL.createObjectURL(blob);
-  const audio = new Audio(url);
-  audio.preload = "metadata";
-  state.voicePreview = { blob, mimeType, url, audio, duration: Number(duration) || 0 };
-  audio.addEventListener("loadedmetadata", () => {
-    if (Number.isFinite(audio.duration) && audio.duration > 0) {
-      state.voicePreview.duration = audio.duration;
-      const node = document.querySelector("[data-voice-preview-time]");
-      if (node) node.textContent = formatVoiceDuration(audio.duration);
-    }
-  }, { once: true });
-  paintThread(document.querySelector("#nl-root"));
-}
-
-function bindVoicePreview(root) {
-  const draft = state.voicePreview;
-  if (!draft?.audio) return;
-  const audio = draft.audio;
-  const playBtn = root.querySelector("[data-voice-preview-play]");
-  const sendBtn = root.querySelector("[data-voice-preview-send]");
-  const delBtn = root.querySelector("[data-voice-preview-delete]");
-  const track = root.querySelector("[data-voice-preview-track]");
-  const fill = root.querySelector("[data-voice-preview-fill]");
-  const time = root.querySelector("[data-voice-preview-time]");
-
-  const sync = () => {
-    const duration = Number.isFinite(audio.duration) ? audio.duration : draft.duration || 0;
-    const pct = duration ? Math.min(100, (audio.currentTime / duration) * 100) : 0;
-    if (fill) fill.style.width = pct + "%";
-    if (time) time.textContent = formatVoiceDuration(audio.currentTime || duration);
-  };
-  const setPlayIcon = () => {
-    if (playBtn) playBtn.innerHTML = audio.paused ? icon("play", 18) : icon("square", 16);
-  };
-  playBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (audio.paused) {
-      document.querySelectorAll(".voice-player").forEach((p) => p._audio?.pause?.());
-      audio.play().catch(() => {});
-    } else audio.pause();
-  });
-  audio.addEventListener("play", () => { setPlayIcon(); sync(); });
-  audio.addEventListener("pause", () => { setPlayIcon(); sync(); });
-  audio.addEventListener("ended", () => { audio.currentTime = 0; setPlayIcon(); sync(); });
-  audio.addEventListener("timeupdate", sync);
-  track?.addEventListener("click", (e) => {
-    const rect = track.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    if (audio.duration) audio.currentTime = pct * audio.duration;
-  });
-  delBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    revokeVoicePreview();
-    paintThread(document.querySelector("#nl-root"));
-  });
-  sendBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    sendVoicePreview();
-  });
-  sync();
-  setPlayIcon();
-}
-
-async function sendVoicePreview() {
-  toast("Голосовые сообщения временно отключены.");
-  return;
-  const draft = state.voicePreview;
-  const chatId = state.activeChatId;
-  if (!draft || !chatId || !me()?.uid) return;
-  const sendBtn = document.querySelector("[data-voice-preview-send]");
-  if (sendBtn) { sendBtn.disabled = true; sendBtn.classList.add("loading"); }
-  try {
-    const mimeType = draft.mimeType || "audio/webm";
-    const ext = mimeType.includes("mp4") ? "m4a" : mimeType.includes("ogg") ? "ogg" : "webm";
-    const file = new File([draft.blob], `voice-${Date.now()}.${ext}`, { type: mimeType });
-    const duration = Number(draft.duration || draft.audio?.duration || 0);
-    const voiceId = await FB.saveVoiceToFirestore(me().uid, draft.blob, mimeType);
-    await FB.sendMessage(chatId, {
-      senderId: me().uid,
-      kind: "voice",
-      text: t("voiceMsg"),
-      voiceId,
-      mimeType,
-      duration: Math.round(duration * 1000) / 1000
-    });
-    revokeVoicePreview();
-    toast("Голосовое отправлено");
-    paintThread(document.querySelector("#nl-root"));
-  } catch (e) {
-    console.error("voice send failed", e);
-    toast(FB.authError(e) || "Не удалось отправить голосовое сообщение");
-    if (sendBtn) { sendBtn.disabled = false; sendBtn.classList.remove("loading"); }
-  }
-}
-
-async function startRec() {
-  toast("Голосовые сообщения временно отключены.");
-  return;
-  if (state.recording || state.voicePreview) return;
-  if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
-    toast("Голосовые сообщения не поддерживаются этим браузером");
-    return;
-  }
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
-    const candidates = [
-      "audio/webm;codecs=opus",
-      "audio/ogg;codecs=opus",
-      "audio/mp4",
-      "audio/webm"
-    ];
-    const supported = candidates.find((type) => MediaRecorder.isTypeSupported?.(type));
-    recChunks = [];
-    rec = supported
-      ? new MediaRecorder(stream, { mimeType: supported, audioBitsPerSecond: 32000 })
-      : new MediaRecorder(stream, { audioBitsPerSecond: 32000 });
-    const mimeType = rec.mimeType || supported || "audio/webm";
-    rec.ondataavailable = (e) => { if (e.data && e.data.size) recChunks.push(e.data); };
-    rec.onerror = () => {
-      stream.getTracks().forEach((t) => t.stop());
-      window.clearTimeout(startRec._limitTimer);
-      startRec._limitTimer = null;
-      state.recording = false;
-      rec = null;
-      recChunks = [];
-      paintSendBtn();
-      toast("Не удалось записать голосовое сообщение");
-    };
-    rec.onstop = () => {
-      stream.getTracks().forEach((t) => t.stop());
-      window.clearTimeout(startRec._limitTimer);
-      startRec._limitTimer = null;
-      state.recording = false;
-      state.recordingStartedAt = 0;
-      const chunks = recChunks.slice();
-      rec = null;
-      recChunks = [];
-      paintSendBtn();
-      if (!chunks.length) return;
-      const blob = new Blob(chunks, { type: mimeType });
-      setVoicePreview(blob, mimeType, 0);
-    };
-    rec.start(250);
-    state.recording = true;
-    state.recordingStartedAt = Date.now();
-    window.clearTimeout(startRec._limitTimer);
-    startRec._limitTimer = window.setTimeout(() => {
-      if (rec && rec.state === "recording") {
-        toast("Максимальная длительность голосового — 90 секунд");
-        stopRec();
-      }
-    }, 90000);
-    paintThread(document.querySelector("#nl-root"));
-  } catch (e) {
-    console.error("microphone failed", e);
-    toast(e?.name === "NotAllowedError" ? "Разрешите доступ к микрофону" : "Не удалось включить микрофон");
-  }
-}
-
-function stopRec() {
-  if (!rec || rec.state === "inactive") return;
-  rec.stop();
-}
 
 async function botReply(chat, text) {
   const peer = chat.peerId || "nexbot";
@@ -2381,7 +2286,7 @@ function paintOverlays() {
 
   let html = "";
   if (state.panel) {
-    const sheetClass = state.panel === "developer" ? "sheet dev-sheet" : "sheet";
+    const sheetClass = state.panel === "developer" ? "sheet dev-sheet" : (state.panel === "chat-info" ? "sheet chat-info-sheet" : "sheet");
     html += `<div class="overlay" id="ov"><div class="${sheetClass}" id="sheet">${sheetHtml(state.panel)}</div></div>`;
   }
   if (state.call) html += callHtml();
@@ -2422,6 +2327,135 @@ function paintOverlays() {
       }
     }
   });
+}
+
+function roleLabel(role) {
+  const labels = {
+    owner: "Владелец",
+    admin: "Администратор",
+    moderator: "Модератор",
+    member: "Участник"
+  };
+  return labels[String(role || "").toLowerCase()] || "Участник";
+}
+
+function renderChatInfoPanel() {
+  const chatId = state.activeChatId;
+  const chat = chatId ? (state.chats[chatId] || {}) : {};
+  const item = chatId ? (state.inbox[chatId] || {}) : {};
+  const title = chatTitle(chat, item);
+  const color = chatColor(chat, item);
+  const uid = me()?.uid;
+  const type = String(chat.type || item.type || "private").toLowerCase();
+  const peerId = type === "private" ? (item.peerId || chat.peers?.[uid]) : null;
+  const peer = peerId ? (state.users[peerId] || {}) : null;
+  const isChannel = type === "channel";
+  const isGroup = type === "group";
+  const isContact = !!peerId && Object.values(state.contacts || {}).some((c) => (c?.uid || c?.id) === peerId);
+  const online = !!(peerId && state.presence[peerId]?.online);
+  const username = peer?.username ? `@${peer.username}` : "@username не указан";
+  const status = online ? "в сети" : (peerId ? t("lastSeen") : (isChannel ? "Публичный канал" : "Группа"));
+  const memberEntries = Object.entries(chat.members || {});
+  const memberCount = memberEntries.length;
+  const messages = Array.isArray(state.messages) ? state.messages : [];
+
+  const mediaItems = messages.filter((m) => m?.mediaUrl || ["image", "sticker", "video"].includes(String(m?.kind || "").toLowerCase()));
+  const photoItems = messages.filter((m) => String(m?.kind || "").toLowerCase() === "image" && m?.mediaUrl);
+  const fileItems = messages.filter((m) => String(m?.kind || "").toLowerCase() === "file" || m?.fileName || m?.fileUrl);
+  const linkItems = messages.filter((m) => /https?:\/\/\S+/i.test(String(m?.text || "")));
+  const latestMessages = messages.slice(-10).reverse();
+  const infoTab = state.chatInfoTab || "media";
+
+  const members = memberEntries.map(([memberUid, role]) => {
+    const user = state.users[memberUid] || {};
+    const name = memberUid === uid ? myName() : (user.name || displayUser(memberUid) || memberUid);
+    return `<button type="button" class="chat-info-member row" data-member-uid="${esc(memberUid)}">
+      ${avatar({ name, color: user.color || "#3D8BFD", size: 44, photo: user.photo, online: !!state.presence[memberUid]?.online })}
+      <div class="meta"><div class="name">${esc(name)}</div><div class="prev">${esc(roleLabel(role))}</div></div>
+    </button>`;
+  }).join("");
+
+  const topbar = (showEdit = false) => `<div class="chat-info-topbar">
+    <button type="button" class="chat-info-back" id="chat-info-close" aria-label="Назад">${icon("arrow-left", 24)}</button>
+    <div class="chat-info-top-title">Информация</div>
+    ${showEdit ? `<button type="button" class="chat-info-edit" id="chat-info-edit" aria-label="Изменить">${icon("edit", 20)}</button>` : `<span></span>`}
+  </div>`;
+
+  const tabButton = (id, label, count) => `<button type="button" class="chat-info-tab${infoTab === id ? " on" : ""}" data-info-tab="${id}"><span>${esc(label)}</span>${count != null ? `<b>${count}</b>` : ""}</button>`;
+
+  const renderInfoContent = () => {
+    if (infoTab === "messages") {
+      return latestMessages.length ? `<div class="chat-info-message-list">${latestMessages.map((m) => `<div class="chat-info-message-row"><div class="chat-info-message-avatar">${avatar({ name: m.senderName || displayUser(m.senderId) || "Пользователь", color: "#5d7cff", size: 34, photo: state.users[m.senderId]?.photo })}</div><div class="chat-info-message-main"><div class="chat-info-message-name">${esc(m.senderId === uid ? myName() : (m.senderName || displayUser(m.senderId) || "Пользователь"))}</div><div class="chat-info-message-text">${esc(String(m.text || (m.mediaUrl ? "Медиа" : "Сообщение"))).slice(0, 180)}</div></div></div>`).join("")}</div>` : `<div class="chat-info-empty">Сообщений пока нет</div>`;
+    }
+    if (infoTab === "photo") {
+      return photoItems.length ? `<div class="chat-info-photo-grid">${photoItems.slice().reverse().map((m) => `<button type="button" class="chat-info-photo-tile" data-media-url="${esc(m.mediaUrl)}" data-media-kind="image"><img src="${esc(m.mediaUrl)}" alt=""></button>`).join("")}</div>` : `<div class="chat-info-empty">Фотографий пока нет</div>`;
+    }
+    if (infoTab === "files") {
+      return fileItems.length ? `<div class="chat-info-file-list">${fileItems.slice().reverse().map((m) => `<div class="chat-info-file-row"><span class="chat-info-file-icon">${icon("file", 20)}</span><div><b>${esc(m.fileName || "Файл")}</b><small>${esc(m.text || "Отправленный файл")}</small></div></div>`).join("")}</div>` : `<div class="chat-info-empty">Файлов пока нет</div>`;
+    }
+    if (infoTab === "links") {
+      return linkItems.length ? `<div class="chat-info-link-list">${linkItems.slice().reverse().map((m) => { const hit = String(m.text || "").match(/https?:\/\/\S+/i)?.[0] || ""; return `<a class="chat-info-link-row" href="${esc(hit)}" target="_blank" rel="noopener noreferrer"><span class="chat-info-list-icon">${icon("link", 18)}</span><span><b>${esc(hit)}</b><small>${esc(String(m.text || "").slice(0, 120))}</small></span></a>`; }).join("")}</div>` : `<div class="chat-info-empty">Ссылок пока нет</div>`;
+    }
+    return mediaItems.length ? `<div class="chat-info-media-grid">${mediaItems.slice().reverse().map((m) => m.mediaUrl ? `<button type="button" class="chat-info-media-tile" data-media-url="${esc(m.mediaUrl)}" data-media-kind="${esc(m.kind || "image")}"><img src="${esc(m.mediaUrl)}" alt=""></button>` : `<div class="chat-info-media-placeholder">${icon("image", 24)}</div>`).join("")}</div>` : `<div class="chat-info-empty">Медиа пока нет</div>`;
+  };
+
+  const tabs = `<section class="chat-info-materials chat-info-card"><div class="chat-info-tabs">${tabButton("media", "Медиа", mediaItems.length)}${tabButton("photo", "Фото", photoItems.length)}${tabButton("messages", "Сообщения", messages.length)}${tabButton("files", "Файлы", fileItems.length)}${tabButton("links", "Ссылки", linkItems.length)}</div><div class="chat-info-tab-content">${renderInfoContent()}</div></section>`;
+
+  if (type === "private" && peerId) {
+    const user = peer || { name: title, color };
+    return `<div class="chat-info-layout private-layout">
+      ${topbar(true)}
+      <div class="chat-info-scroll">
+        <section class="chat-info-hero-large private-hero">
+          <div class="chat-info-avatar-wrap">${avatar({ name: user.name || title, color: user.color || color, size: 118, photo: user.photo, online })}</div>
+          <h1>${userNameHtml(user, title)}</h1>
+          <div class="chat-info-status">${esc(status)}</div>
+          ${user.bio ? `<div class="chat-info-bio">${linkify(user.bio)}</div>` : ""}
+        </section>
+        <div class="chat-info-actions-grid private-actions">
+          <button class="chat-info-action" type="button" id="chat-info-chat"><span class="chat-info-action-icon">${icon("chat", 21)}</span><span>Написать</span></button>
+          <button class="chat-info-action" type="button" id="chat-info-call"><span class="chat-info-action-icon">${icon("phone", 21)}</span><span>Звонок</span></button>
+          <button class="chat-info-action" type="button" id="chat-info-video"><span class="chat-info-action-icon">${icon("video", 21)}</span><span>Видео</span></button>
+          <button class="chat-info-action" type="button" id="chat-info-sound"><span class="chat-info-action-icon">${icon("mute", 21)}</span><span>${item.muted ? "Включить звук" : "Без звука"}</span></button>
+          <button class="chat-info-action" type="button" id="chat-info-more"><span class="chat-info-action-icon">${icon("more", 21)}</span><span>Ещё</span></button>
+        </div>
+        <section class="chat-info-card chat-info-identity">
+          <div class="chat-info-row-main">
+            <div><div class="chat-info-row-label">Имя пользователя</div><div class="chat-info-row-value">${esc(username)}</div></div>
+            <button type="button" class="chat-info-copy" id="chat-info-copy" aria-label="Копировать username">${icon("copy", 20)}</button>
+          </div>
+        </section>
+        ${!isContact ? `<div class="contact-warning chat-info-warning" role="status"><strong>Человек не в ваших контактах</strong><span>Проверяйте профиль перед отправкой личных данных.</span></div>` : ""}
+        ${tabs}
+      </div>
+    </div>`;
+  }
+
+  const subtitle = isChannel ? `${memberCount} ${t("subscribers")}` : `${memberCount} ${t("members")}`;
+  const badge = isChannel ? "Канал" : "Группа";
+  const actions = `<div class="chat-info-actions-grid community-actions"><button class="chat-info-action" type="button" id="chat-info-chat"><span class="chat-info-action-icon">${icon("chat", 21)}</span><span>Открыть</span></button><button class="chat-info-action" type="button" id="chat-info-sound"><span class="chat-info-action-icon">${icon("mute", 21)}</span><span>${item.muted ? "Включить звук" : "Без звука"}</span></button><button class="chat-info-action" type="button" id="chat-info-more"><span class="chat-info-action-icon">${icon("more", 21)}</span><span>Ещё</span></button></div>`;
+
+  return `<div class="chat-info-layout ${isChannel ? "channel-layout" : "group-layout"}">
+    ${topbar(chat.createdBy === uid)}
+    <div class="chat-info-scroll">
+      <section class="chat-info-hero-large community-hero">
+        <div class="chat-info-avatar-wrap community-avatar ${isChannel ? "channel-avatar" : "group-avatar"}">${avatar({ name: title, color, size: 118, photo: chat.photo })}</div>
+        <div class="chat-info-type-badge">${esc(badge)}</div>
+        <h1>${esc(title)}</h1>
+        <div class="chat-info-status">${esc(subtitle)}</div>
+        ${chat.description ? `<div class="chat-info-bio">${linkify(chat.description)}</div>` : ""}
+      </section>
+      ${actions}
+      <section class="chat-info-stats">
+        <div><b>${memberCount}</b><span>${isChannel ? "подписчиков" : "участников"}</span></div>
+        <div><b>${isChannel ? "Публичный" : "Закрытая"}</b><span>доступ</span></div>
+        <div><b>${chat.createdBy === uid ? "Вы" : "Нет"}</b><span>владелец</span></div>
+      </section>
+      ${chat.createdBy === uid ? `<button class="chat-info-primary" type="button" id="chat-info-invite">${icon("users", 18)} <span>${isChannel ? "Добавить подписчиков" : "Пригласить участников"}</span></button>` : ""}
+      ${tabs}
+      ${memberEntries.length ? `<section class="chat-info-card chat-info-list-card"><div class="chat-info-section-head"><b>${isChannel ? "Подписчики" : "Участники"}</b><span>${memberCount}</span></div><div class="chat-info-members">${members}</div></section>` : ""}
+    </div>
+  </div>`;
 }
 
 function sheetHtml(panel) {
@@ -2522,8 +2556,14 @@ function sheetHtml(panel) {
     } else {
       body = `<form id="poll-form" class="poll-form">
         <div class="poll-form-hero"><div class="poll-form-icon">${icon("chart", 22)}</div><div><b>Создать опрос</b><span>${chat.type === "channel" ? "Новый опрос для подписчиков канала" : "Новый опрос для участников группы"}</span></div></div>
-        ${field("Вопрос", "question", "")}${field("Вариант 1", "option1", "")}${field("Вариант 2", "option2", "")}<div class="poll-extra-options"><input name="option3" placeholder="Вариант 3 (необязательно)"><input name="option4" placeholder="Вариант 4 (необязательно)"></div>
-        <button class="btn block">${icon("chart", 17)} <span>Опубликовать опрос</span></button>
+        <div class="poll-question-field">
+          <label>Вопрос</label>
+          <textarea name="question" maxlength="300" required placeholder="Напишите вопрос…"></textarea>
+          <div class="poll-counter"><span>До 300 символов</span></div>
+        </div>
+        <div class="poll-option-field"><label>Варианты ответа</label>${field("Вариант 1", "option1", "")}${field("Вариант 2", "option2", "")}<div class="poll-extra-options"><input name="option3" placeholder="Вариант 3 (необязательно)"><input name="option4" placeholder="Вариант 4 (необязательно)"></div></div>
+        <label class="poll-anon-toggle"><span class="poll-anon-main"><span class="poll-anon-icon">◎</span><span><strong>Анонимный вопрос</strong><small>Имена участников не показываются в результатах</small></span></span><input type="checkbox" name="anonymous" checked><i class="poll-toggle-ui"></i></label>
+        <button class="btn block poll-submit" type="submit">${icon("chart", 17)} <span>Опубликовать опрос</span></button>
       </form>`;
     }
   } else if (panel === "group" || panel === "channel") {
@@ -2562,7 +2602,7 @@ function sheetHtml(panel) {
     let main = "";
     if (sec === "home") {
       main = `<div class="dev-content">
-        <div class="dev-hero"><div><div class="dev-eyebrow">NEXLINK DEVELOPER</div><h1>Главная</h1><p>Консоль разработчика NexLink: боты, API, OAuth и верификация. Выберите раздел слева или быстрый переход ниже.</p></div><div class="dev-hero-mark">N</div></div>
+        <div class="dev-hero"><div><div class="dev-eyebrow">NEXLINK DEV</div><h1>Главная</h1><p>Консоль разработчика NexLink: боты, API, OAuth и верификация. Выберите раздел слева или быстрый переход ниже.</p></div><div class="dev-hero-mark">N</div></div>
         <div class="dev-quick-grid">
           <button data-dev-section="bot-create"><strong>Создать бота</strong><span>Новый бот и API-токен</span></button>
           <button data-dev-section="bots"><strong>Мои боты</strong><span>Список и управление</span></button>
@@ -2617,7 +2657,7 @@ function sheetHtml(panel) {
     const botsNav = side.slice(0,3).join("");
     const oauthNav = side.slice(3,6).join("");
     const profileNav = side.slice(6).join("");
-    body = `<div class="dev-layout"><aside class="dev-sidebar"><div class="dev-brand"><div class="dev-logo">N</div><div><strong>NexLink</strong><span>Developer Console</span></div></div><button class="dev-home ${sec==="home"?"on":""}" data-dev-section="home">${icon("home",16)}<span>Главная</span></button><div class="dev-group-label">БОТЫ</div>${botsNav}<div class="dev-group-label">OAUTH</div>${oauthNav}<div class="dev-group-label">ПРОФИЛЬ</div>${profileNav}<div class="dev-sidebar-divider"></div><button class="dev-exit" id="dev-exit">${icon("x",15)}<span>Выйти из Dev</span></button><div class="dev-side-foot"><span class="dev-dot"></span><span>Dev session active</span></div></aside><main class="dev-main"><div class="dev-topbar"><div class="dev-crumb"><span>Developer Console</span><b>/</b><span>${sec === "home" ? "Главная" : (nav.find(x=>x[0]===sec)?.[1] || "Раздел")}</span></div><div class="dev-top-actions"><span class="dev-session-chip">${state.devToken ? "● Токен открыт" : "○ Без токена"}</span><button class="btn icon" id="sh-x" title="Выйти из Dev">${icon("x")}</button></div></div>${main}</main></div>`;
+    body = `<div class="dev-layout"><aside class="dev-sidebar"><div class="dev-brand"><div class="dev-logo">N</div><div><strong>NexLink</strong><span>Dev</span></div></div><button class="dev-home ${sec==="home"?"on":""}" data-dev-section="home">${icon("home",16)}<span>Главная</span></button><div class="dev-group-label">БОТЫ</div>${botsNav}<div class="dev-group-label">OAUTH</div>${oauthNav}<div class="dev-group-label">ПРОФИЛЬ</div>${profileNav}<div class="dev-sidebar-divider"></div><button class="dev-exit" id="dev-exit">${icon("x",15)}<span>Выйти из Dev</span></button><div class="dev-side-foot"><span class="dev-dot"></span><span>Dev session active</span></div></aside><main class="dev-main"><div class="dev-topbar"><div class="dev-crumb"><span>Developer Console</span><b>/</b><span>${sec === "home" ? "Главная" : (nav.find(x=>x[0]===sec)?.[1] || "Раздел")}</span></div><div class="dev-top-actions"><span class="dev-session-chip">${state.devToken ? "● Токен открыт" : "○ Без токена"}</span><button class="btn icon" id="sh-x" title="Выйти из Dev">${icon("x")}</button></div></div>${main}</main></div>`;
   } else if (panel === "music") {
     body = `<form id="mu">${field(t("track"), "musicTitle", p.musicTitle)}${field(t("artist"), "musicArtist", p.musicArtist)}<button class="btn block">${esc(t("save"))}</button></form>`;
   } else if (panel === "bots") {
@@ -2625,7 +2665,7 @@ function sheetHtml(panel) {
       (b) => `<button class="row" data-bot="${b.id}">${avatar({ name: b.name, color: b.color, type: "bot" })}<div class="meta"><div class="name">${esc(b.name)}</div><div class="prev">${esc(b.desc[s.locale] || b.desc.ru)}</div></div><span class="muted">${esc(t("openBot"))}</span></button>`,
     ).join("");
   } else if (panel === "chat-info") {
-    body = renderChatInfoPanel();
+    return renderChatInfoPanel();
   } else if (panel === "forward") {
     const items = inboxItems();
     body = items
@@ -2668,6 +2708,41 @@ function bindOverlay() {
     });
   }
   document.getElementById("sh-x")?.addEventListener("click", closePanel);
+  document.getElementById("chat-info-close")?.addEventListener("click", closePanel);
+  document.getElementById("chat-info-invite")?.addEventListener("click", () => openPanel("invite-members"));
+  document.getElementById("chat-info-chat")?.addEventListener("click", closePanel);
+  document.getElementById("chat-info-call")?.addEventListener("click", () => { closePanel(); setTimeout(() => startCall("audio"), 0); });
+  document.getElementById("chat-info-video")?.addEventListener("click", () => { closePanel(); setTimeout(() => startCall("video"), 0); });
+  document.getElementById("chat-info-sound")?.addEventListener("click", async () => {
+    if (!state.activeChatId || !me()?.uid) return;
+    const item = state.inbox[state.activeChatId] || {};
+    await FB.patchInbox(me().uid, state.activeChatId, { muted: !item.muted });
+    paintOverlays();
+  });
+  document.getElementById("chat-info-copy")?.addEventListener("click", async () => {
+    const chatId = state.activeChatId;
+    const item = chatId ? (state.inbox[chatId] || {}) : {};
+    const peerId = item.peerId || (state.chats[chatId]?.peers?.[me()?.uid]);
+    const value = peerId ? (state.users[peerId]?.username ? `@${state.users[peerId].username}` : "") : "";
+    if (!value) { toast("Username не указан"); return; }
+    try { await navigator.clipboard.writeText(value); toast("Username скопирован"); } catch {}
+  });
+  document.getElementById("chat-info-more")?.addEventListener("click", (e) => {
+    showMenu(e.currentTarget, [
+      { id: "contacts", label: "Добавить в контакты", icon: "user-plus" },
+      { id: "close", label: "Закрыть", icon: "x" },
+    ], (id) => { if (id === "close") closePanel(); });
+  });
+  document.getElementById("chat-info-edit")?.addEventListener("click", () => toast("Редактирование профиля появится позже"));
+  document.querySelectorAll("[data-info-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.chatInfoTab = btn.dataset.infoTab || "media";
+      paintOverlays();
+    });
+  });
+  document.querySelectorAll("[data-media-url]").forEach((btn) => {
+    btn.addEventListener("click", () => openMediaViewer(btn.dataset.mediaUrl, btn.dataset.mediaKind || "image"));
+  });
   document.querySelectorAll("[data-dev-section]").forEach((b) => {
     b.addEventListener("click", () => {
       state.devSection = b.dataset.devSection;
@@ -2973,7 +3048,7 @@ function bindOverlay() {
     try {
       const btn = e.target.querySelector("button[type=submit]");
       if (btn) btn.disabled = true;
-      await FB.createPoll(state.activeChatId, { senderId: me().uid, question: fd.get("question"), options });
+      await FB.createPoll(state.activeChatId, { senderId: me().uid, question: fd.get("question"), options, anonymous: fd.get("anonymous") === "on" });
       toast("Опрос опубликован");
       closePanel();
     } catch (err) {
@@ -3470,660 +3545,3 @@ main();
 initWebViewKeyboardSupport();
 initNavigationHistory();
 // ============================================================
-// Voice Message Player — добавьте этот код в конец файла app.js
-// перед закрывающим тегом </script> или в конце модуля
-// ============================================================
-
-/**
- * Создаёт кастомный плеер для голосовых сообщений
- * @param {string} url — ссылка на аудиофайл
- * @param {string} sender — 'mine' или 'theirs'
- * @returns {HTMLElement} готовый DOM-элемент плеера
- */
-function createVoicePlayer(url, sender = 'theirs') {
-    const audio = new Audio(url);
-    audio.preload = 'metadata';
-
-    const container = document.createElement('div');
-    container.className = `voice-player ${sender === 'mine' ? 'mine' : 'theirs'}`;
-
-    const btn = document.createElement('button');
-    btn.className = 'voice-btn';
-    btn.type = 'button';
-    btn.setAttribute('aria-label', 'Play voice message');
-    btn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>`;
-
-    const wave = document.createElement('div');
-    wave.className = 'voice-wave';
-    const bars = 36;
-    for (let i = 0; i < bars; i++) {
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        bar.style.height = `${7 + Math.round((Math.sin(i * 1.71) * 0.5 + 0.5) * 14)}px`;
-        wave.appendChild(bar);
-    }
-
-    const progressWrap = document.createElement('div');
-    progressWrap.className = 'voice-progress-wrap';
-    const track = document.createElement('div');
-    track.className = 'voice-track';
-    const fill = document.createElement('div');
-    fill.className = 'voice-fill';
-    track.appendChild(fill);
-
-    const timeDisplay = document.createElement('div');
-    timeDisplay.className = 'voice-time';
-    const currentSpan = document.createElement('span');
-    currentSpan.className = 'current';
-    currentSpan.textContent = '0:00';
-    const durationSpan = document.createElement('span');
-    durationSpan.className = 'duration';
-    durationSpan.textContent = '--:--';
-    timeDisplay.append(currentSpan, durationSpan);
-    progressWrap.append(track, timeDisplay);
-    container.append(btn, wave, progressWrap);
-
-    let progressInterval = null;
-    let waveformReady = false;
-
-    const formatTime = (seconds) => {
-        if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
-        const m = Math.floor(seconds / 60);
-        const s = Math.floor(seconds % 60);
-        return `${m}:${String(s).padStart(2, '0')}`;
-    };
-
-    const updateProgress = () => {
-        const duration = Number(audio.duration);
-        const pct = duration > 0 ? Math.min(100, (audio.currentTime / duration) * 100) : 0;
-        fill.style.width = `${pct}%`;
-        currentSpan.textContent = formatTime(audio.currentTime);
-        const count = bars;
-        wave.querySelectorAll('.bar').forEach((bar, i) => {
-            bar.classList.toggle('active', i / Math.max(1, count - 1) <= pct / 100);
-        });
-    };
-
-    const togglePlay = () => {
-        if (!audio.paused) audio.pause();
-        else {
-            document.querySelectorAll('.voice-player').forEach((p) => {
-                if (p !== container && p._audio && !p._audio.paused) p._audio.pause();
-            });
-            audio.play().catch(() => {});
-        }
-    };
-
-    btn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
-    track.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const rect = track.getBoundingClientRect();
-        const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / Math.max(1, rect.width)));
-        if (audio.duration) {
-            audio.currentTime = pct * audio.duration;
-            updateProgress();
-        }
-    });
-
-    audio.addEventListener('loadedmetadata', () => {
-        durationSpan.textContent = formatTime(audio.duration);
-        updateProgress();
-    });
-    audio.addEventListener('play', () => {
-        container.classList.add('playing');
-        btn.innerHTML = `<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
-        progressInterval = setInterval(updateProgress, 80);
-    });
-    audio.addEventListener('pause', () => {
-        container.classList.remove('playing');
-        btn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>`;
-        if (progressInterval) clearInterval(progressInterval);
-        progressInterval = null;
-    });
-    audio.addEventListener('ended', () => {
-        if (progressInterval) clearInterval(progressInterval);
-        progressInterval = null;
-        container.classList.remove('playing');
-        btn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>`;
-        audio.currentTime = 0;
-        updateProgress();
-    });
-    audio.addEventListener('timeupdate', updateProgress);
-
-    // Построение настоящей waveform из амплитуды аудио без Storage/CORS.
-    // Используется только для визуализации; воспроизведение остаётся через <audio>.
-    (async () => {
-        try {
-            const response = await fetch(url);
-            const buffer = await response.arrayBuffer();
-            const Ctx = window.AudioContext || window.webkitAudioContext;
-            if (!Ctx) return;
-            const ctx = new Ctx();
-            const decoded = await ctx.decodeAudioData(buffer.slice(0));
-            const data = decoded.getChannelData(0);
-            const chunk = Math.max(1, Math.floor(data.length / bars));
-            const heights = Array.from({ length: bars }, (_, i) => {
-                const from = i * chunk;
-                const to = Math.min(data.length, from + chunk);
-                let peak = 0;
-                for (let j = from; j < to; j += Math.max(1, Math.floor(chunk / 80))) peak = Math.max(peak, Math.abs(data[j] || 0));
-                return Math.max(5, Math.min(28, Math.round(5 + Math.pow(peak, 0.55) * 23)));
-            });
-            const max = Math.max(...heights, 1);
-            wave.querySelectorAll('.bar').forEach((bar, i) => {
-                bar.style.height = `${Math.max(5, Math.round((heights[i] / max) * 26))}px`;
-            });
-            waveformReady = true;
-            ctx.close().catch(() => {});
-        } catch (error) {
-            console.debug('voice waveform fallback', error);
-        }
-    })();
-
-    const cleanup = () => {
-        audio.pause();
-        if (progressInterval) clearInterval(progressInterval);
-        progressInterval = null;
-    };
-    document.addEventListener('visibilitychange', () => { if (document.hidden) audio.pause(); });
-    container._audio = audio;
-    container._cleanup = cleanup;
-    container._waveformReady = () => waveformReady;
-    return container;
-}
-/**
- * Останавливает все голосовые плееры на странице
- * (вызывается перед созданием нового плеера)
- */
-function stopAllVoicePlayers() {
-    document.querySelectorAll('.voice-player').forEach((el) => {
-        if (el._audio && !el._audio.paused) {
-            el._audio.pause();
-        }
-    });
-}
-
-// ============================================================
-// Модификация функции paintMessages() — замена <audio> на кастомный плеер
-// Найдите в app.js функцию paintMessages() и замените в ней блок:
-//
-//     if (msg.kind === "voice" && msg.mediaUrl) 
-//         body += `<audio controls src="${esc(msg.mediaUrl)}"></audio>`;
-//
-// НА:
-//
-//     if (msg.kind === "voice" && msg.mediaUrl) {
-//         const player = createVoicePlayer(msg.mediaUrl, mine ? 'mine' : 'theirs');
-//         body += player.outerHTML;
-//     }
-//
-// ============================================================
-
-// Если вы хотите заменить полностью — вот готовая версия paintMessages
-// с поддержкой голосовых плееров. Скопируйте её поверх существующей
-// функции paintMessages в app.js:
-
-/*
-async function paintMessages() {
-    const box = document.getElementById("msgs");
-    if (!box) return;
-    const thread = state.messages;
-    if (!thread.length) {
-        box.innerHTML = `<div class="empty" style="display:grid;height:100%;place-items:center">${esc(t("noMessages"))}</div>`;
-        return;
-    }
-    const chat = state.chats[state.activeChatId] || {};
-    let html = "";
-    const voicePlayers = [];
-    thread.forEach((msg, i) => {
-        const prev = thread[i - 1];
-        if (!prev || fmtDay(prev.createdAt) !== fmtDay(msg.createdAt)) {
-            html += `<div class="day"><span>${esc(fmtDay(msg.createdAt))}</span></div>`;
-        }
-        if (msg.kind === "system") {
-            html += `<p class="sys">${esc(msg.text)}</p>`;
-            return;
-        }
-        const mine = msg.senderId === me()?.uid;
-        const reply = msg.replyToId ? thread.find((x) => x.id === msg.replyToId) : null;
-        const showName = !mine && chat.type === "group" && prev?.senderId !== msg.senderId;
-        let body = "";
-        if (msg.forwardedFrom) body += `<div class="quote">${esc(t("forwarded"))}</div>`;
-        if (reply) body += `<div class="quote">${esc((reply.text || "").slice(0, 80))}</div>`;
-        if (msg.kind === "image" && msg.mediaUrl) body += `<button class="media-preview-btn" type="button" data-media-url="${esc(msg.mediaUrl)}" data-media-kind="image"><img class="pic" src="${esc(msg.mediaUrl)}" alt=""></button>`;
-        // ---- ЗАМЕНА: голосовое сообщение через кастомный плеер ----
-        if (false && msg.kind === "voice" && msg.mediaUrl) {
-            // Создаём плеер, но откладываем вставку, чтобы потом добавить события
-            const player = createVoicePlayer(msg.mediaUrl, mine ? 'mine' : 'theirs');
-            body += player.outerHTML;
-            voicePlayers.push({ el: player, msgId: msg.id });
-        }
-        // ------------------------------------------------------------
-        if (msg.kind === "call") body += `<div style="display:flex;gap:8px;align-items:center">${icon("phone", 16)} ${esc(msg.text || t("missedCall"))}</div>`;
-        if (msg.kind === "text" || (!msg.kind && msg.text)) body += `<p>${linkify(msg.text)}</p>`;
-        html += `<div class="bubble-row ${mine ? "mine" : "theirs"}">
-            <div>
-                ${showName ? `<div class="gname">${esc(displayUser(msg.senderId))}</div>` : ""}
-                <button class="bubble" data-msg="${esc(msg.id)}">${body}<div class="foot">${esc(fmtTime(msg.createdAt))}${mine ? messageReadMarkup(msg) : ""}</div></button>
-            </div>
-        </div>`;
-    });
-    const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
-    box.innerHTML = html;
-    // Восстанавливаем ссылки на плееры (т.к. outerHTML создал новые элементы)
-    setTimeout(() => {
-        const allPlayers = box.querySelectorAll('.voice-player');
-        voicePlayers.forEach((vp, idx) => {
-            if (allPlayers[idx]) {
-                // Передаём ссылку на аудио из сохранённого плеера
-                const newPlayer = allPlayers[idx];
-                const oldAudio = vp.el._audio;
-                const newBtn = newPlayer.querySelector('.voice-btn');
-                const newFill = newPlayer.querySelector('.voice-fill');
-                const newCurrent = newPlayer.querySelector('.voice-time .current');
-                const newDuration = newPlayer.querySelector('.voice-time .duration');
-                // Копируем состояние
-                if (oldAudio) {
-                    newPlayer._audio = oldAudio;
-                    // Обновляем отображение
-                    if (oldAudio.duration) {
-                        newDuration.textContent = formatTime(oldAudio.duration);
-                    }
-                    const pct = oldAudio.duration ? (oldAudio.currentTime / oldAudio.duration) * 100 : 0;
-                    newFill.style.width = Math.min(pct, 100) + '%';
-                    newCurrent.textContent = formatTime(oldAudio.currentTime);
-                    // Переподключаем события
-                    const oldPlay = oldAudio.play.bind(oldAudio);
-                    const oldPause = oldAudio.pause.bind(oldAudio);
-                    newBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        if (oldAudio.paused) {
-                            stopAllVoicePlayers();
-                            oldAudio.play().catch(() => {});
-                        } else {
-                            oldAudio.pause();
-                        }
-                    };
-                    // Обновление прогресса
-                    const upd = () => {
-                        if (oldAudio.duration) {
-                            const p = (oldAudio.currentTime / oldAudio.duration) * 100;
-                            newFill.style.width = Math.min(p, 100) + '%';
-                            newCurrent.textContent = formatTime(oldAudio.currentTime);
-                        }
-                    };
-                    oldAudio.addEventListener('timeupdate', upd);
-                    oldAudio.addEventListener('play', () => {
-                        newPlayer.classList.add('playing');
-                        newBtn.classList.add('playing');
-                        newBtn.innerHTML = `<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
-                        // Остановить все другие
-                        document.querySelectorAll('.voice-player').forEach((p) => {
-                            if (p !== newPlayer && p._audio && !p._audio.paused) {
-                                p._audio.pause();
-                            }
-                        });
-                    });
-                    oldAudio.addEventListener('pause', () => {
-                        newPlayer.classList.remove('playing');
-                        newBtn.classList.remove('playing');
-                        newBtn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>`;
-                    });
-                    oldAudio.addEventListener('ended', () => {
-                        newPlayer.classList.remove('playing');
-                        newBtn.classList.remove('playing');
-                        newBtn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>`;
-                        newFill.style.width = '0%';
-                        newCurrent.textContent = '0:00';
-                        oldAudio.currentTime = 0;
-                    });
-                    // Клик по треку
-                    const track = newPlayer.querySelector('.voice-track');
-                    if (track) {
-                        track.onclick = (e) => {
-                            const rect = track.getBoundingClientRect();
-                            const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-                            if (oldAudio.duration) {
-                                oldAudio.currentTime = pct * oldAudio.duration;
-                            }
-                        };
-                    }
-                }
-            }
-        });
-        // Обработка кликов по сообщениям
-        box.querySelectorAll("[data-msg]").forEach((b) => {
-            b.onclick = (e) => {
-                if (e.target.closest(".voice-player") || e.target.closest(".msg-link")) {
-                    if (e.target.closest(".msg-link")) {
-                        openExternalLink(e.target.closest(".msg-link").dataset.url);
-                    }
-                    return;
-                }
-                const msg = state.messages.find((m) => m.id === b.dataset.msg);
-                if (!msg) return;
-                showMenu(b, [
-                    { id: "reply", label: t("reply"), icon: "reply" },
-                    { id: "copy", label: t("copy"), icon: "copy" },
-                    { id: "fwd", label: t("forward"), icon: "fwd" },
-                    ...(msg.senderId === me()?.uid ? [{ id: "del", label: t("delete"), icon: "trash", danger: true }] : []),
-                ], async (id) => {
-                    if (id === "reply") {
-                        state.replyTo = msg.id;
-                        paintReply();
-                    }
-                    if (id === "copy") {
-                        await navigator.clipboard.writeText(msg.text || "");
-                        toast(t("copied"));
-                    }
-                    if (id === "fwd") openPanel("forward", msg.id);
-                    if (id === "del") await FB.deleteMessage(state.activeChatId, msg.id);
-                });
-            };
-        });
-        if (nearBottom || true) box.scrollTop = box.scrollHeight;
-    }, 20);
-}
-*/
-
-// ============================================================
-// Вспомогательная функция formatTime для голосовых плееров
-// (если её нет в глобальной области)
-// ============================================================
-
-function formatTime(seconds) {
-    if (!seconds || isNaN(seconds)) return '0:00';
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return `${m}:${s.toString().padStart(2, '0')}`;
-}
-
-// ============================================================
-// Инициализация: если на странице уже есть голосовые сообщения
-// при загрузке — пересоздаём плееры (можно вызвать при рендере)
-// ============================================================
-
-// Вызов при загрузке новых сообщений
-// В функции paintMessages() уже используется createVoicePlayer
-
-// ============================================================
-// Профиль собеседника: фото, имя, username и медиа-вкладки
-// ============================================================
-async function exportChat(chatId) {
-  const chat = state.chats[chatId] || {};
-  const item = state.inbox[chatId] || {};
-  const title = chatTitle(chat, item);
-  const source = state.activeChatId === chatId ? state.messages : await FB.getMessages(chatId);
-  const rows = source.map((m) => ({ id:m.id, createdAt:m.createdAt, senderId:m.senderId, kind:m.kind||"text", text:m.text||"", mediaUrl:m.mediaUrl||null }));
-  const payload = { exportedAt: new Date().toISOString(), title, chatId, messages: rows };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json;charset=utf-8"});
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `nexlink-${chatId}.json`; a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-}
-
-async function ensurePeerProfile(peerId) {
-  if (!peerId) return null;
-  if (!state.users[peerId]) {
-    try {
-      const p = await FB.loadProfile(peerId);
-      if (p) state.users[peerId] = { ...p, uid: peerId };
-    } catch (e) { console.warn("peer profile load failed", e); }
-  }
-  return state.users[peerId] || null;
-}
-
-function renderChatInfoPanel() {
-  const chatId = state.activeChatId;
-  if (!chatId) return `<p class="muted">${esc(t("noChat"))}</p>`;
-
-  const chat = state.chats[chatId] || {};
-  const item = state.inbox[chatId] || {};
-  const peerId = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
-
-  const chatType = chat.type || item.type || (peerId ? "private" : "group");
-  if (chatType === "group" || chatType === "channel") {
-    return renderCommunityInfo({ ...chat, type: chatType }, item);
-  }
-  if (!peerId) return `<div class="profile-empty"><div class="profile-empty-icon">${icon("user", 24)}</div><div>Профиль недоступен</div></div>`;
-
-  const user = state.users[peerId] || { uid: peerId, name: "Загрузка…", username: "", color: "#3D8BFD" };
-  const displayName = user.name || peerId;
-  const username = user.username ? `@${user.username}` : "";
-  const online = !!state.presence[peerId]?.online;
-  const status = online ? t("online") : t("lastSeen");
-
-  const muted = !!(item.muted);
-  const commonGroups = state.commonGroupsByPeer?.[peerId] || [];
-  const commonGroupsLoading = !!state.commonGroupsLoading?.[peerId];
-  return `
-    <div class="profile-view">
-      <div class="profile-cover" aria-hidden="true"><span></span></div>
-      <div class="profile-hero">
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar ${online ? "is-online" : ""}">
-            ${avatar({ name: displayName, color: user.color || "#3D8BFD", size: 112, online: false, photo: user.photo })}
-          </div>
-          ${online ? `<span class="profile-live-dot" aria-label="online"></span>` : ""}
-        </div>
-        <div class="profile-name">${userNameHtml(user, displayName)}</div>
-        <div class="profile-username">${esc(username || "@" + peerId.slice(0, 10))}</div>
-        <div class="profile-status ${online ? "on" : ""}">${esc(status)}</div>
-        ${user.bio ? `<div class="profile-bio">${esc(user.bio)}</div>` : ""}
-      </div>
-
-      <div class="profile-actions">
-        <button type="button" class="profile-action" data-profile-action="message">${icon("chat", 19)}<span>${esc(t("message"))}</span></button>
-        <button type="button" class="profile-action" data-profile-action="audio">${icon("phone", 19)}<span>${esc(t("call"))}</span></button>
-        <button type="button" class="profile-action" data-profile-action="video">${icon("video", 19)}<span>${esc(t("videoCall"))}</span></button>
-        <button type="button" class="profile-action ${muted ? "active" : ""}" data-profile-action="mute">${icon("mute", 19)}<span>${esc(muted ? t("unmute") : t("mute"))}</span></button>
-      </div>
-
-      <div class="profile-info-card">
-        ${username ? `<div class="profile-info-row"><span class="profile-info-icon">${icon("at", 17)}</span><div><small>${esc(t("username"))}</small><b>${esc(username)}</b></div></div>` : ""}
-        ${user.bio ? `<div class="profile-info-row"><span class="profile-info-icon">${icon("info", 17)}</span><div><small>${esc(t("bio"))}</small><b>${esc(user.bio)}</b></div></div>` : ""}
-        <div class="profile-info-row profile-common-groups-row"><span class="profile-info-icon">${icon("users", 17)}</span><div><small>Общие группы</small><b>${commonGroupsLoading ? "Загрузка…" : (commonGroups.length ? `${commonGroups.length} ${commonGroups.length === 1 ? "группа" : "группы"}` : "Нет общих групп")}</b>${commonGroups.length ? `<div class="profile-common-groups-list">${commonGroups.slice(0, 4).map(g => `<span class="profile-common-group-chip">${esc(g.name || "Группа")}</span>`).join("")}${commonGroups.length > 4 ? `<span class="profile-common-group-more">+${commonGroups.length - 4}</span>` : ""}</div>` : ""}</div></div>
-      </div>
-
-      <div class="profile-tabs" id="profile-tabs" role="tablist">
-        <button class="${state.profileTab === "files" ? "on" : ""}" data-profile-tab="files" role="tab">${icon("folder", 16)}<span>${esc(t("files"))}</span></button>
-        <button class="${state.profileTab === "voice" ? "on" : ""}" data-profile-tab="voice" role="tab">${icon("mic", 16)}<span>${esc(t("voicePlural"))}</span></button>
-        <button class="${state.profileTab === "messages" ? "on" : ""}" data-profile-tab="messages" role="tab">${icon("chat", 16)}<span>${esc(t("messages"))}</span></button>
-        <button class="${state.profileTab === "links" ? "on" : ""}" data-profile-tab="links" role="tab">${icon("globe", 16)}<span>${esc(t("links"))}</span></button>
-      </div>
-
-      <div class="profile-content nl-scroll" id="profile-tab-content"></div>
-    </div>`;
-}
-
-function roleLabel(role) {
-  return t(role === "owner" ? "roleOwner" : role === "admin" ? "roleAdmin" : role === "moderator" ? "roleModerator" : "roleMember");
-}
-
-const GROUP_ROLE_PERMS = {
-  owner: ["addMembers", "manageMessages", "editInfo", "manageRoles"],
-  admin: ["addMembers", "manageMessages", "editInfo", "manageRoles"],
-  moderator: ["addMembers", "manageMessages"],
-  member: [],
-};
-
-function canGroupPermission(chat, uid, permission) {
-  const role = (chat.members || {})[uid] || "member";
-  return (GROUP_ROLE_PERMS[role] || []).includes(permission);
-}
-
-function renderCommunityInfo(chat, item) {
-  const type = chat.type || item?.type || "group";
-  const title = chatTitle(chat, item);
-  const members = Object.keys(chat.members || {});
-  const meUid = me()?.uid;
-  const isMember = !!(chat.members || {})[meUid];
-  const myRole = (chat.members || {})[meUid] || "member";
-  const canInvite = type === "group" && (myRole === "owner" || canGroupPermission(chat, meUid, "addMembers"));
-  const countLabel = type === "channel" ? `${members.length} ${members.length === 1 ? "подписчик" : members.length < 5 ? "подписчика" : "подписчиков"}` : `${members.length} ${members.length === 1 ? "участник" : members.length < 5 ? "участника" : "участников"}`;
-  const publicLabel = chat.public || !chat.private ? "Публичное сообщество" : "Приватное сообщество";
-
-  const memberRows = type === "channel" ? "" : members.slice(0, 8).map((id) => {
-    const u = id === meUid ? { name: t("you"), color: state.profile?.color } : state.users[id] || { name: id, color: "#3D8BFD" };
-    const role = (chat.members || {})[id] || "member";
-    return `<div class="community-member-card">${avatar({ name: u.name, color: u.color, size: 42, photo: u.photo, online: !!state.presence[id]?.online })}<div class="meta"><div class="name">${esc(u.name)}</div><div class="prev">${type === "group" ? esc(roleLabel(role)) : (state.presence[id]?.online ? "Онлайн" : "Подписчик")}</div></div></div>`;
-  }).join("");
-
-  return `<div class="community-profile-view">
-    <div class="community-profile-cover ${type === "channel" ? "channel" : "group"}"><div class="community-cover-glow"></div></div>
-    <div class="community-profile-hero">
-      <div class="community-avatar">${avatar({ name: title, color: chatColor(chat, item), type, size: 104 })}</div>
-      <div class="profile-name">${esc(title)}</div>
-      <div class="community-type-line">${icon(type === "channel" ? "mega" : "users", 15)}<span>${esc(publicLabel)}</span></div>
-      ${chat.username ? `<div class="profile-username">@${esc(chat.username)}</div>` : ""}
-      ${chat.description ? `<div class="profile-bio">${esc(chat.description)}</div>` : ""}
-    </div>
-    <div class="community-stat-grid">
-      <div><b>${members.length}</b><span>${type === "channel" ? "Подписчиков" : "Участников"}</span></div>
-      <div><b>${(state.messages || []).length}</b><span>Публикаций</span></div>
-      <div><b>${type === "channel" ? "24/7" : (chat.createdAt ? new Date(chat.createdAt).getFullYear() : "N")}</b><span>${type === "channel" ? "Обновления" : "Год"}</span></div>
-    </div>
-    <div class="community-profile-actions">
-      <button type="button" class="profile-action" id="community-join-btn" ${isMember ? "disabled" : ""}>${icon(isMember ? "check" : "users", 19)}<span>${isMember ? (type === "channel" ? "Вы подписаны" : "Вы участник") : "Присоединиться"}</span></button>
-      ${canInvite ? `<button type="button" class="profile-action" id="community-invite-btn">${icon("users", 19)}<span>Пригласить участников</span></button>` : ""}
-    </div>
-    <div class="community-profile-info">
-      <div class="community-info-head"><div><small>${type === "channel" ? "КАНАЛ" : "ГРУППА"}</small><b>${esc(countLabel)}</b></div><span class="community-info-pill">${esc(type === "channel" ? "Подписчики" : "Участники")}</span></div>
-      ${type === "group" ? `<div class="community-member-grid">${memberRows || `<div class="profile-empty"><div>Участников пока нет</div></div>`}</div>${members.length > 8 ? `<div class="community-more-members">+${members.length - 8} ещё</div>` : ""}` : `<div class="community-subscriber-note"><span class="profile-card-icon">${icon("users", 18)}</span><div><b>Подписчики</b><small>Список подписчиков доступен владельцам и администраторам канала.</small></div></div>`}
-    </div>
-    <div class="profile-tabs community-tabs" id="profile-tabs" role="tablist">
-      <button class="${state.profileTab === "files" ? "on" : ""}" data-profile-tab="files" role="tab">${icon("folder", 16)}<span>Медиа</span></button>
-      <button class="${state.profileTab === "voice" ? "on" : ""}" data-profile-tab="voice" role="tab">${icon("mic", 16)}<span>Голосовые</span></button>
-      <button class="${state.profileTab === "messages" ? "on" : ""}" data-profile-tab="messages" role="tab">${icon("chat", 16)}<span>Посты</span></button>
-      <button class="${state.profileTab === "links" ? "on" : ""}" data-profile-tab="links" role="tab">${icon("globe", 16)}<span>Ссылки</span></button>
-    </div>
-    <div class="profile-content community-profile-content nl-scroll" id="profile-tab-content"></div>
-  </div>`;
-}
-
-function renderGroupInfo(chat, item) {
-  const title = chatTitle(chat, item);
-  const members = Object.keys(chat.members || {});
-  const meUid = me()?.uid;
-  const myRole = (chat.members || {})[meUid] || "member";
-  const canManageRoles = chat.type === "group" && (myRole === "owner" || canGroupPermission(chat, meUid, "manageRoles"));
-  let body = `<div class="center">${avatar({ name: title, color: chatColor(chat, item), type: chat.type, size: 72 })}<h3 style="margin:10px 0 4px">${esc(title)}</h3><p class="muted">${esc(chat.description || chat.type || "")}</p><div class="role-badge">${esc(roleLabel(myRole))}</div></div><div class="mt">`;
-  members.forEach((id) => {
-    const u = id === meUid ? { name: t("you"), color: state.profile?.color } : state.users[id] || { name: id, color: "#3D8BFD" };
-    const role = (chat.members || {})[id] || "member";
-    body += `<div class="row group-member-row">${avatar({ name: u.name, color: u.color, size: 36, online: state.presence[id]?.online })}<div class="meta"><div class="name">${esc(u.name)}</div><div class="prev">${esc(roleLabel(role))}</div></div>${canManageRoles && id !== meUid ? `<button class="btn sm sec" data-role-user="${id}">${esc(roleLabel(role))}</button>` : ""}</div>`;
-  });
-  body += `</div>`;
-  if (chat.type === "group") {
-    body += `<div class="dev-card role-card mt"><h3>${esc(t("groupRoles"))}</h3><div class="role-help"><span><b>${esc(t("roleAdmin"))}</b>: ${esc(t("rightAddMembers"))}, ${esc(t("rightManageMessages"))}, ${esc(t("rightEditInfo"))}, ${esc(t("rightManageRoles"))}</span><span><b>${esc(t("roleModerator"))}</b>: ${esc(t("rightAddMembers"))}, ${esc(t("rightManageMessages"))}</span></div></div>`;
-  }
-  if (chat.type === "group" || chat.type === "channel") {
-    const canAdd = canGroupPermission(chat, meUid, "addMembers") || myRole === "owner";
-    if (canAdd) body += `<form id="addm" class="mt">${field(t("addMember"), "u", "")}<button class="btn block sm">${esc(t("add"))}</button></form>`;
-  }
-  body += `<div class="mt role-editor-slot" id="role-editor-slot"></div>`;
-  const isMember = !!(chat.members || {})[meUid];
-  if (chat.type === "group" || chat.type === "channel") {
-    body += `<div class="community-join-bar ${isMember ? "joined" : ""}">
-      <button type="button" class="community-join-btn" id="community-join-btn" ${isMember ? "disabled" : ""}>
-        ${icon(isMember ? "check" : "users", 18)}
-        <span>${isMember ? (chat.type === "channel" ? "Вы подписаны" : "Вы участник") : "Присоединиться"}</span>
-      </button>
-    </div>`;
-  }
-  return body;
-}
-
-function profileMessages(tab) {
-  const messages = state.messages || [];
-  if (tab === "files") return messages.filter((m) => !!m.mediaUrl && m.kind !== "voice");
-  if (tab === "voice") return messages.filter((m) => m.kind === "voice" && m.mediaUrl);
-  if (tab === "messages") return messages.filter((m) => m.kind === "text" || (!m.kind && m.text));
-  if (tab === "links") return messages.filter((m) => {
-    if (m.kind && m.kind !== "text") return false;
-    return /https?:\/\/[^\s]+|www\.[^\s]+/i.test(m.text || "");
-  });
-  return [];
-}
-
-function renderProfileTab(tab) {
-  const container = document.getElementById("profile-tab-content");
-  if (!container) return;
-  const items = [...profileMessages(tab)].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-  if (!items.length) {
-    const labels = { files: t("noFiles"), voice: t("noVoices"), messages: t("noMessages"), links: t("noLinks") };
-    container.innerHTML = `<div class="profile-empty"><div class="profile-empty-icon">${icon(tab === "files" ? "folder" : tab === "voice" ? "mic" : tab === "links" ? "globe" : "chat", 24)}</div><div>${esc(labels[tab])}</div></div>`;
-    return;
-  }
-
-  container.innerHTML = items.map((msg) => {
-    const time = fmtTime(msg.createdAt);
-    if (tab === "files" && msg.mediaUrl) {
-      if (msg.kind === "image") {
-        return `<button class="profile-media-card" data-profile-media="${esc(msg.mediaUrl)}"><img src="${esc(msg.mediaUrl)}" alt=""><span class="profile-card-meta"><b>${esc(t("photo"))}</b><small>${esc(time)}</small></span></button>`;
-      }
-      return `<button class="profile-list-card" data-profile-media="${esc(msg.mediaUrl)}"><span class="profile-card-icon">${icon("clip", 18)}</span><span class="profile-card-meta"><b>${esc(t("attach"))}</b><small>${esc(time)}</small></span>${icon("chevron", 16)}</button>`;
-    }
-    if (tab === "voice") {
-      return `<div class="profile-list-card voice-summary"><span class="profile-card-icon voice">${icon("mic", 18)}</span><span class="profile-card-meta"><b>${esc(t("voiceMsg"))}</b><small>${esc(time)}</small></span><audio controls preload="metadata" src="${esc(msg.mediaUrl)}" style="max-width:170px"></audio></div>`;
-    }
-    let text = msg.text || "";
-    if (tab === "links") {
-      const match = text.match(/https?:\/\/[^\s]+|www\.[^\s]+/i);
-      text = match ? match[0] : text;
-      const href = /^https?:\/\//i.test(text) ? text : `https://${text}`;
-      return `<a class="profile-list-card" href="${esc(href)}" target="_blank" rel="noopener" data-profile-link="${esc(href)}"><span class="profile-card-icon link">${icon("globe", 18)}</span><span class="profile-card-meta"><b>${esc(text)}</b><small>${esc(time)}</small></span>${icon("chevron", 16)}</a>`;
-    }
-    return `<button class="profile-list-card"><span class="profile-card-icon message">${icon("chat", 18)}</span><span class="profile-card-meta"><b>${esc(text.length > 90 ? text.slice(0, 90) + "…" : text)}</b><small>${esc(time)}</small></span></button>`;
-  }).join("");
-
-  container.querySelectorAll("[data-profile-media]").forEach((el) => {
-    el.onclick = () => openBrowser(el.dataset.profileMedia);
-  });
-  container.querySelectorAll("[data-profile-audio]").forEach((btn) => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      const current = btn._audio;
-      if (current && !current.paused) {
-        current.pause();
-        btn.innerHTML = icon("play", 16);
-        return;
-      }
-      document.querySelectorAll(".profile-play").forEach((b) => {
-        if (b._audio && !b._audio.paused) b._audio.pause();
-        b.innerHTML = icon("play", 16);
-      });
-      const audio = current || new Audio(btn.dataset.profileAudio);
-      btn._audio = audio;
-      audio.onended = () => { btn.innerHTML = icon("play", 16); };
-      btn.innerHTML = icon("square", 16);
-      audio.play().catch(() => { btn.innerHTML = icon("play", 16); });
-    };
-  });
-  container.querySelectorAll("[data-profile-link]").forEach((el) => {
-    el.onclick = (e) => {
-      e.preventDefault();
-      openBrowser(el.dataset.profileLink);
-    };
-  });
-}
-
-// Эти переводы нужны и для RU, и для EN.
-I18N.ru.files = "Файлы";
-I18N.ru.voicePlural = "Голосовые";
-I18N.ru.messages = "Сообщения";
-I18N.ru.links = "Ссылки";
-I18N.ru.noFiles = "Файлов пока нет";
-I18N.ru.noVoices = "Голосовых сообщений пока нет";
-I18N.ru.noLinks = "Ссылок пока нет";
-I18N.en.files = "Files";
-I18N.en.voicePlural = "Voice";
-I18N.en.messages = "Messages";
-I18N.en.links = "Links";
-I18N.en.noFiles = "No files yet";
-I18N.en.noVoices = "No voice messages yet";
-I18N.en.noLinks = "No links yet";
-I18N.ru.photo = I18N.ru.photo || "Фото";
-I18N.en.photo = I18N.en.photo || "Photo";
-I18N.ru.attach = I18N.ru.attach || "Вложение";
-I18N.en.attach = I18N.en.attach || "Attachment";

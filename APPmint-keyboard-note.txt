@@ -1,0 +1,10 @@
+NexLink — Android/AppMint keyboard compatibility
+
+В этой версии:
+- viewport содержит interactive-widget=resizes-content;
+- высота интерфейса рассчитывается из window.innerHeight и visualViewport;
+- при открытии клавиатуры выполняется несколько повторных замеров;
+- поле сообщения прокручивается в видимую область;
+- shell/thread используют фактическую высоту WebView.
+
+Если AppMint предоставляет настройку Android Soft Input Mode, выбирайте Adjust Resize (resize content), а не Adjust Pan/Overlay.
