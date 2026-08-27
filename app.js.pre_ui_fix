@@ -183,6 +183,7 @@ const I18N = {
     newGroup: "Новая группа",
     newChannel: "Новый канал",
     developer: "Для разработчиков",
+    browser: "Встроенный браузер",
     music: "Музыка профиля",
     account: "Аккаунт",
     create: "Создать",
@@ -266,6 +267,7 @@ const I18N = {
     storageClearCache: "Очистить кэш",
     storageClearStickers: "Очистить стикеры",
     storageClearDone: "Локальные данные очищены",
+    browserHint: "Ссылки из чатов открываются внутри NexLink.",
     go: "Открыть",
     back: "Назад",
     you: "Вы",
@@ -349,6 +351,7 @@ const I18N = {
     newGroup: "New group",
     newChannel: "New channel",
     developer: "Developers",
+    browser: "In-app browser",
     music: "Profile music",
     account: "Account",
     create: "Create",
@@ -432,6 +435,7 @@ const I18N = {
     storageClearCache: "Clear cache",
     storageClearStickers: "Clear stickers",
     storageClearDone: "Local data cleared",
+    browserHint: "Links from chats open inside NexLink.",
     go: "Go",
     back: "Back",
     you: "You",
@@ -530,13 +534,13 @@ const state = {
   contacts: {},
   presence: {},
   messages: [],
-  chatLoading: false,
   activeChatId: null,
   composer: "",
   replyTo: null,
   emojiOpen: false,
   panel: null,
   panelPayload: null,
+  browserUrl: "",
   typing: {},
   reads: {},
   e2ee: { ready: false, status: "" },
@@ -626,30 +630,6 @@ function fmtListTime(ts) {
   if (diff === 0) return fmtTime(ts);
   if (diff === 86400000) return t("yesterday");
   return d.toLocaleDateString(state.settings.locale === "en" ? "en-US" : "ru-RU", { day: "numeric", month: "short" });
-}
-
-async function setupPushNotifications() {
-  const uid = me()?.uid;
-  if (!uid || !FB?.enablePushNotifications) return;
-  try {
-    await FB.enablePushNotifications(uid);
-    toast("Уведомления включены");
-    paintOverlays();
-  } catch (e) {
-    toast(FB?.authError ? FB.authError(e) : String(e?.message || e));
-  }
-}
-
-async function disablePushNotifications() {
-  const uid = me()?.uid;
-  if (!uid || !FB?.disablePushNotifications) return;
-  try {
-    await FB.disablePushNotifications(uid);
-    toast("Уведомления выключены");
-    paintOverlays();
-  } catch (e) {
-    toast(FB?.authError ? FB.authError(e) : String(e?.message || e));
-  }
 }
 
 function toast(msg) {
@@ -919,42 +899,6 @@ function render() {
   setTimeout(hideSplash, 120);
 }
 
-function ensureAuthNotificationPrompt() {
-  const existing = document.querySelector(".auth-push-prompt");
-  if (existing) return;
-  if (state.authVerification || typeof Notification === "undefined" || Notification.permission === "granted") return;
-  if (sessionStorage.getItem("nexlink_push_prompt_hidden") === "1") return;
-  const host = document.body;
-  const box = document.createElement("div");
-  box.className = "auth-push-prompt";
-  box.setAttribute("role", "dialog");
-  box.setAttribute("aria-label", "Уведомления");
-  box.innerHTML = `<div class="auth-push-copy"><div class="auth-push-icon">${icon("bell", 21)}</div><div><strong>Включить уведомления?</strong><span>Получайте новые сообщения, даже когда NexLink не открыт.</span></div></div><div class="auth-push-actions"><button type="button" class="btn sec auth-push-dismiss">Позже</button><button type="button" class="btn auth-push-enable">Разрешить</button></div>`;
-  host.appendChild(box);
-  box.querySelector(".auth-push-dismiss")?.addEventListener("click", () => {
-    sessionStorage.setItem("nexlink_push_prompt_hidden", "1");
-    box.remove();
-  });
-  box.querySelector(".auth-push-enable")?.addEventListener("click", async () => {
-    const btn = box.querySelector(".auth-push-enable");
-    const msg = box.querySelector(".auth-push-copy span");
-    if (!btn) return;
-    btn.disabled = true;
-    btn.textContent = "Разрешаем…";
-    try {
-      const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
-      if (permission !== "granted") throw new Error("push-permission-denied");
-      localStorage.setItem("nexlink_push_permission_granted", "1");
-      box.remove();
-      toast("Разрешение на уведомления получено");
-    } catch (ex) {
-      if (msg) msg.textContent = ex?.code === "push-permission-denied" ? "Разрешение отклонено. Включить его можно в настройках браузера." : "Не удалось включить уведомления.";
-      btn.disabled = false;
-      btn.textContent = "Разрешить";
-    }
-  });
-}
-
 function renderAuth(root) {
   if (state.authMfaResolver) {
     root.innerHTML = `
@@ -979,7 +923,6 @@ function renderAuth(root) {
     return;
   }  const reg = state.mode === "register";
   const isPhone = window.matchMedia?.("(max-width: 760px), (pointer: coarse)")?.matches;
-  const showAuthPushPrompt = !state.authVerification && typeof Notification !== "undefined" && Notification.permission !== "granted";
   const notice = state.authVerification ? `
     <div class="auth-notice-backdrop">
       <div class="auth-notice-card" role="dialog" aria-modal="true">
@@ -995,9 +938,6 @@ function renderAuth(root) {
     </div>` : "";
   root.innerHTML = `
     <div class="auth-screen">
-      <a class="auth-gif-link" href="YOUR_GIF_LINK" target="_blank" rel="noopener" aria-label="Ваш GIF">
-        <img src="YOUR_GIF_LINK" alt="NexLink" onerror="this.style.display='none'">
-      </a>
       <div class="auth-glow auth-glow-a"></div><div class="auth-glow auth-glow-b"></div>
       <div class="auth-stage">
         <section class="auth-brand-panel">
@@ -1031,7 +971,6 @@ function renderAuth(root) {
     </div>`;
   root.querySelector("#auth-switch").onclick = () => { state.mode = reg ? "login" : "register"; state.authError = ""; render(); };
   root.querySelector("#auth-qr-open")?.addEventListener("click", openQrLogin);
-  ensureAuthNotificationPrompt();
   root.querySelector("#auth-form").onsubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target); const emailValue = String(fd.get("email") || "").trim(); const passwordValue = String(fd.get("password") || "");
@@ -1307,85 +1246,14 @@ function paintMain() {
     return;
   }
   if (!state.activeChatId) {
-    el.innerHTML = `<div class="placeholder nl-pattern nl-cat-empty" aria-label="NexLink">
-      <div class="nl-cat-stage" id="nl-cat-stage">
-        <svg class="nl-cat-head" id="nl-cat-head" viewBox="0 0 320 250" role="img" aria-label="NexLink cat">
-          <defs>
-            <radialGradient id="catFur" cx="45%" cy="38%" r="70%">
-              <stop offset="0" stop-color="#3d4555"/>
-              <stop offset="0.7" stop-color="#171d2a"/>
-              <stop offset="1" stop-color="#0d1320"/>
-            </radialGradient>
-            <linearGradient id="catEar" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#6e78ff"/>
-              <stop offset="1" stop-color="#34cfff"/>
-            </linearGradient>
-            <filter id="catGlow" x="-70%" y="-70%" width="240%" height="240%">
-              <feGaussianBlur stdDeviation="7" result="b"/>
-              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-          </defs>
-          <g id="nl-cat-head-group" transform="rotate(0 160 125)">
-            <path d="M69 93 L89 23 Q96 4 111 22 L135 56 Q160 45 185 56 L209 22 Q224 4 231 23 L251 93 Q269 112 267 145 Q264 198 160 217 Q56 198 53 145 Q51 112 69 93Z" fill="url(#catFur)"/>
-            <path d="M81 82 L98 30 L122 64Z" fill="url(#catEar)" opacity=".95"/>
-            <path d="M239 82 L222 30 L198 64Z" fill="url(#catEar)" opacity=".95"/>
-            <ellipse cx="111" cy="126" rx="35" ry="31" fill="#f6f9ff"/>
-            <ellipse cx="209" cy="126" rx="35" ry="31" fill="#f6f9ff"/>
-            <g id="nl-cat-pupil-l" transform="translate(111 126)"><ellipse rx="11" ry="16" fill="#07111d"/><circle cx="-4" cy="-6" r="4" fill="#fff"/><circle cx="4" cy="5" r="2" fill="#5cf0ff"/></g>
-            <g id="nl-cat-pupil-r" transform="translate(209 126)"><ellipse rx="11" ry="16" fill="#07111d"/><circle cx="-4" cy="-6" r="4" fill="#fff"/><circle cx="4" cy="5" r="2" fill="#5cf0ff"/></g>
-            <path d="M145 166 Q160 178 175 166" fill="none" stroke="#aab4c8" stroke-width="5" stroke-linecap="round"/>
-            <path d="M154 154 Q160 158 166 154" fill="#8a5cff" filter="url(#catGlow)"/>
-            <circle cx="160" cy="198" r="13" fill="#56f5ff" opacity=".9" filter="url(#catGlow)"/>
-          </g>
-        </svg>
-      </div>
+    el.innerHTML = `<div class="placeholder nl-pattern">
+      <div class="mark lg">N</div>
       <h2>${esc(t("selectChat"))}</h2>
       <p>${esc(t("selectChatHint"))}</p>
     </div>`;
-    initEmptyCatFollow();
     return;
   }
   paintThread(el);
-}
-
-function initEmptyCatFollow() {
-  const stage = document.getElementById("nl-cat-stage");
-  const head = document.getElementById("nl-cat-head-group");
-  const left = document.getElementById("nl-cat-pupil-l");
-  const right = document.getElementById("nl-cat-pupil-r");
-  if (!stage || !head || !left || !right || stage.dataset.bound === "1") return;
-  stage.dataset.bound = "1";
-
-  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-  let tx = 0, ty = 0;
-  let hx = 0, hy = 0;
-  let px = 0, py = 0;
-  let raf = 0;
-
-  const update = () => {
-    raf = 0;
-    hx += (tx - hx) * 0.12;
-    hy += (ty - hy) * 0.12;
-    px += ((tx * 1.7) - px) * 0.18;
-    py += ((ty * 1.7) - py) * 0.18;
-    head.setAttribute("transform", `translate(${hx * 0.35} ${hy * 0.25}) rotate(${hx * 0.22} 160 125)`);
-    left.setAttribute("transform", `translate(${111 + clamp(px * 0.36, -9, 9)} ${126 + clamp(py * 0.28, -7, 7)})`);
-    right.setAttribute("transform", `translate(${209 + clamp(px * 0.36, -9, 9)} ${126 + clamp(py * 0.28, -7, 7)})`);
-    if (Math.abs(tx-hx)>.05 || Math.abs(ty-hy)>.05 || Math.abs(px)>0.05 || Math.abs(py)>0.05) raf = requestAnimationFrame(update);
-  };
-
-  const move = (e) => {
-    const r = stage.getBoundingClientRect();
-    const nx = ((e.clientX - (r.left + r.width / 2)) / (window.innerWidth * 0.42)) * 30;
-    const ny = ((e.clientY - (r.top + r.height / 2)) / (window.innerHeight * 0.42)) * 30;
-    tx = clamp(nx, -30, 30);
-    ty = clamp(ny, -24, 24);
-    if (!raf) raf = requestAnimationFrame(update);
-  };
-
-  const leave = () => { tx = 0; ty = 0; if (!raf) raf = requestAnimationFrame(update); };
-  window.addEventListener("pointermove", move, { passive: true });
-  window.addEventListener("pointerleave", leave, { passive: true });
 }
 
 function paintContacts(el) {
@@ -1600,8 +1468,6 @@ function paintSettings(el) {
         <section class="card"><div class="cap">${esc(t("account"))}</div>
           ${row("profile", "user", t("profile"), `${p.name || ""} · @${p.username || ""}`)}
           ${row("devices", "monitor", t("devices"), t("currentSession"))}
-          ${row("security", "shield", t("security"), "Пароль, email и 2FA по TOTP")}
-          ${row("verification", "shield", "Верификация", "СМИ, блогеры, авторы и организации") }
           ${row("privacy", "lock", t("privacy"), t("whoMessage"))}
           ${row("storage", "folder", t("storage"), t("storageHint"))}
         </section>
@@ -1832,10 +1698,6 @@ function paintMessages() {
   const box = document.getElementById("msgs");
   if (!box) return;
   const thread = state.messages;
-  if (!thread.length && state.chatLoading) {
-    box.innerHTML = `<div class="chat-loading" role="status" aria-label="Загрузка"><div class="chat-spinner"></div><span>Загрузка чата…</span></div>`;
-    return;
-  }
   if (!thread.length) {
     box.innerHTML = `<div class="empty" style="display:grid;height:100%;place-items:center">${esc(t("noMessages"))}</div>`;
     return;
@@ -1885,15 +1747,6 @@ function paintMessages() {
     if (msg.kind === "sticker" && msg.mediaUrl) body += `<button class="media-preview-btn sticker-btn" type="button" data-media-url="${esc(msg.mediaUrl)}" data-media-kind="sticker"><img class="sticker" src="${esc(msg.mediaUrl)}" alt=""></button>`;
     if (msg.kind === "call") body += `<div style="display:flex;gap:8px;align-items:center">${icon("phone", 16)} ${esc(msg.text || t("missedCall"))}</div>`;
     if (msg.kind === "text" || (!msg.kind && msg.text)) body += `<p>${linkify(msg.text)}</p>`;
-    if (msg.securityRequest && msg.securityRequestId && chat.type === "bot" && chat.peerId === "security") {
-      const req = state.security.requests?.[msg.securityRequestId];
-      const status = req?.status || (msg.securityRequestStatus || "pending");
-      if (status === "pending") {
-        body += `<div class="security-request-actions"><button type="button" class="btn security-approve" data-sec-action="approve" data-sec-request="${esc(msg.securityRequestId)}">${icon("check", 15)} Разрешить</button><button type="button" class="btn sec security-reject" data-sec-action="reject" data-sec-request="${esc(msg.securityRequestId)}">${icon("close", 15)} Отменить</button></div>`;
-      } else {
-        body += `<div class="security-request-status ${status === "approved" ? "approved" : "rejected"}">${status === "approved" ? "Вход разрешён" : "Вход отменён"}</div>`;
-      }
-    }
     if (msg.kind === "poll" && msg.poll) {
       html += `<div class="bubble-row ${mine ? "mine" : "theirs"}">
         <div>
@@ -1918,24 +1771,6 @@ function paintMessages() {
     b.onclick = (e) => {
       e.stopPropagation();
       openMediaViewer(b.dataset.mediaUrl, b.dataset.mediaKind || "image");
-    };
-  });
-  box.querySelectorAll("[data-sec-action]").forEach((b) => {
-    b.onclick = async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const requestId = b.dataset.secRequest;
-      const approved = b.dataset.secAction === "approve";
-      if (!requestId || !me()?.uid) return;
-      const rowButtons = box.querySelectorAll(`[data-sec-request="${CSS.escape(requestId)}"]`);
-      rowButtons.forEach((x) => { x.disabled = true; });
-      try {
-        await FB.decideLoginSecurityRequest(me().uid, requestId, approved);
-        toast(approved ? "Вход разрешён" : "Вход отменён");
-      } catch (err) {
-        rowButtons.forEach((x) => { x.disabled = false; });
-        toast(String(err?.message || err));
-      }
     };
   });
   box.querySelectorAll("[data-poll-vote]").forEach((b) => {
@@ -2448,7 +2283,6 @@ async function botReply(chat, text) {
 
 async function openChat(id, opts = {}) {
   const sameChat = state.activeChatId === id;
-  state.chatLoading = true;
   state.activeChatId = id;
   if (!sameChat && !opts.fromHistory) navPush("chat", { chatId: id });
   state.profileTab = "files";
@@ -2487,13 +2321,7 @@ async function openChat(id, opts = {}) {
   });
   unsub.messages = FB.listenMessages(id, async (list) => {
     const prev = state.messages.length;
-    try {
-      state.messages = await Promise.all(list.map(async (m) => ({ ...m, text: await decryptMessageText(m, id) })));
-    } catch {
-      state.messages = list || [];
-    } finally {
-      state.chatLoading = false;
-    }
+    state.messages = await Promise.all(list.map(async (m) => ({ ...m, text: await decryptMessageText(m, id) })));
     paintMessages();
     if (me()?.uid && document.visibilityState !== "hidden") {
       const lastId = state.messages.at(-1)?.id || null;
@@ -2538,8 +2366,6 @@ async function openChat(id, opts = {}) {
     paintMessages();
   });
   await FB.markChatRead(me().uid, id, state.messages.at(-1)?.id || null);
-  if (!state.messages.length) state.chatLoading = false;
-  paintMessages();
 }
 
 function closeChat(opts = {}) {
@@ -2601,20 +2427,6 @@ async function openBot(bot) {
   await openChat(chatId);
 }
 
-function bindPanelNavigation() {
-  if (window.__nexPanelNavBound) return;
-  window.__nexPanelNavBound = true;
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest?.("[data-panel]");
-    if (!btn || btn.disabled) return;
-    e.preventDefault();
-    e.stopPropagation();
-    openPanel(btn.dataset.panel, undefined, { fromHistory: false });
-  });
-}
-
-bindPanelNavigation();
-
 function openPanel(id, payload, opts = {}) {
   if (state.panel === "developer" && id !== "developer") {
     state.devToken = "";
@@ -2654,7 +2466,7 @@ function closePanel(opts = {}) {
 }
 
 function openBrowser(url) {
-  if (url) openExternalLink(url);
+  openExternalLink(url);
 }
 
 function field(label, name, value, type = "text") {
@@ -2876,7 +2688,6 @@ function sheetHtml(panel) {
     profile: t("profile"),
     devices: t("devices"),
     security: t("security"),
-    verification: "Верификация",
     privacy: t("privacy"),
     notifications: t("notifications"),
     sounds: t("sounds"),
@@ -2916,27 +2727,6 @@ function sheetHtml(panel) {
       ${totpOn ? `<button class="btn danger block mt" id="totp-disable">Отключить 2FA</button>` : `<button class="btn block mt" id="totp-start">Подключить 2FA</button>`}
       <div id="totp-setup-slot"></div>
       <div class="storage-card"><div><strong>Текущая сессия</strong><span>${esc(t("currentSession"))}</span></div><b>Активна</b></div>`;
-  } else if (panel === "verification") {
-    const v = state.profile?.verification || {};
-    const statusText = v.status === "approved" ? "Подтверждена" : v.status === "pending" ? "На проверке" : v.status === "rejected" ? "Отклонена" : "Заявка не отправлена";
-    body = `<div class="verification-panel">
-      <div class="verification-hero"><div class="verification-hero-icon">✓</div><div><b>Верификация</b><p class="muted">Получите официальную галочку NexLink для публичного проекта или автора.</p></div></div>
-      <div class="verification-status-card"><span>Статус</span><b class="${v.status || "none"}">${statusText}</b></div>
-      <form id="verification-form" class="verification-form">
-        <div class="field"><label>Кто вы?</label><select name="type" id="verification-type" required>
-          <option value="media" ${v.type === "media" ? "selected" : ""}>СМИ / медиа</option>
-          <option value="blogger" ${v.type === "blogger" ? "selected" : ""}>Блогер / автор</option>
-          <option value="creator" ${v.type === "creator" ? "selected" : ""}>Создатель контента</option>
-          <option value="organization" ${v.type === "organization" ? "selected" : ""}>Организация / проект</option>
-        </select></div>
-        <div class="field"><label>Название / имя</label><input name="name" maxlength="80" value="${esc(v.name || p.name || "")}" placeholder="Название проекта или ваше имя" required></div>
-        <div class="field"><label>Официальная ссылка</label><input name="primaryUrl" value="${esc(v.primaryUrl || "")}" placeholder="https://..." required></div>
-        <div id="verification-extra-fields"></div>
-        <div class="field"><label>Коротко о проекте</label><textarea name="description" maxlength="600" placeholder="Расскажите о своей деятельности…" required>${esc(v.description || "")}</textarea></div>
-        <div class="verification-help" id="verification-help"></div>
-        <button class="btn block verification-submit" type="submit">${v.status === "pending" ? "Обновить заявку" : "Подать заявку"}</button>
-      </form>
-    </div>`;
   } else if (panel === "storage") {
     const cacheSize = formatBytes(localStorageBytes());
     let stickerCount = 0;
@@ -2958,8 +2748,7 @@ function sheetHtml(panel) {
       <div class="privacy-section"><strong>Профиль</strong><span>Кто видит основную информацию профиля.</span><div class="seg">${opt("whoCanSeeProfile", "everyone", t("everyone"))}${opt("whoCanSeeProfile", "contacts", t("onlyContacts"))}</div></div>
       <div class="privacy-section"><strong>Был(а) в сети</strong><span>Кто может видеть ваше последнее посещение.</span><div class="seg">${opt("whoCanSeeLastSeen", "everyone", t("everyone"))}${opt("whoCanSeeLastSeen", "contacts", t("onlyContacts"))}</div></div>`;
   } else if (panel === "notifications") {
-    const pushEnabled = localStorage.getItem("nexlink_push_enabled") === "1" && typeof Notification !== "undefined" && Notification.permission === "granted";
-    body = `<div class="flex-row"><div><span style="font-weight:700">${esc(t("notifications"))}</span><div class="muted mt">${pushEnabled ? "Push-уведомления включены" : "Разрешите уведомления, чтобы получать сообщения вне вкладки"}</div></div><button class="btn ${pushEnabled ? "danger" : ""}" id="push-toggle" type="button">${pushEnabled ? "Выключить" : "Включить"}</button></div>
+    body = `<div class="flex-row"><span style="font-weight:700">${esc(t("notifications"))}</span>${sw(s.notifications)}</div>
       <div class="flex-row"><span style="font-weight:700">${esc(t("previews"))}</span>${sw(s.messagePreview)}</div>`;
   } else if (panel === "sounds") {
     body = `<div class="flex-row"><span style="font-weight:700">${esc(t("msgSound"))}</span>${sw(s.sounds)}</div>`;
@@ -3092,8 +2881,7 @@ function sheetHtml(panel) {
     const botsNav = side.slice(0,3).join("");
     const oauthNav = side.slice(3,6).join("");
     const profileNav = side.slice(6).join("");
-    body = `<div class="dev-layout"><aside class="dev-sidebar"><div class="dev-brand"><div class="dev-logo">N</div><div><strong>NexLink</strong><span>Dev</span></div></div><button class="dev-home ${sec==="home"?"on":""}" data-dev-section="home">${icon("home",16)}<span>Главная</span></button><div class="dev-group-label">БОТЫ</div>${botsNav}<div class="dev-group-label">OAUTH</div>${oauthNav}<div class="dev-group-label">ПРОФИЛЬ</div>${profileNav}<div class="dev-sidebar-divider"></div><button class="dev-exit" id="dev-exit">${icon("x",15)}<span>Выйти из Dev</span></button><div class="dev-side-foot"><span class="dev-dot"></span><span>Dev session active</span></div></aside><main class="dev-main"><div class="dev-topbar"><div class="dev-crumb"><span>Developer Console</span><b>/</b><span>${sec === "home" ? "Главная" : (nav.find(x=>x[0]===sec)?.[1] || "Раздел")}</span></div><div class="dev-top-actions"><span class="dev-session-chip">${state.devToken ? "● Токен открыт" : "○ Без токена"}</span><button class="btn icon" id="dev-close" title="Выйти из Dev">${icon("x")}</button></div></div>${main}</main></div>`;
-    return body;
+    body = `<div class="dev-layout"><aside class="dev-sidebar"><div class="dev-brand"><div class="dev-logo">N</div><div><strong>NexLink</strong><span>Dev</span></div></div><button class="dev-home ${sec==="home"?"on":""}" data-dev-section="home">${icon("home",16)}<span>Главная</span></button><div class="dev-group-label">БОТЫ</div>${botsNav}<div class="dev-group-label">OAUTH</div>${oauthNav}<div class="dev-group-label">ПРОФИЛЬ</div>${profileNav}<div class="dev-sidebar-divider"></div><button class="dev-exit" id="dev-exit">${icon("x",15)}<span>Выйти из Dev</span></button><div class="dev-side-foot"><span class="dev-dot"></span><span>Dev session active</span></div></aside><main class="dev-main"><div class="dev-topbar"><div class="dev-crumb"><span>Developer Console</span><b>/</b><span>${sec === "home" ? "Главная" : (nav.find(x=>x[0]===sec)?.[1] || "Раздел")}</span></div><div class="dev-top-actions"><span class="dev-session-chip">${state.devToken ? "● Токен открыт" : "○ Без токена"}</span><button class="btn icon" id="sh-x" title="Выйти из Dev">${icon("x")}</button></div></div>${main}</main></div>`;
   } else if (panel === "music") {
     body = `<form id="mu">${field(t("track"), "musicTitle", p.musicTitle)}${field(t("artist"), "musicArtist", p.musicArtist)}<button class="btn block">${esc(t("save"))}</button></form>`;
   } else if (panel === "bots") {
@@ -3132,7 +2920,6 @@ function bindOverlay() {
     });
   }
   document.getElementById("sh-x")?.addEventListener("click", closePanel);
-  document.getElementById("dev-close")?.addEventListener("click", closePanel);
   document.getElementById("translate-copy")?.addEventListener("click", async () => {
     try { await navigator.clipboard.writeText(state.translation?.translated || ""); toast(t("copied")); } catch {}
   });
@@ -3385,63 +3172,6 @@ function bindOverlay() {
   document.getElementById("totp-disable")?.addEventListener("click", async () => {
     if (!confirm("Отключить 2FA для этого аккаунта?")) return;
     try { await FB.disableTotp(); toast("2FA отключена"); paintOverlays(); } catch (e) { toast(FB?.authError ? FB.authError(e) : String(e?.message || e)); }
-  });
-
-  const verificationType = document.getElementById("verification-type");
-  const verificationExtra = document.getElementById("verification-extra-fields");
-  const verificationHelp = document.getElementById("verification-help");
-  const verificationRules = {
-    media: { label: "Сайт СМИ", placeholder: "https://example-media.ru", domains: [], help: "Для СМИ нужна официальная страница издания. Дополнительно можно указать страницу редакции или профиль издания ниже." },
-    blogger: { label: "YouTube / TikTok", placeholder: "https://youtube.com/@...", domains: ["youtube.com", "www.youtube.com", "tiktok.com", "www.tiktok.com", "instagram.com", "www.instagram.com"], help: "Для блогера нужна публичная страница на YouTube, TikTok или Instagram с вашим именем/брендом." },
-    creator: { label: "Публичная страница", placeholder: "https://youtube.com/@...", domains: ["youtube.com", "www.youtube.com", "tiktok.com", "www.tiktok.com", "instagram.com", "www.instagram.com"], help: "Для автора нужна публичная страница проекта или аккаунт с контентом." },
-    organization: { label: "Сайт организации", placeholder: "https://company.example", domains: [], help: "Для организации нужна официальная страница проекта или компании." },
-  };
-  const updateVerificationFields = () => {
-    if (!verificationType || !verificationExtra || !verificationHelp) return;
-    const rule = verificationRules[verificationType.value] || verificationRules.media;
-    const v = state.profile?.verification || {};
-    verificationExtra.innerHTML = `<div class="field"><label>Дополнительная публичная ссылка</label><input name="secondaryUrl" value="${esc(v.secondaryUrl || "")}" placeholder="${esc(rule.placeholder)}"></div>`;
-    verificationHelp.textContent = rule.help;
-  };
-  verificationType?.addEventListener("change", updateVerificationFields);
-  updateVerificationFields();
-  document.getElementById("verification-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const type = String(fd.get("type") || "");
-    const primaryUrl = String(fd.get("primaryUrl") || "").trim();
-    const secondaryUrl = String(fd.get("secondaryUrl") || "").trim();
-    const rule = verificationRules[type] || verificationRules.media;
-    const validUrl = (value) => {
-      try { const u = new URL(value); return u.protocol === "https:" || u.protocol === "http:" ? u : null; } catch { return null; }
-    };
-    const primary = validUrl(primaryUrl), secondary = secondaryUrl ? validUrl(secondaryUrl) : null;
-    if (!primary) return toast("Укажите корректную ссылку https://...");
-    if (secondaryUrl && !secondary) return toast("Дополнительная ссылка указана неверно");
-    if (rule.domains.length) {
-      const matchesAllowed = (u) => u && rule.domains.some((d) => u.hostname.toLowerCase() === d || u.hostname.toLowerCase().endsWith("." + d));
-      if (!matchesAllowed(primary) && !matchesAllowed(secondary)) return toast("Для этого типа нужна ссылка на подтверждённую публичную площадку");
-    }
-    if ((type === "media" || type === "organization") && !primaryUrl) return toast("Нужна официальная ссылка проекта");
-    const data = {
-      type, name: String(fd.get("name") || "").trim(), primaryUrl,
-      secondaryUrl, description: String(fd.get("description") || "").trim(),
-      status: "pending", submittedAt: Date.now(),
-    };
-    if (!data.name || !data.description) return toast("Заполните название и описание");
-    try {
-      await FB.saveProfile(me().uid, { verification: data });
-      state.profile = { ...state.profile, verification: data };
-      toast("Заявка на верификацию отправлена");
-      paintOverlays();
-    } catch (err) {
-      toast(FB?.authError ? FB.authError(err) : String(err?.message || err));
-    }
-  });
-
-  document.getElementById("push-toggle")?.addEventListener("click", () => {
-    const enabled = localStorage.getItem("nexlink_push_enabled") === "1" && typeof Notification !== "undefined" && Notification.permission === "granted";
-    enabled ? disablePushNotifications() : setupPushNotifications();
   });
 
   document.querySelectorAll("[data-sw]").forEach((b, i) => {
@@ -4081,9 +3811,6 @@ async function hydrateUser(user) {
   state.profile = profile;
   state.settings = { ...FB.defaultSettings(), ...(profile.settings || {}) };
   applyTheme(state.settings.theme);
-  if (localStorage.getItem("nexlink_push_permission_granted") === "1" && typeof Notification !== "undefined" && Notification.permission === "granted" && FB?.initPushNotifications) {
-    FB.initPushNotifications(user.uid).catch(() => {});
-  }
   await FB.ensureSaved(user.uid, profile);
   await FB.setPresence(user.uid);
   setupSecurityLogin(user).catch(() => {});
@@ -4185,7 +3912,6 @@ async function hydrateUser(user) {
     if (p) {
       state.profile = p;
       if (p.settings) state.settings = { ...state.settings, ...p.settings };
-      if (state.settings.notifications && FB?.initPushNotifications) FB.initPushNotifications(me()?.uid).catch(() => {});
     }
   });
 }

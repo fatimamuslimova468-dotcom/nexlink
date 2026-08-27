@@ -10,10 +10,11 @@ const DEFAULT_SETTINGS = {
   sounds: true,
   reduceMotion: false,
   locale: "ru",
-  twoFA: false,
   whoCanMessage: "everyone",
   whoCanCall: "contacts",
   whoCanAdd: "contacts",
+  whoCanSeeProfile: "everyone",
+  whoCanSeeLastSeen: "contacts",
 };
 
 const THEMES = {
@@ -119,7 +120,7 @@ const BOTS = [
 const I18N = {
   ru: {
     app: "NexLink",
-    tag: "Живой мессенджер. Без демо-аккаунтов — только реальные люди.",
+    tag: "Живые чаты. Только реальные люди.",
     login: "Войти",
     register: "Создать аккаунт",
     have: "Уже есть аккаунт? Войти",
@@ -157,7 +158,7 @@ const I18N = {
     noMessages: "Нет сообщений. Напишите первым.",
     selectChat: "Выберите чат",
     selectChatHint: "Найдите человека по @username или создайте группу.",
-    noChats: "Пока нет диалогов. Добавьте контакт по юзернейму — как в NexLink.",
+    noChats: "Пока нет диалогов. Добавьте контакт по юзернейму.",
     newChat: "Новый чат",
     myContacts: "Мои контакты",
     noContacts: "Контактов нет. Введите @username и нажмите Найти.",
@@ -194,6 +195,10 @@ const I18N = {
     reply: "Ответить",
     copy: "Копировать",
     forward: "Переслать",
+    translate: "Перевести",
+    translation: "Перевод",
+    translationFailed: "Не удалось перевести сообщение",
+    translating: "Перевод…",
     delete: "Удалить",
     pin: "Закрепить",
     unpin: "Открепить",
@@ -222,30 +227,9 @@ const I18N = {
     emptySearch: "Ничего не найдено",
     today: "Сегодня",
     yesterday: "Вчера",
-    twoFA: "Двухэтапная проверка",
-    twoFAOn: "Включена",
-    twoFAOff: "Выключена",
-    totpAppHint: "Приложение-аутентификатор",
-    totpSetup: "Настроить TOTP",
-    totpEnabled: "TOTP включён",
-    totpDisabled: "TOTP выключен",
-    totpPassword: "Текущий пароль",
-    totpCode: "Код из приложения",
-    totpSecret: "Секретный ключ",
-    totpUri: "Ключ URI",
-    totpStart: "Создать секрет",
-    totpFinish: "Включить TOTP",
-    totpDisable: "Отключить TOTP",
-    totpConfirmDisable: "Подтвердить отключение",
-    totpLoginTitle: "Подтвердите вход",
-    totpLoginHint: "Введите 6-значный код из приложения-аутентификатора.",
-    totpVerify: "Подтвердить",
-    totpConfigHint: "Для работы TOTP MFA функция должна быть включена в настройках проекта авторизации.",
-    totpScanQr: "Отсканируйте QR-код приложением-аутентификатором",
-    totpQrFallback: "QR-код недоступен. Используйте URI или секретный ключ ниже.",
     currentSession: "Этот браузер",
     endOther: "Выйти на этом устройстве",
-    aboutBody: "NexLink — мессенджер с живыми чатами, звонками, ботами и темами. Данные синхронизируются в реальном времени.",
+    aboutBody: "NexLink — приложение для общения с живыми чатами, звонками, ботами и темами. Данные синхронизируются в реальном времени.",
     version: "Версия 2026.8",
     whoMessage: "Кто может писать",
     whoCall: "Кто может звонить",
@@ -275,7 +259,14 @@ const I18N = {
     artist: "Исполнитель",
     foldersHint: "Папки над списком чатов: все, непрочитанные, группы, каналы.",
     labsHint: "WebRTC-звонки и живые темы.",
-    storageHint: "Медиа хранится в защищённом облачном хранилище. Выход не удаляет переписку на сервере.",
+    storageHint: "Медиа хранится в защищённом облачном хранилище. Здесь можно очистить локальный кэш и временные данные.",
+    storageCache: "Локальный кэш NexLink",
+    storageCacheHint: "Кэш браузера, превью и временные данные. Переписка на сервере не удаляется.",
+    storageStickers: "Стикеры на этом устройстве",
+    storageStickersHint: "Локально сохранённые стикеры и их превью.",
+    storageClearCache: "Очистить кэш",
+    storageClearStickers: "Очистить стикеры",
+    storageClearDone: "Локальные данные очищены",
     browserHint: "Ссылки из чатов открываются внутри NexLink.",
     go: "Открыть",
     back: "Назад",
@@ -297,7 +288,7 @@ const I18N = {
   },
   en: {
     app: "NexLink",
-    tag: "A live messenger. No demo accounts — only real people.",
+    tag: "Live chats. Real people only.",
     login: "Log in",
     register: "Create account",
     have: "Already have an account? Log in",
@@ -335,7 +326,7 @@ const I18N = {
     noMessages: "No messages yet. Say hello.",
     selectChat: "Select a chat",
     selectChatHint: "Find someone by @username or create a group.",
-    noChats: "No conversations yet. Add a contact by username — like NexLink.",
+    noChats: "No conversations yet. Add a contact by username.",
     newChat: "New chat",
     myContacts: "My contacts",
     noContacts: "No contacts. Type a @username and tap Find.",
@@ -372,6 +363,10 @@ const I18N = {
     reply: "Reply",
     copy: "Copy",
     forward: "Forward",
+    translate: "Translate",
+    translation: "Translation",
+    translationFailed: "Could not translate the message",
+    translating: "Translating…",
     delete: "Delete",
     pin: "Pin",
     unpin: "Unpin",
@@ -400,30 +395,9 @@ const I18N = {
     emptySearch: "Nothing found",
     today: "Today",
     yesterday: "Yesterday",
-    twoFA: "Two-step verification",
-    twoFAOn: "On",
-    twoFAOff: "Off",
-    totpAppHint: "Authenticator app",
-    totpSetup: "Set up TOTP",
-    totpEnabled: "TOTP enabled",
-    totpDisabled: "TOTP disabled",
-    totpPassword: "Current password",
-    totpCode: "Code from app",
-    totpSecret: "Secret key",
-    totpUri: "Key URI",
-    totpStart: "Create secret",
-    totpFinish: "Enable TOTP",
-    totpDisable: "Disable TOTP",
-    totpConfirmDisable: "Confirm disable",
-    totpLoginTitle: "Confirm sign-in",
-    totpLoginHint: "Enter the 6-digit code from your authenticator app.",
-    totpVerify: "Verify",
-    totpConfigHint: "TOTP MFA must be enabled in the authentication project settings before enrollment.",
-    totpScanQr: "Scan this QR code with your authenticator app",
-    totpQrFallback: "QR code unavailable. Use the URI or secret key below.",
     currentSession: "This browser",
     endOther: "Sign out on this device",
-    aboutBody: "NexLink is a modern messenger with live chats, calls, bots and themes. Data is synchronized in real time.",
+    aboutBody: "NexLink is a modern communication app with live chats, calls, bots and themes. Data is synchronized in real time.",
     version: "Version 2026.8",
     whoMessage: "Who can message you",
     whoCall: "Who can call you",
@@ -453,7 +427,14 @@ const I18N = {
     artist: "Artist",
     foldersHint: "Folders above the chat list: all, unread, groups, channels.",
     labsHint: "WebRTC calls and live themes.",
-    storageHint: "Media is stored in secure cloud storage. Signing out does not delete server history.",
+    storageHint: "Media is stored in secure cloud storage. Clear local cache and temporary data here without deleting server history.",
+    storageCache: "NexLink local cache",
+    storageCacheHint: "Browser cache, previews and temporary data. Server history is not deleted.",
+    storageStickers: "Stickers on this device",
+    storageStickersHint: "Locally saved stickers and their previews.",
+    storageClearCache: "Clear cache",
+    storageClearStickers: "Clear stickers",
+    storageClearDone: "Local data cleared",
     browserHint: "Links from chats open inside NexLink.",
     go: "Go",
     back: "Back",
@@ -484,6 +465,9 @@ const PATHS = {
   video: "M23 7l-7 5 7 5V7zM14 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z",
   more: "M12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM19 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM5 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z",
   back: "M19 12H5M12 19l-7-7 7-7",
+  "arrow-left": "M19 12H5M12 19l-7-7 7-7",
+  edit: "M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z",
+  "user-plus": "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM19 8v6M22 11h-6",
   pin: "M12 17v5M9 2h6l-1 7h4l-7 8-7-8h4L9 2z",
   mute: "M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6",
   info: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01",
@@ -520,6 +504,7 @@ const PATHS = {
   bookmark: "M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z",
   square: "M6 6h12v12H6z",
   phoneOff: "M10.7 5.1A16 16 0 0 1 21.9 16.3M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07M1 1l22 22M2.12 4.18A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72",
+  qr: "M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h3v3h-3zM19 19h2v2h-2zM12 3v4M12 12h3M12 16v5M16 12h5",
 };
 
 function icon(name, size = 20) {
@@ -532,6 +517,9 @@ const state = {
   authResolved: false,
   bootError: "",
   mode: "login",
+  authEmail: "",
+  authPassword: "",
+  authVerification: null,
   user: null,
   profile: null,
   settings: { ...DEFAULT_SETTINGS },
@@ -551,26 +539,25 @@ const state = {
   panel: null,
   panelPayload: null,
   browserUrl: "",
-  recording: false,
   typing: {},
   reads: {},
   e2ee: { ready: false, status: "" },
   call: null,
+  groupCallPeers: {},
+  groupCallUnsubs: [],
+  callStartedAt: 0,
   ctx: null,
   foundUser: null,
   foundUsers: [],
   contactSearchMode: "people",
   foundCommunities: [],
   profileTab: "files",
-  mfaResolver: null,
-  mfaHintUid: null,
-  mfaError: "",
-  totpSecret: null,
-  totpSecretKey: "",
-  totpUri: "",
+  chatInfoTab: "media",
   devSection: "home",
   devToken: "",
+  translation: null,
   security: { device: null, requestId: null, pending: null, requests: {} },
+  qrLogin: { mode: null, sessionId: "", secret: "", status: "idle", stream: null, detector: null },
   profileLoadingPeer: {},
   commonGroupsByPeer: {},
   commonGroupsLoading: {},
@@ -911,119 +898,166 @@ function render() {
 }
 
 function renderAuth(root) {
-  if (state.mfaResolver) {
-    renderMfaChallenge(root);
-    return;
-  }
   const reg = state.mode === "register";
+  const isPhone = window.matchMedia?.("(max-width: 760px), (pointer: coarse)")?.matches;
+  const notice = state.authVerification ? `
+    <div class="auth-notice-backdrop">
+      <div class="auth-notice-card" role="dialog" aria-modal="true">
+        <div class="auth-notice-icon">✉</div>
+        <div class="auth-notice-title">На вашу почту отправлено письмо</div>
+        <div class="auth-notice-text">Откройте письмо и подтвердите адрес <b>${esc(state.authVerification.email || state.authEmail)}</b>.</div>
+        <div class="auth-notice-status" id="auth-notice-status"></div>
+        <div class="auth-notice-actions">
+          <button type="button" class="btn sec" id="auth-notice-cancel">Отмена</button>
+          <button type="button" class="btn" id="auth-notice-resend">Повторно отправить</button>
+        </div>
+      </div>
+    </div>` : "";
   root.innerHTML = `
-    <div class="nl-center nl-pattern">
-      <form class="auth-card" id="auth-form">
-        <div class="mark">N</div>
-        <h1>Nex<span>Link</span></h1>
-        <p class="sub">${esc(t("tag"))}</p>
-        ${reg ? `<div class="field"><label>${esc(t("name"))}</label><input name="name" required maxlength="40" autocomplete="name"></div>
-        <div class="field"><label>@${esc(t("username"))}</label><input name="username" required minlength="3" maxlength="24" autocomplete="username" placeholder="username"></div>` : ""}
-        <div class="field"><label>${esc(t("email"))}</label><input name="email" type="email" required autocomplete="email"></div>
-        <div class="field"><label>${esc(t("password"))}</label><input name="password" type="password" required minlength="6" autocomplete="${reg ? "new-password" : "current-password"}"></div>
-        <div class="err" id="auth-err">${esc(state.bootError)}</div>
-        <button class="btn block" type="submit">${esc(reg ? t("register") : t("login"))}</button>
-        <p class="hint"><button type="button" class="linkish" id="auth-switch">${esc(reg ? t("have") : t("noacc"))}</button></p>
-      </form>
+    <div class="auth-screen">
+      <div class="auth-glow auth-glow-a"></div><div class="auth-glow auth-glow-b"></div>
+      <div class="auth-stage">
+        <section class="auth-brand-panel">
+          <div class="auth-brand-mark">N</div>
+          <div class="auth-brand-name">NexLink</div>
+          <div class="auth-brand-line"></div>
+          <p>Приватные чаты, каналы и группы в одном пространстве.</p>
+          <div class="auth-brand-pills"><span>Безопасность</span><span>Приватность</span><span>Синхронизация</span></div>
+        </section>
+        <section class="auth-form-panel">
+          <form class="auth-card auth-card-modern" id="auth-form">
+            <div class="auth-card-head">
+              <div><div class="auth-kicker">NEXLINK</div><h1>${reg ? "Создание аккаунта" : "С возвращением"}</h1><p class="sub">${reg ? "Заполните форму, чтобы начать работу" : "Войдите в свой аккаунт"}</p></div>
+              <div class="auth-mini-logo">N</div>
+            </div>
+            <div class="auth-fields-scroll">
+              ${reg ? `<div class="field"><label>${esc(t("name"))}</label><input name="name" required maxlength="40" autocomplete="name"></div>
+              <div class="field"><label>@${esc(t("username"))}</label><input name="username" required minlength="3" maxlength="24" autocomplete="username" placeholder="username"></div>` : ""}
+              <div class="field"><label>${esc(t("email"))}</label><input name="email" type="email" required autocomplete="email"></div>
+              <div class="field"><label>${esc(t("password"))}</label><input name="password" type="password" required minlength="6" autocomplete="${reg ? "new-password" : "current-password"}"></div>
+              <div class="err" id="auth-err">${esc(state.authError || state.bootError)}</div>
+              <button class="btn block auth-primary" type="submit">${esc(reg ? t("register") : t("login"))}</button>
+              <div class="auth-divider"><span>или</span></div>
+              <button type="button" class="auth-qr-btn" id="auth-qr-open">${icon("qr", 20)}<span><b>Войти по QR-коду</b><small>ПК показывает код, телефон его сканирует</small></span>${icon("chevron", 18)}</button>
+              <p class="hint"><button type="button" class="linkish" id="auth-switch">${esc(reg ? t("have") : t("noacc"))}</button></p>
+            </div>
+          </form>
+        </section>
+      </div>
+      ${notice}
     </div>`;
-  root.querySelector("#auth-switch").onclick = () => {
-    state.mode = reg ? "login" : "register";
-    render();
-  };
+  root.querySelector("#auth-switch").onclick = () => { state.mode = reg ? "login" : "register"; state.authError = ""; render(); };
+  root.querySelector("#auth-qr-open")?.addEventListener("click", openQrLogin);
   root.querySelector("#auth-form").onsubmit = async (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
-    const err = root.querySelector("#auth-err");
-    const btn = e.target.querySelector("button[type=submit]");
-    btn.disabled = true;
-    const prev = btn.textContent;
-    btn.textContent = "…";
-    err.textContent = "";
+    const fd = new FormData(e.target); const emailValue = String(fd.get("email") || "").trim(); const passwordValue = String(fd.get("password") || "");
+    const err = root.querySelector("#auth-err"); const btn = e.target.querySelector("button[type=submit]"); btn.disabled = true; const prev = btn.textContent; btn.textContent = "…"; err.textContent = "";
+    state.authEmail = emailValue; state.authPassword = passwordValue;
     try {
-      if (!FB) FB = await import("./api.js");
-      if (!FB.getFb().auth) await FB.boot();
-      const op = reg
-        ? FB.register({
-            email: fd.get("email"),
-            password: fd.get("password"),
-            name: fd.get("name"),
-            username: fd.get("username"),
-          })
-        : FB.login({ email: fd.get("email"), password: fd.get("password") });
-      const result = await Promise.race([
-        op,
-        new Promise((_, rej) => setTimeout(() => rej(new Error("network-request-failed")), 20000)),
-      ]);
-      if (reg) {
-        if (result?.verificationSent) {
-          toast("Письмо для подтверждения email отправлено");
-        } else {
-          toast("Аккаунт создан. Письмо подтверждения пока не отправлено");
-        }
-      } else if (result?.uid) {
-        toast("Вход выполнен");
-      }
+      if (!FB) FB = await import("./api.js"); if (!FB.getFb().auth) await FB.boot();
+      const result = await Promise.race([reg ? FB.register({email:emailValue,password:passwordValue,name:fd.get("name"),username:fd.get("username")}) : FB.login({email:emailValue,password:passwordValue}), new Promise((_,rej)=>setTimeout(()=>rej(new Error("network-request-failed")),20000))]);
+      state.authError = "";
+      if (reg && result?.verificationSent) { state.authVerification = { email: emailValue }; render(); return; }
+      if (!reg && result?.uid) { state.authPassword = ""; toast("Вход выполнен"); }
     } catch (ex) {
-      if (ex?.code === "auth/multi-factor-auth-required") {
-        state.mfaResolver = FB.getMfaResolver(ex);
-        state.mfaHintUid = state.mfaResolver?.hints?.find((h) => h.factorId === "totp")?.uid || state.mfaResolver?.hints?.[0]?.uid || null;
-        state.mfaError = "";
-        render();
-        return;
-      }
-      err.textContent = FB?.authError ? FB.authError(ex) : String(ex?.message || ex);
-      btn.disabled = false;
-      btn.textContent = prev;
+      if (ex?.code === "auth/email-not-verified") { state.authError = "Подтвердите email перед входом."; state.authEmail = ex.email || emailValue; state.authVerification = { email: state.authEmail }; render(); return; }
+      err.textContent = FB?.authError ? FB.authError(ex) : String(ex?.message || ex); btn.disabled = false; btn.textContent = prev;
     }
   };
+  root.querySelector("#auth-notice-cancel")?.addEventListener("click", () => { state.authVerification = null; state.authError = ""; render(); });
+  root.querySelector("#auth-notice-resend")?.addEventListener("click", async () => {
+    const b = root.querySelector("#auth-notice-resend"); const status = root.querySelector("#auth-notice-status"); if (!b) return; b.disabled = true; status.textContent = "Отправляем письмо…";
+    try { if (!FB) FB = await import("./api.js"); if (!FB.getFb().auth) await FB.boot(); const result = await FB.resendVerificationEmail(state.authEmail, state.authPassword); status.textContent = result?.alreadyVerified ? "Адрес уже подтверждён. Можно войти." : "Письмо отправлено ещё раз."; }
+    catch(ex) { status.textContent = ex?.code === "auth/too-many-requests" ? "Слишком частые запросы. Повторите позже." : (FB?.authError ? FB.authError(ex) : String(ex?.message || ex)); }
+    finally { setTimeout(() => { if (b) b.disabled = false; }, 2500); }
+  });
 }
 
-function renderMfaChallenge(root) {
-  const hint = state.mfaResolver?.hints?.find((h) => h.factorId === "totp") || state.mfaResolver?.hints?.[0];
-  state.mfaHintUid = hint?.uid || null;
-  root.innerHTML = `
-    <div class="nl-center nl-pattern">
-      <form class="auth-card" id="mfa-form">
-        <div class="mark">N</div>
-        <h1>${esc(t("totpLoginTitle"))}</h1>
-        <p class="sub">${esc(t("totpLoginHint"))}</p>
-        <div class="field"><label>${esc(t("totpCode"))}</label><input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,8}" maxlength="8" required autofocus></div>
-        <div class="err" id="mfa-err">${esc(state.mfaError)}</div>
-        <button class="btn block" type="submit">${esc(t("totpVerify"))}</button>
-        <p class="hint"><button type="button" class="linkish" id="mfa-cancel">${esc(t("cancel"))}</button></p>
-      </form>
-    </div>`;
-  root.querySelector("#mfa-cancel").onclick = async () => {
-    state.mfaResolver = null;
-    state.mfaHintUid = null;
-    state.mfaError = "";
-    try { await FB.logout(); } catch {}
-    render();
-  };
-  root.querySelector("#mfa-form").onsubmit = async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const err = root.querySelector("#mfa-err");
-    const btn = e.target.querySelector("button[type=submit]");
-    btn.disabled = true;
-    err.textContent = "";
-    try {
-      await FB.verifyTotpSignIn(state.mfaResolver, state.mfaHintUid, fd.get("code"));
-      state.mfaResolver = null;
-      state.mfaHintUid = null;
-      state.mfaError = "";
-    } catch (ex) {
-      state.mfaError = FB?.authError ? FB.authError(ex) : String(ex?.message || ex);
-      err.textContent = state.mfaError;
-      btn.disabled = false;
-    }
-  };
+function isPhoneDevice() {
+  return window.matchMedia?.("(max-width: 760px), (pointer: coarse)")?.matches;
 }
+
+async function openQrLogin() {
+  if (!FB) FB = await import("./api.js");
+  if (!FB.getFb().auth) await FB.boot();
+  if (isPhoneDevice()) {
+    state.qrLogin = { ...state.qrLogin, mode: "scan", status: "starting" };
+  } else {
+    const session = await FB.createQrLoginSession();
+    state.qrLogin = { ...state.qrLogin, mode: "desktop", sessionId: session.sessionId, secret: session.secret, status: "waiting" };
+  }
+  renderQrAuthOverlay();
+}
+
+function renderQrAuthOverlay() {
+  document.getElementById("qr-auth-dialog")?.remove();
+  const host = document.createElement("div");
+  host.id = "qr-auth-dialog";
+  host.className = "qr-auth-backdrop";
+  const desktop = state.qrLogin.mode === "desktop";
+  host.innerHTML = desktop ? `<div class="qr-auth-card"><button class="qr-auth-close" id="qr-auth-close">×</button><div class="qr-auth-kicker">NEXLINK ACCESS</div><h2>Вход по QR-коду</h2><p>Откройте NexLink на телефоне и отсканируйте этот код в разделе «Устройства».</p><div class="qr-auth-code" id="qr-auth-code"></div><div class="qr-auth-status" id="qr-auth-status">Ожидание сканирования…</div><div class="qr-auth-note">Код одноразовый и действует 2 минуты.</div></div>` : `<div class="qr-auth-card qr-scanner-card"><button class="qr-auth-close" id="qr-auth-close">×</button><div class="qr-auth-kicker">NEXLINK ACCESS</div><h2>Сканирование QR</h2><p>Наведите камеру телефона на QR-код, который показан на компьютере.</p><div class="qr-scanner-box"><video id="qr-camera" playsinline muted autoplay></video><div class="qr-scan-line"></div></div><div class="qr-auth-status" id="qr-auth-status">Запуск камеры…</div><button class="btn sec block" id="qr-manual">Ввести код вручную</button></div>`;
+  document.body.appendChild(host);
+  host.querySelector("#qr-auth-close")?.addEventListener("click", closeQrLogin);
+  if (desktop) {
+    renderQrCodeInto(host.querySelector("#qr-auth-code"), `nexlink://login?session=${encodeURIComponent(state.qrLogin.sessionId)}&secret=${encodeURIComponent(state.qrLogin.secret)}`);
+    listenDesktopQrLogin();
+  } else startQrScanner(host);
+}
+
+function renderQrCodeInto(host, value) {
+  if (!host || typeof window.qrcode !== "function") { if (host) host.textContent = value; return; }
+  try { const qr = window.qrcode(0, "M"); qr.addData(value, "Byte"); qr.make(); host.innerHTML = qr.createSvgTag(6, 6); } catch { host.textContent = value; }
+}
+
+async function listenDesktopQrLogin() {
+  if (!state.qrLogin.sessionId) return;
+  try {
+    const result = await FB.waitForQrLoginApproval(state.qrLogin.sessionId, state.qrLogin.secret, 120000);
+    const status = document.getElementById("qr-auth-status"); if (status) status.textContent = "Телефон подтверждён. Выполняем вход…";
+    const user = await FB.exchangeQrLogin(result.sessionId, state.qrLogin.secret);
+    if (user?.uid) { closeQrLogin(); toast("Вход выполнен"); }
+  } catch (ex) { const status = document.getElementById("qr-auth-status"); if (status) status.textContent = ex?.message || "Не удалось завершить вход."; }
+}
+
+async function startQrScanner(host) {
+  const video = host.querySelector("#qr-camera");
+  const status = host.querySelector("#qr-auth-status");
+  host.querySelector("#qr-manual")?.addEventListener("click", () => { const code = prompt("Вставьте строку QR-входа"); if (code) handleQrScannedValue(code, status); });
+  if (!navigator.mediaDevices?.getUserMedia) { status.textContent = "Камера недоступна. Используйте ручной ввод."; return; }
+  try {
+    state.qrLogin.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+    video.srcObject = state.qrLogin.stream; await video.play();
+    if (!("BarcodeDetector" in window)) { status.textContent = "Автосканирование не поддерживается. Используйте ручной ввод."; return; }
+    state.qrLogin.detector = new BarcodeDetector({ formats: ["qr_code"] });
+    const scan = async () => {
+      if (!state.qrLogin.stream) return;
+      try { const codes = await state.qrLogin.detector.detect(video); if (codes[0]?.rawValue) { await handleQrScannedValue(codes[0].rawValue, status); return; } } catch {}
+      requestAnimationFrame(scan);
+    };
+    status.textContent = "Наведите камеру на QR-код"; requestAnimationFrame(scan);
+  } catch { status.textContent = "Нет доступа к камере. Разрешите доступ или используйте ручной ввод."; }
+}
+
+async function handleQrScannedValue(raw, status) {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "nexlink:") throw new Error();
+    const session = u.searchParams.get("session");
+    const secret = u.searchParams.get("secret");
+    const uid = me()?.uid;
+    if (!session || !secret || !uid) throw new Error();
+    await FB.approveQrLoginSession(session, secret, uid);
+    status.textContent = "Код подтверждён. Можно вернуться на компьютер.";
+    setTimeout(closeQrLogin, 800);
+  } catch { status.textContent = "QR-код NexLink не распознан или уже истёк."; }
+}
+
+function closeQrLogin() {
+  if (state.qrLogin.stream) { try { state.qrLogin.stream.getTracks().forEach(t => t.stop()); } catch {} }
+  state.qrLogin = { mode: null, sessionId: "", secret: "", status: "idle", stream: null, detector: null };
+  document.getElementById("qr-auth-dialog")?.remove();
+}
+
 
 function renderApp(root) {
   const threadOpen = !!state.activeChatId;
@@ -1344,6 +1378,54 @@ function paintContactList() {
   });
 }
 
+
+function localStorageBytes() {
+  let total = 0;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i) || "";
+      const v = localStorage.getItem(k) || "";
+      total += (k.length + v.length) * 2;
+    }
+  } catch {}
+  return total;
+}
+
+function formatBytes(bytes) {
+  const n = Math.max(0, Number(bytes) || 0);
+  if (n < 1024) return `${Math.round(n)} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(n / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+}
+
+async function clearNexLinkLocalCache() {
+  try {
+    if (window.caches?.keys) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    }
+  } catch {}
+  try {
+    const keep = new Set();
+    // Preserve only Firebase/runtime persistence and unrelated site storage.
+    // NexLink's explicit local collections are small and safe to reset.
+    for (const k of ["nexlink_dev_bots", "nexlink_dev_demo_oauths_v2", "nexlink_dev_demo_oauths", "nexlink_dev_demo_oauth"]) keep.add(k);
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith("nexlink_") && !keep.has(key)) localStorage.removeItem(key);
+    }
+  } catch {}
+  toast(t("storageClearDone"));
+  closePanel();
+}
+
+function clearNexLinkStickers() {
+  try { localStorage.removeItem("nexlink-stickers"); } catch {}
+  toast(t("storageClearDone"));
+  closePanel();
+}
+
 function paintSettings(el) {
   const p = state.profile || {};
   const s = state.settings;
@@ -1362,12 +1444,12 @@ function paintSettings(el) {
         <section class="card"><div class="cap">${esc(t("account"))}</div>
           ${row("profile", "user", t("profile"), `${p.name || ""} · @${p.username || ""}`)}
           ${row("devices", "monitor", t("devices"), t("currentSession"))}
-          ${row("security", "shield", t("security"), s.twoFA ? t("twoFAOn") : t("twoFAOff"))}
           ${row("privacy", "lock", t("privacy"), t("whoMessage"))}
+          ${row("storage", "folder", t("storage"), t("storageHint"))}
         </section>
         <section class="card"><div class="cap">${esc(t("appearance"))}</div>
           ${row("themes", "palette", t("themes"), s.theme)}
-          ${row("notifications", "bell", t("notifications"), s.notifications ? t("twoFAOn") : t("twoFAOff"))}
+          ${row("notifications", "bell", t("notifications"), s.notifications ? "Включены" : "Выключены")}
           ${row("sounds", "volume", t("sounds"), t("msgSound"))}
           ${row("language", "lang", t("language"), s.locale === "en" ? "English" : "Русский")}
         </section>
@@ -1375,6 +1457,7 @@ function paintSettings(el) {
           ${row("bots", "bot", t("bots"), "NexBot · Погода · Напоминания")}
           ${row("music", "music", t("music"), p.musicTitle || t("music"))}
           ${row("folders", "folder", t("folders"), t("foldersHint"))}
+          ${row("developer", "code", t("developer"), "Инструменты и API NexLink")}
         </section>
         <section class="card"><div class="cap">${esc(t("create"))}</div>
           ${row("group", "users", t("newGroup"), t("createGroup"))}
@@ -1414,25 +1497,28 @@ function paintThread(el) {
   else if (chatType === "saved") status = t("saved");
   else if (typingOthers) status = t("typing");
   else if (online) status = t("online");
-  else if (peerId && state.presence[peerId]?.at) status = `${t("lastSeen")} · ${fmtListTime(state.presence[peerId].at)}`;
+  else if (peerId && state.presence[peerId]?.at && privacyAllows(state.users?.[peerId], "whoCanSeeLastSeen", me()?.uid)) status = `${t("lastSeen")} · ${fmtListTime(state.presence[peerId].at)}`;
+  else if (peerId) status = "был(а) недавно";
 
   const isSecurityBot = chatType === "bot" && (peerId === "security" || chat.peerId === "security" || title === "NexLink Security");
+  const isSavedContact = chatType !== "private" || !peerId || Object.values(state.contacts || {}).some((c) => (c?.uid || c?.id) === peerId) || !!state.contacts?.[peerId];
   const canPost = !isSecurityBot && (chatType !== "channel" || chat.createdBy === me()?.uid);
-  const canCall = chatType === "private";
+  const canCall = chatType === "private" || chatType === "group";
 
   el.innerHTML = `
     <div class="thread">
       <header class="thread-hdr">
         <button class="btn icon" data-close>${icon("back")}</button>
-        <button class="peer-btn" data-info>
+        <button type="button" class="peer-btn" data-info aria-label="Открыть профиль">
           ${avatar({ name: title, color, size: 40, online, type: chatType })}
           <div class="min"><div class="who">${chatType === "private" && peerId ? userNameHtml(state.users[peerId], title) : esc(title)}</div><div class="st ${online || typingOthers ? "on" : ""}">${esc(status)}</div></div>
         </button>
-        ${canCall && chatType === "private" ? `<button class="btn icon" data-call="audio" title="${esc(t("call"))}">${icon("phone")}</button>
+        ${canCall ? `<button class="btn icon" data-call="audio" title="${esc(t("call"))}">${icon("phone")}</button>
         <button class="btn icon" data-call="video" title="${esc(t("videoCall"))}">${icon("video")}</button>` : ""}
-        <button class="btn icon" data-menu>${icon("more")}</button>
+        <button type="button" class="btn icon" data-menu aria-label="Меню чата">${icon("more")}</button>
       </header>
       <div class="chat-pattern-layer" aria-hidden="true"></div>
+      ${chatType === "private" && peerId && !isSavedContact ? `<div class="contact-warning" role="status"><strong>Человек не в ваших контактах</strong><span>Будьте внимательны при отправке сообщений и файлов незнакомому пользователю.</span></div>` : ""}
       <div class="msgs nl-scroll" id="msgs"></div>
       <div id="reply-slot"></div>
       <div id="emo-slot" class="${state.emojiOpen ? "" : "hidden"}"></div>
@@ -1452,7 +1538,13 @@ function paintThread(el) {
   el.querySelector("[data-close]").onclick = () => {
     closeChat();
   };
-  el.querySelector("[data-info]").onclick = () => openPanel("chat-info");
+  const infoBtn = el.querySelector("[data-info]");
+  const openChatInfo = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    openPanel("chat-info");
+  };
+  infoBtn?.addEventListener("click", openChatInfo);
   el.querySelector("[data-menu]").onclick = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -1475,6 +1567,7 @@ function paintThread(el) {
       if (id === "info") openPanel("chat-info");
       if (id === "pin") await FB.patchInbox(me().uid, state.activeChatId, { pinned: !item.pinned });
       if (id === "mute") await FB.patchInbox(me().uid, state.activeChatId, { muted: !item.muted });
+      if (id === "create-poll") openPanel("create-poll");
       if (id === "export") exportChat(state.activeChatId);
       if (id === "clear") { if (confirm("Очистить сообщения этого чата?")) { await FB.clearChat(state.activeChatId); state.messages = []; paintMessages(); } }
       if (id === "toggle-block" && peerId) {
@@ -1550,6 +1643,33 @@ function messageReadMarkup(msg) {
   return `<span class="msg-status ${read ? "read" : "sent"}" title="${read ? "Прочитано" : "Доставлено"}">${icon("checks", 12)}</span>`;
 }
 
+async function translateMessageText(text, targetLocale = null) {
+  const raw = String(text || "").trim();
+  if (!raw) throw new Error("Нет текста для перевода");
+  const target = targetLocale || (state.settings?.locale === "en" ? "en" : "ru");
+
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(target)}&dt=t&q=${encodeURIComponent(raw)}`;
+    const response = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error(`Translation HTTP ${response.status}`);
+    const data = await response.json();
+    const translated = Array.isArray(data) && Array.isArray(data[0])
+      ? data[0].map((part) => Array.isArray(part) ? part[0] : "").join("")
+      : "";
+    if (translated.trim()) return { translated, target };
+  } catch {
+    /* fallback below */
+  }
+
+  const fallbackUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(raw)}&langpair=auto|${encodeURIComponent(target)}`;
+  const fallbackResponse = await fetch(fallbackUrl, { headers: { Accept: "application/json" } });
+  if (!fallbackResponse.ok) throw new Error(`Translation HTTP ${fallbackResponse.status}`);
+  const fallback = await fallbackResponse.json();
+  const translated = String(fallback?.responseData?.translatedText || "").trim();
+  if (!translated) throw new Error("Empty translation");
+  return { translated, target };
+}
+
 function paintMessages() {
   const box = document.getElementById("msgs");
   if (!box) return;
@@ -1583,7 +1703,7 @@ function paintMessages() {
       const showResults = totalVotes > 0 && myVote !== undefined;
       body += `<div class="poll-card">
         <div class="poll-question">${esc(msg.poll.question || msg.text || "Опрос")}</div>
-        <div class="poll-kicker">Анонимный опрос</div>
+        <div class="poll-kicker">${msg.poll.anonymous ? "Анонимный опрос" : "Обычный опрос"}</div>
         <div class="poll-options">${options.map((opt, idx) => {
           const count = Object.values(votes).filter((v) => Number(v) === idx).length;
           const pct = totalVotes ? Math.round((count / totalVotes) * 100) : 0;
@@ -1657,6 +1777,7 @@ function paintMessages() {
       if (!msg) return;
       showMenu(b, [
         { id: "reply", label: t("reply"), icon: "reply" },
+        ...(String(msg.text || "").trim() ? [{ id: "translate", label: t("translate"), icon: "language" }] : []),
         { id: "copy", label: t("copy"), icon: "copy" },
         { id: "fwd", label: t("forward"), icon: "fwd" },
         ...(msg.senderId === me()?.uid ? [{ id: "del", label: t("delete"), icon: "trash", danger: true }] : []),
@@ -1664,6 +1785,18 @@ function paintMessages() {
         if (id === "reply") {
           state.replyTo = msg.id;
           paintReply();
+        }
+        if (id === "translate") {
+          const original = String(msg.text || "").trim();
+          if (!original) return;
+          toast(t("translating"));
+          try {
+            const result = await translateMessageText(original);
+            state.translation = { original, translated: result.translated, target: result.target, messageId: msg.id };
+            openPanel("translate");
+          } catch (err) {
+            toast(`${t("translationFailed")}: ${String(err?.message || err)}`);
+          }
         }
         if (id === "copy") {
           await navigator.clipboard.writeText(msg.text || "");
@@ -1838,6 +1971,10 @@ function mountStickers() {
 async function sendSticker(url) {
   try {
     if (isSecurityChatId(state.activeChatId)) return toast("NexLink Security недоступен для обычных сообщений.");
+    const chat = state.chats[state.activeChatId] || {};
+    const item = state.inbox[state.activeChatId] || {};
+    const peerId = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
+    if (chat.type === "private" && peerId && !(await canMessagePeer(peerId))) return toast("Этот пользователь ограничил входящие сообщения.");
     await FB.sendMessage(state.activeChatId, { senderId: me().uid, kind: "sticker", text: "Стикер", mediaUrl: url });
     const slot = document.getElementById("sticker-slot");
     if (slot) slot.classList.add("hidden");
@@ -1851,6 +1988,105 @@ function isSecurityChatId(chatId) {
   return chat.type === "bot" && (chat.peerId === "security" || item.peerId === "security" || id.startsWith("bot_security_"));
 }
 
+function isContactUid(uid) {
+  if (!uid) return false;
+  return !!state.contacts?.[uid] || Object.values(state.contacts || {}).some((c) => (c?.uid || c?.id) === uid);
+}
+
+async function loadPeerProfile(uid) {
+  if (!uid || !FB?.loadProfile) return null;
+  if (state.users?.[uid]) return state.users[uid];
+  try {
+    const p = await FB.loadProfile(uid);
+    if (p) state.users[uid] = { ...p, uid };
+    return p || null;
+  } catch {
+    return null;
+  }
+}
+
+function privacyAllows(profile, key, senderUid) {
+  const mode = profile?.settings?.[key] || "everyone";
+  if (mode === "everyone") return true;
+  if (mode === "contacts") return isContactUid(senderUid);
+  return false;
+}
+
+async function privacyAllowsPeer(profile, key, peerUid, senderUid) {
+  const mode = profile?.settings?.[key] || "everyone";
+  if (mode === "everyone") return true;
+  if (mode === "nobody") return false;
+  if (mode === "contacts") {
+    try { return !!(FB?.isContact ? await FB.isContact(peerUid, senderUid) : isContactUid(peerUid)); } catch { return false; }
+  }
+  return false;
+}
+
+async function canMessagePeer(peerId) {
+  if (!peerId || peerId === me()?.uid) return true;
+  const profile = await loadPeerProfile(peerId);
+  return privacyAllowsPeer(profile, "whoCanMessage", peerId, me()?.uid);
+}
+
+function startCallTone() {
+  stopCallTone();
+  if (!state.settings.sounds) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ac = new AC();
+    let stopped = false;
+    let timeout = null;
+
+    const ringBurst = () => {
+      if (stopped || !state.call || state.call.status !== "ringing") return;
+      const now = ac.currentTime;
+      const makeTone = (start, duration, freq = 480) => {
+        const o = ac.createOscillator();
+        const g = ac.createGain();
+        o.type = "sine";
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, start);
+        g.gain.exponentialRampToValueAtTime(0.055, start + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, start + duration - 0.02);
+        o.connect(g);
+        g.connect(ac.destination);
+        o.start(start);
+        o.stop(start + duration);
+      };
+      // Two short tones per ring cycle, followed by a pause.
+      makeTone(now, 0.42, 480);
+      makeTone(now + 0.54, 0.42, 480);
+    };
+
+    const schedule = async () => {
+      if (stopped || !state.call || state.call.status !== "ringing") {
+        stopCallTone();
+        return;
+      }
+      try {
+        if (ac.state === "suspended") await ac.resume();
+      } catch {}
+      ringBurst();
+      timeout = setTimeout(schedule, 1900);
+    };
+
+    window.__nexCallTone = {
+      ac,
+      stop: () => { stopped = true; if (timeout) clearTimeout(timeout); }
+    };
+    schedule();
+  } catch {}
+}
+
+function stopCallTone() {
+  const tone = window.__nexCallTone;
+  if (!tone) return;
+  try { tone.stop?.(); } catch {}
+  try { tone.ac?.close?.(); } catch {}
+  window.__nexCallTone = null;
+}
+
 async function sendText(raw) {
   const text = (raw ?? state.composer).trim();
   if (!text || !state.activeChatId) return;
@@ -1861,6 +2097,10 @@ async function sendText(raw) {
   const item = state.inbox[state.activeChatId] || {};
   const chat = state.chats[state.activeChatId] || {};
   const peerId = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
+  if (chat.type === "private" && peerId && !(await canMessagePeer(peerId))) {
+    toast("Этот пользователь ограничил входящие сообщения.");
+    return;
+  }
   let peerPublicKey = null;
   if (peerId && FB.loadE2EEPublicKey && chat.type === "private") {
     try { peerPublicKey = await FB.loadE2EEPublicKey(peerId); } catch {}
@@ -1911,6 +2151,10 @@ async function uploadToImgBB(file) {
 async function sendImage(file) {
   try {
     if (isSecurityChatId(state.activeChatId)) return toast("NexLink Security недоступен для обычных сообщений.");
+    const chat = state.chats[state.activeChatId] || {};
+    const item = state.inbox[state.activeChatId] || {};
+    const peerId = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
+    if (chat.type === "private" && peerId && !(await canMessagePeer(peerId))) return toast("Этот пользователь ограничил входящие сообщения.");
     if (!file?.type?.startsWith("image/")) return toast("Выберите изображение");
     const blob = await compressImage(file);
     const uploadFile = new File([blob], file.name || "image.jpg", { type: blob.type || file.type || "image/jpeg" });
@@ -2159,6 +2403,7 @@ function closePanel(opts = {}) {
   }
   state.panel = null;
   state.panelPayload = null;
+  state.translation = null;
   paintOverlays();
 }
 
@@ -2179,7 +2424,7 @@ function paintOverlays() {
   if (!host) return;
 
   // Сохраняем текущее состояние полей перед полной перерисовкой overlay.
-  // Это особенно важно для Dev и TOTP: обновление realtime-данных не должно
+  // Это особенно важно для Dev: обновление realtime-данных не должно
   // выбрасывать фокус и закрывать клавиатуру у пользователя.
   const fieldState = new Map();
   let activeFieldKey = null;
@@ -2204,7 +2449,7 @@ function paintOverlays() {
 
   let html = "";
   if (state.panel) {
-    const sheetClass = state.panel === "developer" ? "sheet dev-sheet" : "sheet";
+    const sheetClass = state.panel === "developer" ? "sheet dev-sheet" : (state.panel === "chat-info" ? "sheet chat-info-sheet" : "sheet");
     html += `<div class="overlay" id="ov"><div class="${sheetClass}" id="sheet">${sheetHtml(state.panel)}</div></div>`;
   }
   if (state.call) html += callHtml();
@@ -2247,6 +2492,137 @@ function paintOverlays() {
   });
 }
 
+function roleLabel(role) {
+  const labels = {
+    owner: "Владелец",
+    admin: "Администратор",
+    moderator: "Модератор",
+    member: "Участник"
+  };
+  return labels[String(role || "").toLowerCase()] || "Участник";
+}
+
+function renderChatInfoPanel() {
+  const chatId = state.activeChatId;
+  const chat = chatId ? (state.chats[chatId] || {}) : {};
+  const item = chatId ? (state.inbox[chatId] || {}) : {};
+  const title = chatTitle(chat, item);
+  const color = chatColor(chat, item);
+  const uid = me()?.uid;
+  const type = String(chat.type || item.type || "private").toLowerCase();
+  const peerId = type === "private" ? (item.peerId || chat.peers?.[uid]) : null;
+  const peer = peerId ? (state.users[peerId] || {}) : null;
+  const canSeePeerProfile = !peerId || privacyAllows(peer, "whoCanSeeProfile", uid);
+  const canSeePeerLastSeen = !peerId || privacyAllows(peer, "whoCanSeeLastSeen", uid);
+  const isChannel = type === "channel";
+  const isGroup = type === "group";
+  const isContact = !!peerId && Object.values(state.contacts || {}).some((c) => (c?.uid || c?.id) === peerId);
+  const online = !!(peerId && state.presence[peerId]?.online);
+  const username = canSeePeerProfile && peer?.username ? `@${peer.username}` : (peerId ? "Профиль скрыт настройками конфиденциальности" : "@username не указан");
+  const status = online ? "в сети" : (peerId ? (canSeePeerLastSeen ? t("lastSeen") : "был(а) недавно") : (isChannel ? "Публичный канал" : "Группа"));
+  const memberEntries = Object.entries(chat.members || {});
+  const memberCount = memberEntries.length;
+  const messages = Array.isArray(state.messages) ? state.messages : [];
+
+  const mediaItems = messages.filter((m) => m?.mediaUrl || ["image", "sticker", "video"].includes(String(m?.kind || "").toLowerCase()));
+  const photoItems = messages.filter((m) => String(m?.kind || "").toLowerCase() === "image" && m?.mediaUrl);
+  const fileItems = messages.filter((m) => String(m?.kind || "").toLowerCase() === "file" || m?.fileName || m?.fileUrl);
+  const linkItems = messages.filter((m) => /https?:\/\/\S+/i.test(String(m?.text || "")));
+  const latestMessages = messages.slice(-10).reverse();
+  const infoTab = state.chatInfoTab || "media";
+
+  const members = memberEntries.map(([memberUid, role]) => {
+    const user = state.users[memberUid] || {};
+    const name = memberUid === uid ? myName() : (user.name || displayUser(memberUid) || memberUid);
+    return `<button type="button" class="chat-info-member row" data-member-uid="${esc(memberUid)}">
+      ${avatar({ name, color: user.color || "#3D8BFD", size: 44, photo: user.photo, online: !!state.presence[memberUid]?.online })}
+      <div class="meta"><div class="name">${esc(name)}</div><div class="prev">${esc(roleLabel(role))}</div></div>
+    </button>`;
+  }).join("");
+
+  const topbar = (showEdit = false) => `<div class="chat-info-topbar">
+    <button type="button" class="chat-info-back" id="chat-info-close" aria-label="Назад">${icon("arrow-left", 24)}</button>
+    <div class="chat-info-top-title">Информация</div>
+    ${showEdit ? `<button type="button" class="chat-info-edit" id="chat-info-edit" aria-label="Изменить">${icon("edit", 20)}</button>` : `<span></span>`}
+  </div>`;
+
+  const tabButton = (id, label, count) => `<button type="button" class="chat-info-tab${infoTab === id ? " on" : ""}" data-info-tab="${id}"><span>${esc(label)}</span>${count != null ? `<b>${count}</b>` : ""}</button>`;
+
+  const renderInfoContent = () => {
+    if (infoTab === "messages") {
+      return latestMessages.length ? `<div class="chat-info-message-list">${latestMessages.map((m) => `<div class="chat-info-message-row"><div class="chat-info-message-avatar">${avatar({ name: m.senderName || displayUser(m.senderId) || "Пользователь", color: "#5d7cff", size: 34, photo: state.users[m.senderId]?.photo })}</div><div class="chat-info-message-main"><div class="chat-info-message-name">${esc(m.senderId === uid ? myName() : (m.senderName || displayUser(m.senderId) || "Пользователь"))}</div><div class="chat-info-message-text">${esc(String(m.text || (m.mediaUrl ? "Медиа" : "Сообщение"))).slice(0, 180)}</div></div></div>`).join("")}</div>` : `<div class="chat-info-empty">Сообщений пока нет</div>`;
+    }
+    if (infoTab === "photo") {
+      return photoItems.length ? `<div class="chat-info-photo-grid">${photoItems.slice().reverse().map((m) => `<button type="button" class="chat-info-photo-tile" data-media-url="${esc(m.mediaUrl)}" data-media-kind="image"><img src="${esc(m.mediaUrl)}" alt=""></button>`).join("")}</div>` : `<div class="chat-info-empty">Фотографий пока нет</div>`;
+    }
+    if (infoTab === "files") {
+      return fileItems.length ? `<div class="chat-info-file-list">${fileItems.slice().reverse().map((m) => `<div class="chat-info-file-row"><span class="chat-info-file-icon">${icon("file", 20)}</span><div><b>${esc(m.fileName || "Файл")}</b><small>${esc(m.text || "Отправленный файл")}</small></div></div>`).join("")}</div>` : `<div class="chat-info-empty">Файлов пока нет</div>`;
+    }
+    if (infoTab === "links") {
+      return linkItems.length ? `<div class="chat-info-link-list">${linkItems.slice().reverse().map((m) => { const hit = String(m.text || "").match(/https?:\/\/\S+/i)?.[0] || ""; return `<a class="chat-info-link-row" href="${esc(hit)}" target="_blank" rel="noopener noreferrer"><span class="chat-info-list-icon">${icon("link", 18)}</span><span><b>${esc(hit)}</b><small>${esc(String(m.text || "").slice(0, 120))}</small></span></a>`; }).join("")}</div>` : `<div class="chat-info-empty">Ссылок пока нет</div>`;
+    }
+    return mediaItems.length ? `<div class="chat-info-media-grid">${mediaItems.slice().reverse().map((m) => m.mediaUrl ? `<button type="button" class="chat-info-media-tile" data-media-url="${esc(m.mediaUrl)}" data-media-kind="${esc(m.kind || "image")}"><img src="${esc(m.mediaUrl)}" alt=""></button>` : `<div class="chat-info-media-placeholder">${icon("image", 24)}</div>`).join("")}</div>` : `<div class="chat-info-empty">Медиа пока нет</div>`;
+  };
+
+  const tabs = `<section class="chat-info-materials chat-info-card"><div class="chat-info-tabs">${tabButton("media", "Медиа", mediaItems.length)}${tabButton("photo", "Фото", photoItems.length)}${tabButton("messages", "Сообщения", messages.length)}${tabButton("files", "Файлы", fileItems.length)}${tabButton("links", "Ссылки", linkItems.length)}</div><div class="chat-info-tab-content">${renderInfoContent()}</div></section>`;
+
+  if (type === "private" && peerId) {
+    const user = peer || { name: title, color };
+    return `<div class="chat-info-layout private-layout">
+      ${topbar(true)}
+      <div class="chat-info-scroll">
+        <section class="chat-info-hero-large private-hero">
+          <div class="chat-info-avatar-wrap">${avatar({ name: user.name || title, color: user.color || color, size: 118, photo: user.photo, online })}</div>
+          <h1>${userNameHtml(user, title)}</h1>
+          <div class="chat-info-status">${esc(status)}</div>
+          ${user.bio ? `<div class="chat-info-bio">${linkify(user.bio)}</div>` : ""}
+        </section>
+        <div class="chat-info-actions-grid private-actions">
+          <button class="chat-info-action" type="button" id="chat-info-chat"><span class="chat-info-action-icon">${icon("chat", 21)}</span><span>Написать</span></button>
+          <button class="chat-info-action" type="button" id="chat-info-call"><span class="chat-info-action-icon">${icon("phone", 21)}</span><span>Звонок</span></button>
+          <button class="chat-info-action" type="button" id="chat-info-video"><span class="chat-info-action-icon">${icon("video", 21)}</span><span>Видео</span></button>
+          <button class="chat-info-action" type="button" id="chat-info-sound"><span class="chat-info-action-icon">${icon("mute", 21)}</span><span>${item.muted ? "Включить звук" : "Без звука"}</span></button>
+          <button class="chat-info-action" type="button" id="chat-info-more"><span class="chat-info-action-icon">${icon("more", 21)}</span><span>Ещё</span></button>
+        </div>
+        <section class="chat-info-card chat-info-identity">
+          <div class="chat-info-row-main">
+            <div><div class="chat-info-row-label">Имя пользователя</div><div class="chat-info-row-value">${esc(username)}</div></div>
+            <button type="button" class="chat-info-copy" id="chat-info-copy" aria-label="Копировать username">${icon("copy", 20)}</button>
+          </div>
+        </section>
+        ${!isContact ? `<div class="contact-warning chat-info-warning" role="status"><strong>Человек не в ваших контактах</strong><span>Проверяйте профиль перед отправкой личных данных.</span></div>` : ""}
+        ${tabs}
+      </div>
+    </div>`;
+  }
+
+  const subtitle = isChannel ? `${memberCount} ${t("subscribers")}` : `${memberCount} ${t("members")}`;
+  const badge = isChannel ? "Канал" : "Группа";
+  const actions = `<div class="chat-info-actions-grid community-actions"><button class="chat-info-action" type="button" id="chat-info-chat"><span class="chat-info-action-icon">${icon("chat", 21)}</span><span>Открыть</span></button><button class="chat-info-action" type="button" id="chat-info-sound"><span class="chat-info-action-icon">${icon("mute", 21)}</span><span>${item.muted ? "Включить звук" : "Без звука"}</span></button><button class="chat-info-action" type="button" id="chat-info-more"><span class="chat-info-action-icon">${icon("more", 21)}</span><span>Ещё</span></button></div>`;
+
+  return `<div class="chat-info-layout ${isChannel ? "channel-layout" : "group-layout"}">
+    ${topbar(chat.createdBy === uid)}
+    <div class="chat-info-scroll">
+      <section class="chat-info-hero-large community-hero">
+        <div class="chat-info-avatar-wrap community-avatar ${isChannel ? "channel-avatar" : "group-avatar"}">${avatar({ name: title, color, size: 118, photo: chat.photo })}</div>
+        <div class="chat-info-type-badge">${esc(badge)}</div>
+        <h1>${esc(title)}</h1>
+        <div class="chat-info-status">${esc(subtitle)}</div>
+        ${chat.description ? `<div class="chat-info-bio">${linkify(chat.description)}</div>` : ""}
+      </section>
+      ${actions}
+      <section class="chat-info-stats">
+        <div><b>${memberCount}</b><span>${isChannel ? "подписчиков" : "участников"}</span></div>
+        <div><b>${isChannel ? "Публичный" : "Закрытая"}</b><span>доступ</span></div>
+        <div><b>${chat.createdBy === uid ? "Вы" : "Нет"}</b><span>владелец</span></div>
+      </section>
+      ${chat.createdBy === uid ? `<button class="chat-info-primary" type="button" id="chat-info-invite">${icon("users", 18)} <span>${isChannel ? "Добавить подписчиков" : "Пригласить участников"}</span></button>` : ""}
+      ${tabs}
+      ${memberEntries.length ? `<section class="chat-info-card chat-info-list-card"><div class="chat-info-section-head"><b>${isChannel ? "Подписчики" : "Участники"}</b><span>${memberCount}</span></div><div class="chat-info-members">${members}</div></section>` : ""}
+    </div>
+  </div>`;
+}
+
 function sheetHtml(panel) {
   const p = state.profile || {};
   const s = state.settings;
@@ -2266,6 +2642,7 @@ function sheetHtml(panel) {
     group: t("newGroup"),
     channel: t("newChannel"),
     developer: t("developer"),
+    storage: t("storage"),
     music: t("music"),
     "chat-info": t("profile"),
     "invite-members": "Пригласить участников",
@@ -2280,38 +2657,34 @@ function sheetHtml(panel) {
   } else if (panel === "delete-account") {
     body = `<div class="danger-card"><div class="ttl" style="font-weight:800">${esc(t("deleteAccount"))}</div><p class="muted mt">${esc(t("deleteAccountConfirm"))}</p><form id="delete-account-form"><div class="field"><label>${esc(t("deleteAccountPassword"))}</label><input name="password" type="password" autocomplete="current-password" required></div><button class="btn danger block" type="submit">${esc(t("deleteAccount"))}</button></form></div>`;
   } else if (panel === "devices") {
+    const phone = isPhoneDevice();
     body = `<div class="row">${avatar({ name: "Web", color: "#3D8BFD", size: 40 })}<div class="meta"><div class="name">${esc(t("currentSession"))}</div><div class="prev">Web · ${esc(navigator.userAgent.slice(0, 40))}</div></div></div>
+      ${phone ? `<button class="auth-qr-btn mt" id="devices-qr-scan">${icon("qr", 20)}<span><b>Отсканировать QR-код</b><small>Войти на компьютере с помощью телефона</small></span>${icon("chevron", 18)}</button>` : ""}
       <button class="btn danger block mt" id="do-logout">${esc(t("endOther"))}</button>`;
   } else if (panel === "security") {
-    const enrolled = FB?.isTotpEnrolled?.() || false;
-    body = `<div class="flex-row"><div><div class="ttl" style="font-weight:700">${esc(t("twoFA"))}</div><div class="muted">${esc(enrolled ? t("totpEnabled") : t("totpDisabled"))}</div></div></div>
-      <div class="mt"><button class="btn block" data-totp-setup>${esc(enrolled ? t("totpEnabled") : t("totpSetup"))}</button></div>
-      ${enrolled ? `<div class="mt"><button class="btn danger block" data-totp-disable>${esc(t("totpDisable"))}</button></div>` : ""}
-      <p class="muted mt">${esc(t("totpConfigHint"))}</p>`;
-  } else if (panel === "totp-setup") {
-    if (!state.totpSecretKey) {
-      body = `<form id="totp-start-form">${field(t("totpPassword"), "password", "", "password")}<button class="btn block" type="submit">${esc(t("totpStart"))}</button><p class="muted mt">${esc(t("totpConfigHint"))}</p></form>`;
-    } else {
-      body = `<div class="totp-qr-card">
-          <div class="totp-qr-title">${esc(t("totpScanQr"))}</div>
-          <div id="totp-qr" class="totp-qr" aria-label="TOTP QR"></div>
-          <div id="totp-qr-fallback" class="muted totp-qr-fallback hidden">${esc(t("totpQrFallback"))}</div>
-        </div>
-        <div class="totp-secret-card"><div class="cap">${esc(t("totpSecret"))}</div><code>${esc(state.totpSecretKey)}</code><button type="button" class="btn sec sm mt" id="copy-totp-secret">${esc(t("copy"))}</button></div>
-        <div class="field mt"><label>${esc(t("totpCode"))}</label><input id="totp-enroll-code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"></div>
-        <button class="btn block" id="totp-finish" type="button">${esc(t("totpFinish"))}</button>
-        <p class="muted mt">${esc(t("totpAppHint"))}: Google Authenticator, 1Password, Aegis, Microsoft Authenticator.</p>
-        <div class="field mt"><label>${esc(t("totpUri"))}</label><input value="${esc(state.totpUri)}" readonly></div>`;
-    }
-  } else if (panel === "totp-disable") {
-    const factors = (FB.currentUser?.().multiFactor?.enrolledFactors || []).filter((f) => f.factorId === "totp");
-    const uid = factors[0]?.uid || "";
-    body = `<form id="totp-disable-form" data-enrollment-uid="${esc(uid)}">${field(t("totpPassword"), "password", "", "password")}<button class="btn danger block" type="submit">${esc(t("totpConfirmDisable"))}</button></form>`;
+    body = `<div class="storage-hero"><div class="storage-hero-icon">${icon("shield", 22)}</div><div><b>Безопасность аккаунта</b><p class="muted">Основные параметры защиты и текущая сессия.</p></div></div>
+      <div class="storage-card"><div><strong>Email</strong><span>Адрес подтверждён после регистрации</span></div><b>${state.profile?.emailVerified ? "✓" : ""}</b></div>
+      <div class="storage-card"><div><strong>Текущая сессия</strong><span>${esc(t("currentSession"))}</span></div><b>Активна</b></div>`;
+  } else if (panel === "storage") {
+    const cacheSize = formatBytes(localStorageBytes());
+    let stickerCount = 0;
+    try { stickerCount = JSON.parse(localStorage.getItem("nexlink-stickers") || "[]").filter(Boolean).length; } catch {}
+    body = `<div class="storage-panel">
+      <div class="storage-hero"><div class="storage-hero-icon">${icon("folder", 22)}</div><div><b>${esc(t("storage"))}</b><p class="muted">${esc(t("storageHint"))}</p></div></div>
+      <div class="storage-card"><div><strong>${esc(t("storageCache"))}</strong><span>${esc(t("storageCacheHint"))}</span></div><b>${esc(cacheSize)}</b></div>
+      <button class="row storage-action" id="storage-clear-cache"><span class="ico">${icon("trash", 18)}</span><span class="grow"><span class="ttl">${esc(t("storageClearCache"))}</span><span class="sub">${esc(t("storageCacheHint"))}</span></span>${icon("chevron",18)}</button>
+      <div class="storage-card"><div><strong>${esc(t("storageStickers"))}</strong><span>${esc(t("storageStickersHint"))}</span></div><b>${stickerCount}</b></div>
+      <button class="row storage-action" id="storage-clear-stickers"><span class="ico">${icon("trash", 18)}</span><span class="grow"><span class="ttl">${esc(t("storageClearStickers"))}</span><span class="sub">${esc(t("storageStickersHint"))}</span></span>${icon("chevron",18)}</button>
+      <p class="muted storage-foot">${esc(t("storageHint"))}</p>
+    </div>`;
   } else if (panel === "privacy") {
     const opt = (key, val, lab) => `<button class="btn sm ${s[key] === val ? "" : "sec"}" data-set="${key}:${val}">${esc(lab)}</button>`;
-    body = `<label>${esc(t("whoMessage"))}</label><div class="seg">${opt("whoCanMessage", "everyone", t("everyone"))}${opt("whoCanMessage", "contacts", t("onlyContacts"))}</div>
-      <label class="mt" style="display:block">${esc(t("whoCall"))}</label><div class="seg">${opt("whoCanCall", "everyone", t("everyone"))}${opt("whoCanCall", "contacts", t("onlyContacts"))}${opt("whoCanCall", "nobody", t("nobody"))}</div>
-      <label class="mt" style="display:block">${esc(t("whoAdd"))}</label><div class="seg">${opt("whoCanAdd", "everyone", t("everyone"))}${opt("whoCanAdd", "contacts", t("onlyContacts"))}</div>`;
+    body = `<div class="privacy-hero"><div class="privacy-hero-icon">${icon("lock", 24)}</div><div><b>Управление конфиденциальностью</b><span>Эти параметры реально ограничивают сообщения, звонки и доступ к профилю.</span></div></div>
+      <div class="privacy-section"><strong>Сообщения</strong><span>Кто может писать вам и отправлять изображения.</span><div class="seg">${opt("whoCanMessage", "everyone", t("everyone"))}${opt("whoCanMessage", "contacts", t("onlyContacts"))}</div></div>
+      <div class="privacy-section"><strong>Звонки</strong><span>Кто может инициировать аудио- и видеозвонки.</span><div class="seg">${opt("whoCanCall", "everyone", t("everyone"))}${opt("whoCanCall", "contacts", t("onlyContacts"))}${opt("whoCanCall", "nobody", t("nobody"))}</div></div>
+      <div class="privacy-section"><strong>Добавление в группы</strong><span>Кто может добавлять вас в группы и приглашения.</span><div class="seg">${opt("whoCanAdd", "everyone", t("everyone"))}${opt("whoCanAdd", "contacts", t("onlyContacts"))}</div></div>
+      <div class="privacy-section"><strong>Профиль</strong><span>Кто видит основную информацию профиля.</span><div class="seg">${opt("whoCanSeeProfile", "everyone", t("everyone"))}${opt("whoCanSeeProfile", "contacts", t("onlyContacts"))}</div></div>
+      <div class="privacy-section"><strong>Был(а) в сети</strong><span>Кто может видеть ваше последнее посещение.</span><div class="seg">${opt("whoCanSeeLastSeen", "everyone", t("everyone"))}${opt("whoCanSeeLastSeen", "contacts", t("onlyContacts"))}</div></div>`;
   } else if (panel === "notifications") {
     body = `<div class="flex-row"><span style="font-weight:700">${esc(t("notifications"))}</span>${sw(s.notifications)}</div>
       <div class="flex-row"><span style="font-weight:700">${esc(t("previews"))}</span>${sw(s.messagePreview)}</div>`;
@@ -2345,8 +2718,14 @@ function sheetHtml(panel) {
     } else {
       body = `<form id="poll-form" class="poll-form">
         <div class="poll-form-hero"><div class="poll-form-icon">${icon("chart", 22)}</div><div><b>Создать опрос</b><span>${chat.type === "channel" ? "Новый опрос для подписчиков канала" : "Новый опрос для участников группы"}</span></div></div>
-        ${field("Вопрос", "question", "")}${field("Вариант 1", "option1", "")}${field("Вариант 2", "option2", "")}<div class="poll-extra-options"><input name="option3" placeholder="Вариант 3 (необязательно)"><input name="option4" placeholder="Вариант 4 (необязательно)"></div>
-        <button class="btn block">${icon("chart", 17)} <span>Опубликовать опрос</span></button>
+        <div class="poll-question-field">
+          <label>Вопрос</label>
+          <textarea name="question" maxlength="300" required placeholder="Напишите вопрос…"></textarea>
+          <div class="poll-counter"><span>До 300 символов</span></div>
+        </div>
+        <div class="poll-option-field"><label>Варианты ответа</label>${field("Вариант 1", "option1", "")}${field("Вариант 2", "option2", "")}<div class="poll-extra-options"><input name="option3" placeholder="Вариант 3 (необязательно)"><input name="option4" placeholder="Вариант 4 (необязательно)"></div></div>
+        <label class="poll-anon-toggle"><span class="poll-anon-main"><span class="poll-anon-icon">◎</span><span><strong>Анонимный вопрос</strong><small>Имена участников не показываются в результатах</small></span></span><input type="checkbox" name="anonymous" checked><i class="poll-toggle-ui"></i></label>
+        <button class="btn block poll-submit" type="submit">${icon("chart", 17)} <span>Опубликовать опрос</span></button>
       </form>`;
     }
   } else if (panel === "group" || panel === "channel") {
@@ -2385,7 +2764,7 @@ function sheetHtml(panel) {
     let main = "";
     if (sec === "home") {
       main = `<div class="dev-content">
-        <div class="dev-hero"><div><div class="dev-eyebrow">NEXLINK DEVELOPER</div><h1>Главная</h1><p>Консоль разработчика NexLink: боты, API, OAuth и верификация. Выберите раздел слева или быстрый переход ниже.</p></div><div class="dev-hero-mark">N</div></div>
+        <div class="dev-hero"><div><div class="dev-eyebrow">NEXLINK DEV</div><h1>Главная</h1><p>Консоль разработчика NexLink: боты, API, OAuth и верификация. Выберите раздел слева или быстрый переход ниже.</p></div><div class="dev-hero-mark">N</div></div>
         <div class="dev-quick-grid">
           <button data-dev-section="bot-create"><strong>Создать бота</strong><span>Новый бот и API-токен</span></button>
           <button data-dev-section="bots"><strong>Мои боты</strong><span>Список и управление</span></button>
@@ -2440,7 +2819,7 @@ function sheetHtml(panel) {
     const botsNav = side.slice(0,3).join("");
     const oauthNav = side.slice(3,6).join("");
     const profileNav = side.slice(6).join("");
-    body = `<div class="dev-layout"><aside class="dev-sidebar"><div class="dev-brand"><div class="dev-logo">N</div><div><strong>NexLink</strong><span>Developer Console</span></div></div><button class="dev-home ${sec==="home"?"on":""}" data-dev-section="home">${icon("home",16)}<span>Главная</span></button><div class="dev-group-label">БОТЫ</div>${botsNav}<div class="dev-group-label">OAUTH</div>${oauthNav}<div class="dev-group-label">ПРОФИЛЬ</div>${profileNav}<div class="dev-sidebar-divider"></div><button class="dev-exit" id="dev-exit">${icon("x",15)}<span>Выйти из Dev</span></button><div class="dev-side-foot"><span class="dev-dot"></span><span>Dev session active</span></div></aside><main class="dev-main"><div class="dev-topbar"><div class="dev-crumb"><span>Developer Console</span><b>/</b><span>${sec === "home" ? "Главная" : (nav.find(x=>x[0]===sec)?.[1] || "Раздел")}</span></div><div class="dev-top-actions"><span class="dev-session-chip">${state.devToken ? "● Токен открыт" : "○ Без токена"}</span><button class="btn icon" id="sh-x" title="Выйти из Dev">${icon("x")}</button></div></div>${main}</main></div>`;
+    body = `<div class="dev-layout"><aside class="dev-sidebar"><div class="dev-brand"><div class="dev-logo">N</div><div><strong>NexLink</strong><span>Dev</span></div></div><button class="dev-home ${sec==="home"?"on":""}" data-dev-section="home">${icon("home",16)}<span>Главная</span></button><div class="dev-group-label">БОТЫ</div>${botsNav}<div class="dev-group-label">OAUTH</div>${oauthNav}<div class="dev-group-label">ПРОФИЛЬ</div>${profileNav}<div class="dev-sidebar-divider"></div><button class="dev-exit" id="dev-exit">${icon("x",15)}<span>Выйти из Dev</span></button><div class="dev-side-foot"><span class="dev-dot"></span><span>Dev session active</span></div></aside><main class="dev-main"><div class="dev-topbar"><div class="dev-crumb"><span>Developer Console</span><b>/</b><span>${sec === "home" ? "Главная" : (nav.find(x=>x[0]===sec)?.[1] || "Раздел")}</span></div><div class="dev-top-actions"><span class="dev-session-chip">${state.devToken ? "● Токен открыт" : "○ Без токена"}</span><button class="btn icon" id="sh-x" title="Выйти из Dev">${icon("x")}</button></div></div>${main}</main></div>`;
   } else if (panel === "music") {
     body = `<form id="mu">${field(t("track"), "musicTitle", p.musicTitle)}${field(t("artist"), "musicArtist", p.musicArtist)}<button class="btn block">${esc(t("save"))}</button></form>`;
   } else if (panel === "bots") {
@@ -2448,7 +2827,17 @@ function sheetHtml(panel) {
       (b) => `<button class="row" data-bot="${b.id}">${avatar({ name: b.name, color: b.color, type: "bot" })}<div class="meta"><div class="name">${esc(b.name)}</div><div class="prev">${esc(b.desc[s.locale] || b.desc.ru)}</div></div><span class="muted">${esc(t("openBot"))}</span></button>`,
     ).join("");
   } else if (panel === "chat-info") {
-    body = renderChatInfoPanel();
+    return renderChatInfoPanel();
+  } else if (panel === "translate") {
+    const tr = state.translation || {};
+    body = `<div class="translate-panel">
+      <div class="translate-language"><span>Оригинал</span><b>${tr.target === "en" ? "English" : "Русский"}</b></div>
+      <div class="translate-original">${esc(tr.original || "")}</div>
+      <div class="translate-divider">↓</div>
+      <div class="translate-language"><span>${esc(t("translation"))}</span><b>${tr.target === "en" ? "English" : "Русский"}</b></div>
+      <div class="translate-result">${esc(tr.translated || "")}</div>
+      <button class="btn block" id="translate-copy">${esc(t("copy"))}</button>
+    </div>`;
   } else if (panel === "forward") {
     const items = inboxItems();
     body = items
@@ -2461,36 +2850,53 @@ function sheetHtml(panel) {
   return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h2>${esc(titles[panel] || t("settings"))}</h2><button class="btn icon" id="sh-x">${icon("x")}</button></div><p class="desc"></p>${body}`;
 }
 
-function renderTotpQr() {
-  const host = document.getElementById("totp-qr");
-  const fallback = document.getElementById("totp-qr-fallback");
-  if (!host || !state.totpUri) return;
-  host.innerHTML = "";
-  try {
-    if (typeof window.qrcode !== "function") throw new Error("qr-library-missing");
-    const qr = window.qrcode(0, "M");
-    qr.addData(state.totpUri, "Byte");
-    qr.make();
-    host.innerHTML = qr.createSvgTag(4, 4);
-    host.querySelector("svg")?.setAttribute("role", "img");
-    host.querySelector("svg")?.setAttribute("aria-label", "TOTP QR code");
-    fallback?.classList.add("hidden");
-  } catch (err) {
-    console.warn("TOTP QR unavailable:", err);
-    fallback?.classList.remove("hidden");
-    host.innerHTML = "";
-  }
-}
-
 function bindOverlay() {
   const ov = document.getElementById("ov");
-  if (state.totpUri) setTimeout(renderTotpQr, 0);
   if (ov) {
     ov.addEventListener("click", (e) => {
       if (e.target === ov) closePanel();
     });
   }
   document.getElementById("sh-x")?.addEventListener("click", closePanel);
+  document.getElementById("translate-copy")?.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(state.translation?.translated || ""); toast(t("copied")); } catch {}
+  });
+  document.getElementById("chat-info-close")?.addEventListener("click", closePanel);
+  document.getElementById("chat-info-invite")?.addEventListener("click", () => openPanel("invite-members"));
+  document.getElementById("chat-info-chat")?.addEventListener("click", closePanel);
+  document.getElementById("chat-info-call")?.addEventListener("click", () => { closePanel(); setTimeout(() => startCall("audio"), 0); });
+  document.getElementById("chat-info-video")?.addEventListener("click", () => { closePanel(); setTimeout(() => startCall("video"), 0); });
+  document.getElementById("chat-info-video")?.addEventListener("click", () => { closePanel(); setTimeout(() => startCall("video"), 0); });
+  document.getElementById("chat-info-sound")?.addEventListener("click", async () => {
+    if (!state.activeChatId || !me()?.uid) return;
+    const item = state.inbox[state.activeChatId] || {};
+    await FB.patchInbox(me().uid, state.activeChatId, { muted: !item.muted });
+    paintOverlays();
+  });
+  document.getElementById("chat-info-copy")?.addEventListener("click", async () => {
+    const chatId = state.activeChatId;
+    const item = chatId ? (state.inbox[chatId] || {}) : {};
+    const peerId = item.peerId || (state.chats[chatId]?.peers?.[me()?.uid]);
+    const value = peerId ? (state.users[peerId]?.username ? `@${state.users[peerId].username}` : "") : "";
+    if (!value) { toast("Username не указан"); return; }
+    try { await navigator.clipboard.writeText(value); toast("Username скопирован"); } catch {}
+  });
+  document.getElementById("chat-info-more")?.addEventListener("click", (e) => {
+    showMenu(e.currentTarget, [
+      { id: "contacts", label: "Добавить в контакты", icon: "user-plus" },
+      { id: "close", label: "Закрыть", icon: "x" },
+    ], (id) => { if (id === "close") closePanel(); });
+  });
+  document.getElementById("chat-info-edit")?.addEventListener("click", () => toast("Редактирование профиля появится позже"));
+  document.querySelectorAll("[data-info-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.chatInfoTab = btn.dataset.infoTab || "media";
+      paintOverlays();
+    });
+  });
+  document.querySelectorAll("[data-media-url]").forEach((btn) => {
+    btn.addEventListener("click", () => openMediaViewer(btn.dataset.mediaUrl, btn.dataset.mediaKind || "image"));
+  });
   document.querySelectorAll("[data-dev-section]").forEach((b) => {
     b.addEventListener("click", () => {
       state.devSection = b.dataset.devSection;
@@ -2649,6 +3055,8 @@ function bindOverlay() {
     if (prev) prev.innerHTML = avatar({ name: state.profile.name || "N", color: state.profile.color, size: 88 });
   });
 
+  document.getElementById("devices-qr-scan")?.addEventListener("click", openQrLogin);
+
   document.getElementById("do-logout")?.addEventListener("click", async () => {
     const btn = document.getElementById("do-logout");
     if (btn) btn.disabled = true;
@@ -2680,61 +3088,8 @@ function bindOverlay() {
       toast(FB?.authError ? FB.authError(e) : String(e?.message || e));
     }
   });
-  document.querySelector("[data-totp-setup]")?.addEventListener("click", () => openPanel("totp-setup"));
-  document.querySelector("[data-totp-disable]")?.addEventListener("click", () => openPanel("totp-disable"));
-
-  document.getElementById("totp-start-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const btn = e.target.querySelector("button[type=submit]");
-    btn.disabled = true;
-    try {
-      const result = await FB.beginTotpEnrollment(fd.get("password"));
-      state.totpSecret = result.secret;
-      state.totpSecretKey = result.secretKey;
-      state.totpUri = result.uri;
-      paintOverlays();
-      renderTotpQr();
-    } catch (ex) {
-      toast(FB.authError ? FB.authError(ex) : String(ex?.message || ex));
-      btn.disabled = false;
-    }
-  });
-  document.getElementById("copy-totp-secret")?.addEventListener("click", async () => {
-    await navigator.clipboard.writeText(state.totpSecretKey);
-    toast(t("copied"));
-  });
-  document.getElementById("totp-finish")?.addEventListener("click", async () => {
-    const code = document.getElementById("totp-enroll-code")?.value || "";
-    if (!/^\d{6,8}$/.test(code.replace(/\s/g, ""))) return toast(t("totpCode"));
-    try {
-      await FB.finishTotpEnrollment(state.totpSecret, code);
-      state.totpSecret = null;
-      state.totpSecretKey = "";
-      state.totpUri = "";
-      state.settings = { ...state.settings, twoFA: true };
-      await FB.saveProfile(me().uid, { settings: state.settings });
-      toast(t("totpEnabled"));
-      openPanel("security");
-    } catch (ex) {
-      toast(FB.authError ? FB.authError(ex) : String(ex?.message || ex));
-    }
-  });
-  document.getElementById("totp-disable-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const uid = e.target.dataset.enrollmentUid;
-    try {
-      await FB.disableTotpEnrollment(uid, fd.get("password"));
-      state.settings = { ...state.settings, twoFA: false };
-      await FB.saveProfile(me().uid, { settings: state.settings });
-      toast(t("totpDisabled"));
-      closePanel();
-      openPanel("security");
-    } catch (ex) {
-      toast(FB.authError ? FB.authError(ex) : String(ex?.message || ex));
-    }
-  });
+  document.getElementById("storage-clear-cache")?.addEventListener("click", clearNexLinkLocalCache);
+  document.getElementById("storage-clear-stickers")?.addEventListener("click", clearNexLinkStickers);
 
   document.querySelectorAll("[data-sw]").forEach((b, i) => {
     b.onclick = async () => {
@@ -2796,7 +3151,7 @@ function bindOverlay() {
     try {
       const btn = e.target.querySelector("button[type=submit]");
       if (btn) btn.disabled = true;
-      await FB.createPoll(state.activeChatId, { senderId: me().uid, question: fd.get("question"), options });
+      await FB.createPoll(state.activeChatId, { senderId: me().uid, question: fd.get("question"), options, anonymous: fd.get("anonymous") === "on" });
       toast("Опрос опубликован");
       closePanel();
     } catch (err) {
@@ -2930,23 +3285,84 @@ function bindOverlay() {
       await openChat(b.dataset.fwd);
     };
   });
-  document.getElementById("call-end")?.addEventListener("click", hangup);
+  document.getElementById("call-end")?.addEventListener("click", () => hangup());
   document.getElementById("call-acc")?.addEventListener("click", () => acceptCall());
   document.getElementById("call-dec")?.addEventListener("click", () => declineCall());
+  document.getElementById("call-collapse")?.addEventListener("click", () => { if (state.call?.status !== "ringing") { state.call = null; hangupPcOnly(); stopGroupCallListeners(); paintOverlays(); } });
+  document.getElementById("call-mic")?.addEventListener("click", () => {
+    const next = !state.call?.muted;
+    state.call = { ...state.call, muted: next };
+    localStream?.getAudioTracks().forEach(t => t.enabled = !next);
+    paintOverlays();
+  });
+  document.getElementById("call-camera")?.addEventListener("click", () => {
+    if (state.call?.group || state.call?.kind === "video") {
+      const next = !state.call?.cameraOff;
+      state.call = { ...state.call, cameraOff: next };
+      localStream?.getVideoTracks().forEach(t => t.enabled = !next);
+      paintOverlays();
+    }
+  });
+  if (state.call?.status === "active") {
+    clearTimeout(paintOverlays._callTick);
+    paintOverlays._callTick = setTimeout(() => { if (state.call) paintOverlays(); }, 1000);
+  }
+}
+
+function groupCallTitle() {
+  const chat = state.chats[state.call?.chatId] || {};
+  return chat.title || chat.name || "Групповой звонок";
+}
+
+function groupCallParticipants() {
+  return Object.values(state.call?.participants || {});
+}
+
+function callElapsedText() {
+  const started = state.callStartedAt || state.call?.at || Date.now();
+  const sec = Math.max(0, Math.floor((Date.now() - started) / 1000));
+  const mm = String(Math.floor(sec / 60)).padStart(2, "0");
+  const ss = String(sec % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
 }
 
 function callHtml() {
   const c = state.call;
-  const name = c.name || t("call");
-  if (c.dir === "in" && c.status === "ringing") {
-    return `<div class="call"><div class="info">${avatar({ name, color: "#3D8BFD", size: 88 })}<h2>${esc(name)}</h2><p class="muted">${esc(t("incoming"))} · ${esc(c.kind === "video" ? t("videoCall") : t("call"))}</p></div>
-      <div class="acts"><button class="btn" id="call-acc">${icon("phone")}</button><button class="btn danger" id="call-dec">${icon("phoneOff")}</button></div></div>`;
+  if (c?.group) {
+    const pts = groupCallParticipants();
+    const incoming = c.dir === "in" && c.status === "ringing";
+    const title = groupCallTitle();
+    const muted = !!c.muted;
+    const camOff = !!c.cameraOff;
+    return `<div class="call group-call-screen ${c.kind === "video" ? "video-mode" : "audio-mode"}">
+      <div class="group-call-topbar">
+        <button class="call-round-btn" id="call-collapse">${icon("back", 21)}</button>
+        <div class="group-call-heading"><strong>${esc(title)}</strong><span>${incoming ? "Входящий групповой звонок" : `${callElapsedText()} · ${pts.length} участник${pts.length === 1 ? "" : pts.length < 5 ? "а" : "ов"}`}</span></div>
+        <button class="call-round-btn">${icon("users", 19)}</button>
+      </div>
+      <div class="group-call-grid ${pts.length <= 1 ? "single" : ""}">
+        ${pts.map(p => `<div class="group-call-tile"><div class="group-call-avatar">${avatar({name:p.name||"Участник",color:"#3D8BFD",size:82,photo:p.photo||null})}</div><div class="group-call-name">${esc(p.uid===me()?.uid ? "Вы" : (p.name||"Участник"))}</div><span class="group-call-mic">${p.muted ? icon("micOff",15) : icon("mic",15)}</span></div>`).join("")}
+        ${!pts.length ? `<div class="group-call-empty">${avatar({name:title,color:"#3D8BFD",size:90})}<strong>${esc(title)}</strong><span>Подключаем участников…</span></div>` : ""}
+      </div>
+      ${incoming ? `<div class="call-incoming-card"><div><b>${esc(c.fromName || title)}</b><span> приглашает вас в групповой звонок</span></div><div class="call-incoming-actions"><button class="call-control accept" id="call-acc">${icon("phone",20)}</button><button class="call-control danger" id="call-dec">${icon("phoneOff",20)}</button></div></div>` : `<div class="call-bottom-bar"><button class="call-control ${muted?"on": ""}" id="call-mic">${icon(muted?"micOff":"mic",21)}</button><button class="call-control ${camOff?"on": ""}" id="call-camera">${icon(camOff?"videoOff":"video",21)}</button><button class="call-control danger" id="call-end">${icon("phoneOff",21)}</button></div>`}
+    </div>`;
   }
-  return `<div class="call">
-    <video id="remote" autoplay playsinline></video>
-    ${c.kind === "video" ? `<video id="local" autoplay muted playsinline></video>` : ""}
-    <div class="info">${avatar({ name, color: "#3D8BFD", size: 72 })}<h2>${esc(name)}</h2><p class="muted">${esc(c.status === "active" ? t("call") : t("connecting"))}</p></div>
-    <div class="acts"><button class="btn danger" id="call-end">${icon("phoneOff")}</button></div>
+  const name = c.name || t("call");
+  const incoming = c.dir === "in" && c.status === "ringing";
+  const isVideo = c.kind === "video";
+  const media = isVideo
+    ? `<video id="remote" autoplay playsinline></video><video id="local" autoplay muted playsinline></video>`
+    : `<div class="private-call-bg"></div>`;
+  const subtitle = incoming ? t("incoming") : (c.status === "active" ? callElapsedText() : t("connecting"));
+  const centerText = incoming ? t(isVideo ? "videoCall" : "call") : (c.status === "active" ? callElapsedText() : t("connecting"));
+  const controls = incoming
+    ? `<div class="call-incoming-actions"><button class="call-control accept" id="call-acc">${icon("phone",21)}</button><button class="call-control danger" id="call-dec">${icon("phoneOff",21)}</button></div>`
+    : `<div class="private-call-controls"><button class="call-control" id="call-camera">${icon("video",21)}</button><button class="call-control" id="call-mic">${icon("mic",21)}</button><button class="call-control danger" id="call-end">${icon("phoneOff",21)}</button></div>`;
+  return `<div class="call private-call-screen ${isVideo ? "video-mode" : "audio-mode"}">
+    ${media}
+    <div class="private-call-top"><button class="call-round-btn" id="call-collapse">${icon("back",21)}</button><div><strong>${esc(name)}</strong><span>${esc(subtitle)}</span></div></div>
+    <div class="private-call-center">${avatar({name,color:"#3D8BFD",size:116})}<h2>${esc(name)}</h2><span>${esc(centerText)}</span></div>
+    ${controls}
   </div>`;
 }
 
@@ -2957,13 +3373,130 @@ async function startCall(kind) {
   const chatId = state.activeChatId;
   const chat = state.chats[chatId] || {};
   const item = state.inbox[chatId] || {};
-  if (chat.type !== "private") return toast("Звонки доступны только в личных чатах");
+  if (!chat || !chat.type) return;
+  if (chat.type === "group") return startGroupCall(kind, chatId);
+  if (chat.type !== "private") return toast("Звонки доступны только в личных чатах и группах");
   const peer = item.peerId || (chat.peers && me() ? chat.peers[me().uid] : null);
   if (!peer) return toast("Нет собеседника");
-  state.call = { chatId, kind, dir: "out", status: "ringing", name: chatTitle(chat, item), peer };
+  const peerProfile = await loadPeerProfile(peer);
+  if (!(await privacyAllowsPeer(peerProfile, "whoCanCall", peer, me()?.uid))) return toast("Этот пользователь ограничил входящие звонки.");
+  state.call = { chatId, kind, dir: "out", status: "ringing", name: chatTitle(chat, item), peer, muted:false, cameraOff:kind !== "video" };
+  state.callStartedAt = Date.now();
   paintOverlays();
+  startCallTone();
   await FB.sendMessage(chatId, { senderId: me().uid, kind: "call", text: kind === "video" ? t("videoCall") : t("call"), callType: kind });
   await setupPc(kind, true, chatId, peer);
+}
+
+async function startGroupCall(kind, chatId) {
+  const chat = state.chats[chatId] || {};
+  const members = Object.keys(chat.members || {});
+  if (members.length > 100) return toast("В групповых звонках может участвовать не более 100 человек.");
+  const uid = me()?.uid;
+  if (!uid) return;
+  const name = chat.title || chat.name || "Групповой звонок";
+  state.call = { chatId, kind, dir:"out", status:"active", group:true, name, muted:false, cameraOff:kind !== "video", participants:{} };
+  state.callStartedAt = Date.now();
+  paintOverlays();
+  await FB.writeCall(chatId, { group:true, status:"active", kind, from:uid, to:null, createdBy:uid, name, at:Date.now(), maxParticipants:100 });
+  await joinGroupCallRoom(chatId, kind, true);
+  for (const member of members) {
+    if (member === uid) continue;
+    await FB.ringUser(member, { chatId, from: uid, fromName: myName(), kind, status:"ringing", group:true, name });
+  }
+}
+
+async function joinGroupCallRoom(chatId, kind, notify=true) {
+  const uid = me()?.uid;
+  if (!uid) return;
+  state.call = { ...(state.call||{}), group:true, chatId, kind, dir: state.call?.dir || "in", status:"active", participants: state.call?.participants || {} };
+  const currentParticipants = await FB.getGroupParticipantsOnce(chatId).catch(() => ({}));
+  if (Object.keys(currentParticipants || {}).length >= 100 && !currentParticipants?.[uid]) {
+    toast("Групповой звонок уже заполнен (максимум 100 участников).");
+    return;
+  }
+  await FB.setGroupParticipant(chatId, uid, { name: myName(), photo: me()?.photoURL || state.profile?.photo || null, muted:false, cameraOff:kind !== "video" });
+  setupGroupCallListeners(chatId, kind);
+  paintOverlays();
+  if (notify) {
+    FB.clearIncoming(uid).catch(()=>{});
+  }
+}
+
+function stopGroupCallListeners() {
+  state.groupCallUnsubs.forEach((u)=>{ try{u?.();}catch{} });
+  state.groupCallUnsubs = [];
+  Object.values(state.groupCallPeers).forEach((entry)=>{ try{entry.pc?.close();}catch{} entry.stream?.getTracks?.().forEach(t=>t.stop()); });
+  state.groupCallPeers = {};
+}
+
+async function setupGroupPeer(chatId, kind, otherUid, remoteMeta, participants) {
+  const self = me()?.uid;
+  if (!self || self === otherUid || state.groupCallPeers[otherUid]) return;
+  const pairKey = [self, otherUid].sort().join("__");
+  const offerer = self.localeCompare(otherUid) < 0;
+  const peerPc = new RTCPeerConnection({ iceServers: ICE });
+  const entry = { pc: peerPc, remoteUid:otherUid };
+  state.groupCallPeers[otherUid] = entry;
+  if (!localStream) {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio:true, video:kind === "video" });
+  }
+  localStream.getTracks().forEach(track=>peerPc.addTrack(track,localStream));
+  const tileId = `gcall-${CSS.escape(otherUid)}`;
+  peerPc.ontrack = (e) => {
+    const tile = document.querySelector(`[data-gcall-uid="${CSS.escape(otherUid)}"]`);
+    if (tile && e.streams[0]) {
+      let v = tile.querySelector("video");
+      if (!v) { v=document.createElement("video"); v.autoplay=true; v.playsInline=true; v.className="group-call-video"; tile.appendChild(v); }
+      v.srcObject=e.streams[0];
+    }
+  };
+  peerPc.onicecandidate = (e)=>{ if(e.candidate) FB.pushGroupIce(chatId,pairKey,offerer?"a":"b",e.candidate.toJSON()).catch(()=>{}); };
+  const iceSide = offerer ? "b" : "a";
+  const iceUnsub2 = FB.listenGroupIce(chatId,pairKey,iceSide, async c=>{ try{await peerPc.addIceCandidate(c);}catch{} });
+  state.groupCallUnsubs.push(iceUnsub2);
+  const sigUnsub = FB.listenGroupSignals(chatId, async (signals)=>{
+    const sig = signals?.[pairKey];
+    if (!sig || !state.groupCallPeers[otherUid]) return;
+    try {
+      if (offerer && sig.b?.answer && !peerPc.currentRemoteDescription) await peerPc.setRemoteDescription(sig.b.answer);
+      if (!offerer && sig.a?.offer && !peerPc.currentRemoteDescription) {
+        await peerPc.setRemoteDescription(sig.a.offer);
+        const answer = await peerPc.createAnswer();
+        await peerPc.setLocalDescription(answer);
+        await FB.writeGroupSignal(chatId,pairKey,"b",{answer});
+      }
+    } catch(err) { console.warn("group signal",err); }
+  });
+  state.groupCallUnsubs.push(sigUnsub);
+  if (offerer) {
+    const offer = await peerPc.createOffer();
+    await peerPc.setLocalDescription(offer);
+    await FB.writeGroupSignal(chatId,pairKey,"a",{offer});
+  }
+}
+
+function setupGroupCallListeners(chatId, kind) {
+  stopGroupCallListeners();
+  const pUnsub = FB.listenGroupParticipants(chatId, async (participants)=>{
+    if (!state.call || state.call.chatId !== chatId) return;
+    state.call.participants = participants || {};
+    paintOverlays();
+    const list = Object.values(participants || {});
+    if (list.length > 100) return;
+    for (const p of list) if (p.uid !== me()?.uid) {
+      try { await setupGroupPeer(chatId,kind,p.uid,p,participants); } catch(err) { console.warn("group peer",err); }
+    }
+    for (const uid of Object.keys(state.groupCallPeers)) if (!participants?.[uid]) {
+      try { state.groupCallPeers[uid].pc?.close(); } catch{}
+      delete state.groupCallPeers[uid];
+    }
+  });
+  const cUnsub = FB.listenGroupCall(chatId,(room)=>{
+    if (!room) { if(state.call?.group && state.call?.chatId===chatId){ state.call=null; stopGroupCallListeners(); paintOverlays(); } return; }
+    if (state.call?.chatId===chatId) { state.call = { ...state.call, ...room, group:true }; paintOverlays(); }
+  });
+  state.groupCallUnsubs.push(pUnsub,cUnsub);
 }
 
 async function setupPc(kind, isOfferer, chatId, peer) {
@@ -2980,51 +3513,45 @@ async function setupPc(kind, isOfferer, chatId, peer) {
   pc.onicecandidate = (e) => {
     if (e.candidate) FB.pushIce(chatId, isOfferer ? "offerer" : "answerer", e.candidate.toJSON());
   };
-  iceUnsub = FB.listenIce(chatId, isOfferer ? "answerer" : "offerer", async (c) => {
-    try {
-      await pc.addIceCandidate(c);
-    } catch {
-      /* ignore */
-    }
-  });
+  iceUnsub = FB.listenIce(chatId, isOfferer ? "answerer" : "offerer", async (c) => { try { await pc.addIceCandidate(c); } catch {} });
   if (isOfferer) {
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
-    await FB.writeCall(chatId, {
-      status: "ringing",
-      kind,
-      from: me().uid,
-      to: peer,
-      offer: offer,
-    });
+    await FB.writeCall(chatId, { status: "ringing", kind, from: me().uid, to: peer, offer });
     await FB.ringUser(peer, { chatId, from: me().uid, kind, name: myName(), status: "ringing" });
     FB.listenCall(chatId, async (c) => {
       if (!c || !pc) return;
       if (c.answer && !pc.currentRemoteDescription) {
         await pc.setRemoteDescription(c.answer);
         state.call = { ...state.call, status: "active" };
+        state.callStartedAt = Date.now();
+        stopCallTone();
         paintOverlays();
-        attachLocalVideo();
       }
-      if (c.status === "ended") hangup(true);
+      if (c.status === "declined" || c.status === "ended") {
+        stopCallTone();
+        toast(c.status === "declined" ? "Звонок отклонён" : "Звонок завершён");
+        hangup(true);
+      }
     });
-  }
-}
-
-function attachLocalVideo() {
-  const localV = document.getElementById("local");
-  if (localV && localStream) localV.srcObject = localStream;
-  const remote = document.getElementById("remote");
-  if (remote && pc) {
-    const st = pc.getReceivers().map((r) => r.track).filter(Boolean);
-    if (st.length) remote.srcObject = new MediaStream(st);
   }
 }
 
 async function acceptCall() {
   const incoming = state.call;
   if (!incoming) return;
+  if (incoming.group) {
+    state.call = { ...incoming, dir:"in", status:"active", participants: incoming.participants || {} };
+    state.callStartedAt = Date.now();
+    stopCallTone();
+    paintOverlays();
+    await joinGroupCallRoom(incoming.chatId, incoming.kind, false);
+    await FB.clearIncoming(me().uid);
+    return;
+  }
   state.call = { ...incoming, dir: "in", status: "active" };
+  state.callStartedAt = Date.now();
+  stopCallTone();
   paintOverlays();
   await setupPc(incoming.kind, false, incoming.chatId, incoming.from);
   const snap = await FB.get(FB.ref(FB.getFb().db, `calls/${incoming.chatId}`));
@@ -3039,12 +3566,25 @@ async function acceptCall() {
 }
 
 async function declineCall() {
-  if (state.call?.chatId) await FB.endCall(state.call.chatId);
+  const incoming = state.call;
+  stopCallTone();
+  if (incoming?.group) {
+    if (me()?.uid) await FB.clearIncoming(me().uid).catch(()=>{});
+    if (incoming.from) await FB.ringUser(incoming.from, { chatId: incoming.chatId, from: me()?.uid, kind: incoming.kind, name: myName(), status: "declined", reason: "declined", group:true }).catch(()=>{});
+    state.call = null;
+    paintOverlays();
+    return;
+  }
+  if (incoming?.chatId) {
+    await FB.endCall(incoming.chatId, { reason: "declined", by: me()?.uid });
+    if (incoming.from) await FB.ringUser(incoming.from, { chatId: incoming.chatId, from: me()?.uid, kind: incoming.kind, name: myName(), status: "declined", reason: "declined" }).catch(() => {});
+  }
   if (me()) await FB.clearIncoming(me().uid);
   hangup(true);
 }
 
 function hangupPcOnly() {
+  stopCallTone();
   iceUnsub?.();
   iceUnsub = null;
   pc?.getSenders().forEach((s) => s.track?.stop());
@@ -3055,17 +3595,25 @@ function hangupPcOnly() {
 }
 
 async function hangup(silent) {
-  const chatId = state.call?.chatId;
-  const peer = state.call?.peer || state.call?.from;
+  const current = state.call;
+  if (current?.group) {
+    const chatId = current.chatId;
+    const uid = me()?.uid;
+    try { if (uid) await FB.removeGroupParticipant(chatId,uid); } catch{}
+    const remain = Object.keys(current.participants || {}).filter(x=>x!==uid);
+    if (!silent && remain.length===0) { try{ await FB.endCall(chatId,{reason:"ended",by:uid}); }catch{} }
+    stopGroupCallListeners();
+    hangupPcOnly();
+    state.call = null;
+    paintOverlays();
+    return;
+  }
+  const chatId = current?.chatId;
+  const peer = current?.peer || current?.from;
   hangupPcOnly();
   state.call = null;
   if (!silent && chatId) {
-    try {
-      await FB.endCall(chatId);
-      if (peer) await FB.clearIncoming(peer);
-    } catch {
-      /* ignore */
-    }
+    try { await FB.endCall(chatId); if (peer) await FB.clearIncoming(peer); } catch {}
   }
   paintOverlays();
 }
@@ -3075,7 +3623,12 @@ function formatSecurityLoginMessage(meta = {}) {
   const shortBrowser = browser.length > 115 ? browser.slice(0, 115) + "…" : browser;
   const ip = meta.ip && meta.ip !== "не определён" ? meta.ip : "IP не определён";
   const location = meta.location || meta.timezone || "Локация не определена";
-  return `Новый вход в аккаунт\nIP: ${ip}\nУстройство: ${shortBrowser}\nЛокация: ${location}\n\nПодтвердите или отклоните вход с другого вашего устройства.`;
+  return `Новый вход в аккаунт
+IP: ${ip}
+Устройство: ${shortBrowser}
+Локация: ${location}
+
+Подтвердите или отклоните вход с другого вашего устройства.`;
 }
 
 async function ensureSecurityBotChat(uid) {
@@ -3233,14 +3786,42 @@ async function hydrateUser(user) {
     }
     if (state.tab === "contacts") paintContactList();
   });
-  unsub.incoming = FB.listenIncoming(user.uid, (inc) => {
+  unsub.incoming = FB.listenIncoming(user.uid, async (inc) => {
+    if (!inc) {
+      if (state.call?.dir === "in" && state.call.status === "ringing") {
+        stopCallTone();
+        state.call = null;
+        paintOverlays();
+      }
+      return;
+    }
+    if (inc.status === "declined" && state.call?.chatId === inc.chatId) {
+      stopCallTone();
+      toast("Звонок отклонён");
+      hangup(true);
+      FB.clearIncoming?.(user.uid);
+      return;
+    }
     if (inc && inc.status === "ringing" && inc.from !== user.uid) {
       const incomingChat = state.chats[inc.chatId];
-      if (incomingChat?.type === "group" || incomingChat?.type === "channel") {
+      if (inc.group || incomingChat?.type === "group") {
+        const count = Object.keys(incomingChat?.members || {}).length;
+        if (count > 100) { FB.clearIncoming?.(user.uid); return; }
+        state.call = { ...inc, dir: "in", group:true, participants:{} };
+        state.callStartedAt = Date.now();
+        startCallTone();
+        paintOverlays();
+        return;
+      }
+      await loadPeerProfile(inc.from).catch(()=>null);
+      if (!privacyAllows(state.profile, "whoCanCall", inc.from)) {
+        FB.endCall?.(inc.chatId, { reason: "privacy", by: user.uid }).catch(() => {});
         FB.clearIncoming?.(user.uid);
         return;
       }
       state.call = { ...inc, dir: "in" };
+      state.callStartedAt = Date.now();
+      startCallTone();
       paintOverlays();
     }
   });
@@ -3263,9 +3844,6 @@ async function main() {
     FB.onUser(async (user) => {
       try {
         if (!user) {
-          state.mfaResolver = null;
-          state.mfaHintUid = null;
-          state.mfaError = "";
           state.user = null;
           state.profile = null;
           state.inbox = {};

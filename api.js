@@ -12,6 +12,9 @@ import {
   browserLocalPersistence,
   sendEmailVerification,
   deleteUser,
+  multiFactor,
+  TotpMultiFactorGenerator,
+  getMultiFactorResolver,
 } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 import {
   getDatabase,
@@ -42,6 +45,13 @@ import {
   deleteDoc,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+import {
+  getMessaging,
+  getToken,
+  onMessage,
+  deleteToken,
+  isSupported as isMessagingSupported,
+} from "https://www.gstatic.com/firebasejs/11.4.0/firebase-messaging.js";
 
 export const serviceConfig = {
   apiKey: "AIzaSyCjadRD1TAix0IsjaxYI-76P9mDpKmQ34Q",
@@ -54,7 +64,7 @@ export const serviceConfig = {
   measurementId: "G-B7MFW899QJ",
 };
 
-let app, auth, db, firestore;
+let app, auth, db, firestore, messaging;
 export function getFb() {
   return { app, auth, db, firestore };
 }
@@ -78,6 +88,11 @@ export async function boot() {
     await setPersistence(auth, browserLocalPersistence);
   } catch {
     /* ignore */
+  }
+  try {
+    if (await isMessagingSupported()) messaging = getMessaging(app);
+  } catch {
+    messaging = null;
   }
   return getFb();
 }
@@ -138,16 +153,85 @@ export async function register({ email, password, name, username }) {
 }
 
 export async function login({ email, password }) {
-  const cred = await signInWithEmailAndPassword(auth, String(email || "").trim(), password);
+  try {
+    const cred = await signInWithEmailAndPassword(auth, String(email || "").trim(), password);
+    if (!cred?.user) throw new Error("auth/no-current-user");
+    if (!cred.user.emailVerified && !isVerifiedEmail(cred.user.email)) {
+      await signOut(auth);
+      const error = new Error("email-not-verified");
+      error.code = "auth/email-not-verified";
+      error.email = String(email || "").trim();
+      throw error;
+    }
+    return cred.user;
+  } catch (error) {
+    if (error?.code === "auth/multi-factor-auth-required") {
+      const resolver = getMultiFactorResolver(auth, error);
+      return { mfaRequired: true, resolver };
+    }
+    throw error;
+  }
+}
+
+export async function completeTotpSignIn(resolver, code) {
+  if (!resolver) throw new Error("auth/mfa-resolver-missing");
+  const clean = String(code || "").replace(/\D/g, "").slice(0, 6);
+  if (clean.length !== 6) throw new Error("auth/invalid-verification-code");
+  const hint = resolver.hints?.find((h) => h.factorId === TotpMultiFactorGenerator.FACTOR_ID) || resolver.hints?.[0];
+  if (!hint) throw new Error("auth/mfa-factor-missing");
+  const assertion = TotpMultiFactorGenerator.assertionForSignIn(hint.uid, clean);
+  const cred = await resolver.resolveSignIn(assertion);
   if (!cred?.user) throw new Error("auth/no-current-user");
   if (!cred.user.emailVerified && !isVerifiedEmail(cred.user.email)) {
     await signOut(auth);
     const error = new Error("email-not-verified");
     error.code = "auth/email-not-verified";
-    error.email = String(email || "").trim();
+    error.email = cred.user.email || "";
     throw error;
   }
   return cred.user;
+}
+
+export function getTotpFactors() {
+  const user = auth?.currentUser;
+  return user ? multiFactor(user).enrolledFactors.filter((f) => f.factorId === TotpMultiFactorGenerator.FACTOR_ID) : [];
+}
+
+export function isTotpEnabled() {
+  return getTotpFactors().length > 0;
+}
+
+export async function startTotpEnrollment(password = "") {
+  const user = auth?.currentUser;
+  if (!user) throw Object.assign(new Error("auth/no-current-user"), { code: "auth/no-current-user" });
+  if (password && user.email) {
+    await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, password));
+  }
+  const session = await multiFactor(user).getSession();
+  const secret = await TotpMultiFactorGenerator.generateSecret(session);
+  const accountName = user.email || user.uid;
+  const issuer = "NexLink";
+  const uri = secret.generateQrCodeUrl(accountName, issuer);
+  return { secret, uri, accountName, issuer };
+}
+
+export async function finishTotpEnrollment(secret, code, displayName = "NexLink") {
+  const user = auth?.currentUser;
+  if (!user || !secret) throw new Error("auth/no-current-user");
+  const clean = String(code || "").replace(/\D/g, "").slice(0, 6);
+  if (clean.length !== 6) throw new Error("auth/invalid-verification-code");
+  const assertion = TotpMultiFactorGenerator.assertionForEnrollment(secret, clean);
+  await multiFactor(user).enroll(assertion, displayName);
+  return true;
+}
+
+export async function disableTotp() {
+  const user = auth?.currentUser;
+  if (!user) throw new Error("auth/no-current-user");
+  const factor = getTotpFactors()[0];
+  if (!factor) return false;
+  await multiFactor(user).unenroll(factor.uid);
+  return true;
 }
 
 export async function resendVerificationEmail(email, password) {
@@ -216,6 +300,67 @@ export async function deleteAccount(password = "") {
 
   await deleteUser(user);
   return true;
+}
+
+const PUSH_VAPID_KEY = "BNRHO80uGZgCBv7RAjUtm2ulPCeFooITr38_fz4D2n4u0zZa0DUr8FgrDxXeZgXERjWBYk1qazCZAuaRcJEq2gQ";
+
+async function ensureMessaging() {
+  if (messaging) return messaging;
+  if (!app || !(await isMessagingSupported())) return null;
+  try { messaging = getMessaging(app); } catch { messaging = null; }
+  return messaging;
+}
+
+export async function enablePushNotifications(uid) {
+  const userId = String(uid || auth?.currentUser?.uid || "");
+  if (!userId) throw new Error("auth/no-current-user");
+  if (!window.isSecureContext) throw new Error("push-insecure-context");
+  if (!("Notification" in window) || !("serviceWorker" in navigator)) throw new Error("push-unsupported");
+  const msg = await ensureMessaging();
+  if (!msg) throw new Error("push-unsupported");
+  const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+  if (permission !== "granted") throw new Error("push-permission-denied");
+  const registration = await navigator.serviceWorker.register("./firebase-messaging-sw.js", { scope: "./" });
+  await navigator.serviceWorker.ready;
+  const token = await getToken(msg, { vapidKey: PUSH_VAPID_KEY, serviceWorkerRegistration: registration });
+  if (!token) throw new Error("push-token-empty");
+  const tokenId = btoa(unescape(encodeURIComponent(token))).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 180) || token.slice(0, 120);
+  await set(ref(db, `pushTokens/${userId}/${tokenId}`), { token, platform: "web", updatedAt: Date.now() });
+  localStorage.setItem("nexlink_push_enabled", "1");
+  return token;
+}
+
+export async function disablePushNotifications(uid) {
+  const userId = String(uid || auth?.currentUser?.uid || "");
+  if (!userId) return false;
+  try {
+    const msg = await ensureMessaging();
+    if (msg) await deleteToken(msg);
+  } catch { /* ignore */ }
+  try { await remove(ref(db, `pushTokens/${userId}`)); } catch { /* ignore */ }
+  localStorage.removeItem("nexlink_push_enabled");
+  return true;
+}
+
+export async function initPushNotifications(uid, onForeground = null) {
+  const msg = await ensureMessaging();
+  if (!msg || !uid || typeof Notification === "undefined" || Notification.permission !== "granted") return false;
+  try { await enablePushNotifications(uid); } catch { return false; }
+  try {
+    onMessage(msg, (payload) => {
+      if (typeof onForeground === "function") onForeground(payload);
+      const title = payload?.notification?.title || "NexLink";
+      const body = payload?.notification?.body || "Новое уведомление";
+      if (Notification.permission === "granted" && document.visibilityState === "hidden") {
+        try { new Notification(title, { body, icon: "./favicon.svg", tag: payload?.data?.chatId || "nexlink" }); } catch {}
+      }
+    });
+  } catch { /* ignore */ }
+  return true;
+}
+
+export function pushSupported() {
+  return typeof window !== "undefined" && "Notification" in window && "serviceWorker" in navigator && window.isSecureContext;
 }
 
 export function defaultSettings() {
@@ -367,27 +512,62 @@ export async function getLoginNetworkMeta() {
 }
 
 const QR_LOGIN_EXCHANGE_URL = "https://europe-west1-quickchat-f5012.cloudfunctions.net/qrLoginExchange";
-function randomToken(len = 32) { const bytes = new Uint8Array(len); crypto.getRandomValues(bytes); return Array.from(bytes, b => b.toString(16).padStart(2,"0")).join(""); }
+function randomToken(len = 32) {
+  const bytes = new Uint8Array(len);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+}
+
 export async function createQrLoginSession() {
-  const sessionId = randomToken(16); const secret = randomToken(24);
-  await set(ref(db, `qrLoginSessions/${sessionId}`), { sessionId, secret, status:"pending", createdAt:Date.now(), expiresAt:Date.now()+120000 });
+  const sessionId = randomToken(16);
+  const secret = randomToken(24);
+  await set(ref(db, `qrLoginSessions/${sessionId}`), {
+    sessionId, secret, status: "pending", createdAt: Date.now(), expiresAt: Date.now() + 120000
+  });
   return { sessionId, secret };
 }
+
 export async function approveQrLoginSession(sessionId, secret, uid) {
-  const snap=await get(ref(db,`qrLoginSessions/${sessionId}`)); const row=snap.val();
-  if (!row || row.secret !== secret || row.expiresAt < Date.now()) throw new Error("QR-код истёк");
-  await update(ref(db,`qrLoginSessions/${sessionId}`), { status:"approved", approvedBy:uid, approvedAt:Date.now() }); return true;
+  const snap = await get(ref(db, `qrLoginSessions/${sessionId}`));
+  const row = snap.val();
+  if (!row || row.secret !== secret || Number(row.expiresAt || 0) < Date.now()) throw new Error("QR-код истёк");
+  await update(ref(db, `qrLoginSessions/${sessionId}`), { status: "approved", approvedBy: uid, approvedAt: Date.now() });
+  return true;
 }
-export async function waitForQrLoginApproval(sessionId, secret, timeout=120000) {
-  const start=Date.now();
-  return await new Promise((resolve,reject)=>{ let off=null; const finish=(err,val)=>{ if(off) off(); err?reject(err):resolve(val); }; off=onValue(ref(db,`qrLoginSessions/${sessionId}`),(snap)=>{ const row=snap.val(); if(!row) return; if(row.secret!==secret){finish(new Error("QR session invalid"));return;} if(row.expiresAt<Date.now()){finish(new Error("QR-код истёк"));return;} if(row.status==="approved"){finish(null,row);return;} if(Date.now()-start>timeout){finish(new Error("Время ожидания истекло"));} }); setTimeout(()=>finish(new Error("Время ожидания истекло")), timeout+250); });
+
+export async function waitForQrLoginApproval(sessionId, secret, timeout = 120000) {
+  const start = Date.now();
+  return await new Promise((resolve, reject) => {
+    let off = null;
+    let settled = false;
+    const finish = (err, val) => {
+      if (settled) return;
+      settled = true;
+      if (off) off();
+      err ? reject(err) : resolve(val);
+    };
+    off = onValue(ref(db, `qrLoginSessions/${sessionId}`), (snap) => {
+      const row = snap.val();
+      if (!row) return;
+      if (row.secret !== secret) return finish(new Error("QR-сессия недействительна"));
+      if (Number(row.expiresAt || 0) < Date.now()) return finish(new Error("QR-код истёк"));
+      if (row.status === "approved") return finish(null, row);
+      if (Date.now() - start > timeout) finish(new Error("Время ожидания истекло"));
+    });
+    setTimeout(() => finish(new Error("Время ожидания истекло")), timeout + 250);
+  });
 }
+
 export async function exchangeQrLogin(sessionId, secret) {
-  if (!QR_LOGIN_EXCHANGE_URL) throw new Error("QR-вход требует подключённой серверной функции обмена");
-  const r=await fetch(QR_LOGIN_EXCHANGE_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({sessionId,secret})});
-  const data=await r.json().catch(()=>({})); if(!r.ok || !data.customToken) throw new Error(data.error || "Не удалось выполнить QR-вход");
+  const r = await fetch(QR_LOGIN_EXCHANGE_URL, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ sessionId, secret })
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || !data.customToken) throw new Error(data.error || "Не удалось выполнить QR-вход");
   const { signInWithCustomToken } = await import("https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js");
-  return (await signInWithCustomToken(auth,data.customToken)).user;
+  return (await signInWithCustomToken(auth, data.customToken)).user;
 }
 
 export async function registerLoginDevice(uid, meta = {}) {
@@ -901,7 +1081,15 @@ export function authError(err) {
     "auth/unauthorized-domain": "Домен не разрешён для авторизации",
     "auth/requires-recent-login": "Нужно повторно подтвердить пароль",
     "auth/email-not-verified": "Подтвердите email. Мы не можем завершить вход без подтверждения.",
+    "auth/invalid-verification-code": "Неверный код. Введите 6 цифр из приложения-аутентификатора.",
+    "auth/mfa-resolver-missing": "Сессия подтверждения 2FA истекла. Войдите заново.",
+    "auth/mfa-factor-missing": "Фактор 2FA не найден.",
+    "auth/requires-recent-login": "Для изменения 2FA нужно недавно войти в аккаунт.",
     "auth/no-current-user": "Пользователь не авторизован",
+    "push-insecure-context": "Уведомления доступны только через защищённое HTTPS-соединение.",
+    "push-unsupported": "Этот браузер не поддерживает push-уведомления.",
+    "push-permission-denied": "Доступ к уведомлениям запрещён в браузере.",
+    "push-token-empty": "Не удалось получить токен уведомлений.",
     "verification-rate-limited": "Письмо уже недавно отправлялось. Проверьте входящие и попробуйте позже." ,
     "auth/network-request-failed": "Нет связи с сервером. Проверьте сеть.",
     "network-request-failed": "Нет связи с сервером. Проверьте сеть.",
